@@ -6,10 +6,8 @@ const WebhookSchema = new mongoose.Schema({
     apitoken: { type: String, required: true },
     apitoken_id: { type: String, required: true },
     webhook_id: { type: String, required: true },
-    secret: { type: String, required: true },
+    secret: { type: String },
     topics: [{ type: String }],
-    last_used: { type: Number, required: true },
-    in_use: { type: Boolean, default: false }
 });
 
 if (global.CONFIG.MONGO_ENC_KEY && global.CONFIG.MONGO_SIG_KEY) {
