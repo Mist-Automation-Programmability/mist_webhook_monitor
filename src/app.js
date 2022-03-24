@@ -39,7 +39,7 @@ try {
         NODE_WEBHOOK_HTTPS: stringToBool(process.env.NODE_WEBHOOK_HTTPS, false),
         NODE_WEBHOOK_CERT_CHECK: stringToBool(process.env.NODE_WEBHOOK_CERT_CHECK, false),
 
-        NODE_WEBSOCKET_PORT: process.env.NODE_WEBSOCKET_PORT || null,
+        NODE_WEBSOCKET_PORT: process.env.NODE_WEBSOCKET_PORT || false,
         NODE_WEBSOCKET_SECURE: stringToBool(process.env.NODE_WEBSOCKET_SECURE, false),
 
         MONGO_HOST: process.env.MONGO_HOST || null,

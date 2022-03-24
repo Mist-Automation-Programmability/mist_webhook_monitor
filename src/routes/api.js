@@ -44,12 +44,12 @@ router.get("/ws", (req, res) => {
         var prefix = "";
         var port = "";
 
-        if (global.CONFIG.NODE_WEBSOCKET_SECURE) prefix = "wss";
-        else port = global.CONFIG.NODE_PORT_HTTP;
+        if (global.CONFIG.NODE_WEBSOCKET_SECURE) prefix = "wss://";
+        else prefix = "ws://"
 
-        if (global.CONFIG.NODE_WEBSOCKET_PORT) port = ":" + NODE_WEBSOCKET_PORT;
+        if (global.CONFIG.NODE_WEBSOCKET_PORT) port = ":" + global.CONFIG.NODE_WEBSOCKET_PORT;
 
-        const socket_path = prefix + "://" + global.CONFIG.NODE_HOSTNAME + port + "/ws-collector/";
+        const socket_path = prefix + global.CONFIG.NODE_HOSTNAME + port + "/ws-collector/";
         res.json({ socket_path: socket_path, session_id: get_sid(req) })
     }
 })
