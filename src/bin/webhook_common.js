@@ -14,7 +14,7 @@ const Webhook = require("../bin/mist_webhook");
  * @param {Array} topics - list of topics to register
  * @param {String} callback(err) 
  *  */
-module.exports.update_topics = function(db_data, topics, cb) {
+module.exports.update_topics = function(mist, db_data, topics, cb) {
     var new_topics = db_data.topics;
     topics.forEach(topic => {
         if (!new_topics.includes(topic)) {
@@ -22,7 +22,7 @@ module.exports.update_topics = function(db_data, topics, cb) {
         }
     })
     if (new_topics.length > db_data.topics.length) {
-        Webhook.update(db_data, data.webhook_id, topics, (err) => {
+        Webhook.update(mist, db_data, data.webhook_id, topics, (err) => {
             if (err) cb(err)
             else {
                 db_data = {
