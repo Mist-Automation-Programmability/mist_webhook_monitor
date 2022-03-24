@@ -1,0 +1,133 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+const app = require('../app').app;
+const websocket = require("ws");
+const ws_system = require("../bin/websocket");
+/*================================================================
+// HTTP SERVER
+================================================================*/
+//INIT HTTP
+var http = require('http');
+
+var NODE_PORT_HTTP = normalizePort(global.CONFIG.NODE_PORT_HTTP || '3000');
+var httpServer = http.createServer(app);
+
+//INIT WS
+const wsServer = new websocket.Server({ clientTracking: false, noServer: true });
+httpServer.on('upgrade', (request, socket, head) => {
+    ws_system.upgrade(request, socket, (is_authenticated) => {
+        if (is_authenticated) wsServer.handleUpgrade(request, socket, head, ws => {
+            wsServer.emit('connection', ws, request);
+        });
+    })
+});
+
+wsServer.on("connection", function connection(ws, req) {
+    ws_system.connection(ws, req);
+});
+//START
+httpServer.listen(NODE_PORT_HTTP);
+httpServer.on('error', onError);
+httpServer.on('listening', onListening);
+
+
+/*================================================================
+// HTTP SERVER
+================================================================*/
+if (global.CONFIG.NODE_HTTPS) {
+    //INIT HTTPS
+    var https = require('https');
+    var fs = require('fs');
+
+    var https_options = {
+        cert: fs.readFileSync('./certs/' + global.CONFIG.NODE_HTTPS_CERT),
+        key: fs.readFileSync('./certs/' + global.CONFIG.NODE_HTTPS_KEY)
+    };
+
+    var NODE_PORT_HTTPS = normalizePort(global.CONFIG.NODE_PORT_HTTPS || '3443');
+    var httpsServer = https.createServer(https_options, app);
+
+    //INIT WSS
+    const wssServer = new websocket.Server({ server: httpsServer });
+    httpsServer.on('upgrade', (request, socket, head) => {
+        ws_system.upgrade(request, socket, (is_authenticated) => {
+            if (is_authenticated) wssServer.handleUpgrade(request, socket, head, ws => {
+                wssServer.emit('connection', ws, request);
+            });
+        })
+    });
+
+    wssServer.on("connection", function connection(ws, req) {
+        ws_system.connection(ws, req);
+    });
+    //START
+    httpsServer.listen(NODE_PORT_HTTPS);
+    httpsServer.on('error', onError);
+    httpsServer.on('listening', onListening);
+}
+
+
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+    var port = parseInt(val, 10);
+
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
+
+    if (port >= 0) {
+        // port number
+        return port;
+    }
+
+    return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
+
+    var bind = typeof NODE_PORT_HTTP === 'string' ?
+        'Pipe ' + NODE_PORT_HTTP :
+        'Port ' + NODE_PORT_HTTP;
+
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error("\x1b[31mERROR\x1b[0m:", bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error("\x1b[31mERROR\x1b[0m:", bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+    var addr = this.address();
+    var bind = typeof addr === 'string' ?
+        'pipe ' + addr :
+        'port ' + addr.port;
+    console.info("\x1b[32minfo\x1b[0m:", 'Listening on ' + bind);
+}

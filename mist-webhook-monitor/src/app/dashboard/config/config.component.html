@@ -1,0 +1,56 @@
+<mat-card-content fxLayout="column">
+    <div>
+        <h3>Topics</h3>
+        <div fxLayout="row" fxLayoutAlign="space-between start">
+            <div *ngFor="let topic of topics | keyvalue">
+
+                <mat-slide-toggle [checked]="topic.value" (change)="updateTopic(topic.key, $event)">
+                    {{topic.key}}
+                </mat-slide-toggle>
+
+            </div>
+        </div>
+        <div style="margin: 3em">
+            <mat-divider></mat-divider>
+        </div>
+        <h3>Orgs</h3>
+        <div fxLayout="row" fxLayoutAlign="space-around" style="width: 75vw;">
+            <div fxLayout="column">
+                <h4>Available Orgs</h4>
+
+                <mat-list style="height: 400px; width: 350px; overflow-y: auto; overflow-x:clip; border: 1px solid lightgray; border-radius: 5px;">
+                    <mat-list-item *ngFor="let org of orgs_list" class="orgs" (click)="addOneOrg(org)" style="justify-content: space-between;">
+                        <div style="flex: auto;">
+                            {{org.name}}
+                        </div>
+                        <span class="material-icons">
+                                arrow_forward
+                                </span>
+                    </mat-list-item>
+                </mat-list>
+            </div>
+            <div fxLayout="column">
+                <h4>Activated Orgs</h4>
+                <mat-list style="height: 400px; width: 350px; overflow-y: auto; overflow-x:clip; border: 1px solid lightgray; border-radius: 5px; ">
+                    <mat-list-item *ngFor="let org of orgs_activated" class="orgs" (click)="deleteOneOrg(org)">
+                        <span class="material-icons">
+                                arrow_backward
+                            </span>
+                        <div style="flex: auto;">
+                            {{org.name}}
+                        </div>
+                    </mat-list-item>
+                </mat-list>
+            </div>
+        </div>
+    </div>
+    <mat-card-actions style="margin-top:  2em;display: flex;justify-content: flex-end;margin-right: 2em;">
+
+        <button mat-stroked-button color="primary" (click)="cancel()" style="margin: 1em">
+            Cancel
+        </button>
+        <button mat-raised-button color="primary" (click)="save()" style="margin: 1em">
+            Save
+        </button>
+    </mat-card-actions>
+</mat-card-content>

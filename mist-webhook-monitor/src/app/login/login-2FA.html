@@ -1,0 +1,25 @@
+<style>
+    /* Chrome, Safari, Edge, Opera */
+    
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    /* Firefox */
+    
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
+<h1 mat-dialog-title>2FA Code Required</h1>
+<mat-dialog-content>
+    <mat-form-field appearance="outline">
+        <mat-label>Code</mat-label>
+        <input matInput type="number" [(ngModel)]="twoFactor" (keydown.enter)="close2FA()" name="two_factor_code" cdkFocusInitial>
+    </mat-form-field>
+</mat-dialog-content>
+<div mat-dialog-actions fxLayoutAlign="center space-around">
+    <button mat-button (click)="cancel2FA()">Cancel</button>
+    <button mat-raised-button color="primary" [mat-dialog-close]="twoFactor" type="submit">Verify</button>
+</div>

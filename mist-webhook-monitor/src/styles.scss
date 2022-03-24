@@ -1,0 +1,72 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import '~@angular/material/theming';
+@import './mist-theming.scss';
+@include mat-core();
+$mist-app-primary: mat-palette($mist-blue, 800, 200, 500);
+$mist-app-accent: mat-palette($mist-green, 700, 100, 400);
+$mist-app-warn: mat-palette($mat-red);
+$mist-app-theme: mat-light-theme($mist-app-primary, $mist-app-accent, $mist-app-warn);
+@include angular-material-theme($mist-app-theme);
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.bg {
+    position: fixed;
+    display: block;
+    left: 0;
+    top: 0;
+    z-index: -1;
+    height: 100%;
+    width: 100%;
+    background-color: rgb(236 236 236);
+    /* 
+    opacity: 0.6; 
+    background-image: url(assets/img/main3.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: blur(8px);
+    -webkit-filter: blur(5px);
+    */
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    background-color: #ececec;
+}
+
+.card-outer {
+    box-shadow: none !important;
+}
+
+.empty {
+    margin: 1em auto;
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.loading {
+    margin: auto;
+}
+
+.content {
+    margin: 20px !important;
+}
+
+app-root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+app-dashboard {
+    height: 100%;
+}

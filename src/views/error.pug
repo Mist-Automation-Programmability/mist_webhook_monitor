@@ -1,0 +1,30 @@
+doctype html
+html
+    head
+        title= title
+        // [if IE]
+        meta(http-equiv="X-UA-Compatible" content="IE=10; IE=EDGE")
+        // [endif]
+        link(rel='stylesheet' href='/css/ah-tm.error.css')        
+    body
+        header
+            div.header
+            md-toolbar.header.fixed
+                h1.logo.md-toolbar-tools
+                    img(src="/public/juniper-mist.png" alt="Mist")
+
+        div.page-footer
+            span(style="border: none;") © 2020 Juniper Networks. All Rights Reserved.
+                div.login-box.grid_15
+        div.container
+            div
+                img(src="/public/juniper-mist.png" alt="Mist" class="mist-logo")
+                div.login-box-login
+                    h1= "Oups... There is a "+status+" error..."
+                    pre.details= "Unable to render "+current_page
+                    br
+                    pre.details #{message}
+                    br
+                    pre.details #{stack}
+                    div.ending= "Sorry... I don't have any other information..."
+

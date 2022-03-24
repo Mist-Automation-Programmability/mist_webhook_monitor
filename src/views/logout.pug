@@ -1,0 +1,26 @@
+doctype html
+html
+    head
+        title= title
+        // [if IE]
+        meta(http-equiv="X-UA-Compatible" content="IE=10; IE=EDGE")
+        // [endif]
+        script(language="JavaScript" type="text/javascript" src='/js/jquery-2.1.1.min.js')
+        script(language="JavaScript" type="text/javascript" src='/js/bootstrap.min.js')
+        link(rel='stylesheet' href='/css/ah-styles.min.css')
+        link(rel='stylesheet' href='/css/bootstrap.min.css')
+        link(rel='stylesheet' href='/css/ah-tm.init.css')
+    body
+        div(style="border-top: 2px solid rgb(255, 195, 15);" class="user-home-wrap")
+        div.clearfix(id='main')
+            div.pt-r
+                div(id="container")
+                    div.grid_20.LoginPage
+                        img(src="/images/logo.png" alt="Mist" class="mist-logo")
+                        div.ah-growing-hives
+                        div.page-footer
+                            span(style="border: none;") © 2020 Juniper Networks. All Rights Reserved.
+                                div.login-box.grid_15
+                        div.login-box-login
+                            h1 You are now logged out
+                            a(href="/web-app/") Log In

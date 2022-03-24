@@ -1,0 +1,48 @@
+.login-form-inner {
+    font-weight: 600;
+    border: none;
+    width: auto;
+    min-width: 30em;
+    position: relative;
+    margin: auto;
+    padding: 2em;
+    border-radius: 0.3em;
+}
+
+.login-form-outer {
+    width: 100%;
+}
+
+.login-form-inputs {
+    padding: 10px;
+    width: 25em;
+    text-align: center;
+    justify-content: space-between;
+    border-radius: 5px
+}
+
+.loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff9c;
+    border-radius: 5px;
+}
+
+.loading div {
+    margin: auto;
+    align-self: center;
+}
+
+.github-fork-me {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 1000;
+}
+
+mat-card {
+    height: 100%
+}

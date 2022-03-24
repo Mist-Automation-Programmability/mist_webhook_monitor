@@ -1,0 +1,16 @@
+.orgs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: small !important;
+    cursor: pointer;
+}
+
+.orgs:hover {
+    background-color: lightgray;
+}
+
+.orgs span {
+    font-size: medium;
+    color: #0e63ad;
+}

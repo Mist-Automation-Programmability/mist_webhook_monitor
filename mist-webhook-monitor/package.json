@@ -1,0 +1,48 @@
+{
+    "name": "mist-webhook-monitor",
+    "version": "0.0.0",
+    "scripts": {
+        "ng": "ng",
+        "start": "ng serve --proxy-config ./proxy.conf.json",
+        "build": "ng build",
+        "watch": "ng build --watch --configuration development",
+        "test": "ng test"
+    },
+    "private": true,
+    "dependencies": {
+        "@angular/animations": "~12.0.3",
+        "@angular/common": "~12.0.3",
+        "@angular/compiler": "~12.0.3",
+        "@angular/core": "~12.0.3",
+        "@angular/flex-layout": "^12.0.0-beta.35",
+        "@angular/forms": "~12.0.3",
+        "@angular/material": "^12.2.9",
+        "@angular/platform-browser": "~12.0.3",
+        "@angular/platform-browser-dynamic": "~12.0.3",
+        "@angular/router": "~12.0.3",
+        "ngx-mat-timepicker": "^12.1.0",
+        "rxjs": "~6.6.0",
+        "tslib": "^2.1.0",
+        "zone.js": "~0.11.4"
+    },
+    "devDependencies": {
+        "@angular-devkit/build-angular": "^12.2.15",
+        "@angular/cli": "~12.0.3",
+        "@angular/compiler-cli": "~12.0.3",
+        "@types/jasmine": "~3.6.0",
+        "@types/node": "^12.11.1",
+        "dotty": ">=0.1.2",
+        "engine.io": ">=4.1.2",
+        "follow-redirects": ">=1.14.8",
+        "jasmine-core": "~3.8.0",
+        "json-schema": ">=0.4.0",
+        "karma": "~6.3.14",
+        "karma-chrome-launcher": "~3.1.0",
+        "karma-coverage": "~2.0.3",
+        "karma-jasmine": "~4.0.0",
+        "karma-jasmine-html-reporter": "^1.5.0",
+        "mpath": ">=0.8.4",
+        "node-forge": ">=1.0.0",
+        "typescript": "~4.2.3"
+    }
+}

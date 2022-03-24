@@ -1,0 +1,101 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="color-scheme" content="light dark">
+    <meta name="supported-color-schemes" content="light dark">
+    <title>Your personnal Wi-Fi access code!</title>
+    <style>
+        .td-qr {
+            width: 5px;
+            padding: 0;
+        }
+        
+        .div-qr {
+            height: 5px;
+        }
+        
+        .tr-qr {
+            height: 5px
+        }
+        
+        .dark {
+            background-color: rgba(51, 51, 51, .9);
+        }
+        
+        .light {
+            background-color: rgba(251, 255, 253, .9);
+        }
+    </style>
+</head>
+
+<body style="margin: 0;padding: 0;min-width: 100%!important;">
+    <div style="max-width: 600px; min-width: 200px; margin-left: auto; margin-right: auto;">
+
+
+        <table style="width:100%; border:0; margin-top:2em; margin: auto">
+            <tr>
+                <td>
+                    <table>
+                        <tr>
+                            <td>
+                                <img style="height: 5em;" src="{logo}" alt="Logo" />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table class="content" style="width: 100%;width: 100%;max-width: 600px; border: 1px solig #333; border-radius: 5px;">
+                        <tr>
+                            <th colspan="2" style="padding-top: 2em; padding-left: 2em; text-align: left;">
+                                Welcome <b> {name} </b>
+                            </th>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="padding-top: 2em; padding-left: 2em; text-align: left;">
+                                Please find below your personal credentials to get access to the network:
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top: 1em; padding-left: 2em; width: 6em;">
+                                SSID:
+                            </td>
+                            <td style="padding-top: 1em;">
+                                <b> {ssid} </b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top: 1em; padding-left: 2em; width: 6em;">
+                                Password:
+                            </td>
+                            <td style="padding-top: 1em;">
+                                <b> {psk} </b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="height: 5em;" colspan="2"></td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top: 1em; padding-left: 2em; width: 100%;" colspan="2">{qr_info}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 1em;" colspan="2">
+                                <div>
+                                    {qr_code}
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+<!-- <img style="display: block;margin: auto;" src="{qr_code}"> -->
+
+</html>
