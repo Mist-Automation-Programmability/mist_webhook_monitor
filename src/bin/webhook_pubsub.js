@@ -13,16 +13,16 @@ class WebhookPubSub {
     }
 
     subscribe(socket, socket_id, org_id, topics) {
-        if (!channels.hasOwnProperty(org_id)) channels[org_id] = {}
+        if (!this.channels.hasOwnProperty(org_id)) this.channels[org_id] = {}
         topics.forEach(topics => {
             console.log('socket ' + socket_id + 'subscribed to ' + topics + " for org " + org_id);
             if (!channels[org_id].hasOwnProperty(topics))
-                channels[org_id][topics] = {
+                this.channels[org_id][topics] = {
                     messages: [],
                     sockets: [socket]
                 }
             else if (!this.channels[org_id][topics].sockets.includes(socket)) this.channels[org_id][topics].sockets.push(socket);
-            console.log(channels)
+            console.log(this.channels)
         })
     }
 
