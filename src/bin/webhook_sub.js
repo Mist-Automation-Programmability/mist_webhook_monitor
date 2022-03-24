@@ -171,9 +171,8 @@ module.exports.orgs = function(mist, privileges, session_id, socket_id, org_ids,
     org_ids.forEach(org_id => {
         if (!_is_authorized(org_id, privileges)) cb("This account does not have a write access the org", org_id)
         else {
-            _init(mist, org_id, topics, (err, ok) => {
+            _init(mist, org_id, topics, (err) => {
                 if (err) cb(err, org_id)
-                else if (!ok) cb("Unable to configure Mist Webhook", org_id)
                 else _save_socket_info(session_id, socket_id, org_id, topics, err => cb(err, org_id))
             })
         }
