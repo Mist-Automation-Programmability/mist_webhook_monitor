@@ -50,8 +50,6 @@ router.get("/ws", (req, res) => {
             prefix = "ws";
             port = global.CONFIG.NODE_PORT_HTTP;
         }
-        // TODO
-        port = "4200";
         const socket_path = prefix + "://" + global.CONFIG.NODE_HOSTNAME + ":" + port + "/ws-collector/";
         res.json({ socket_path: socket_path, session_id: get_sid(req) })
     }

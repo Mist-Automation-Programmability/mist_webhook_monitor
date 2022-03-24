@@ -145,7 +145,7 @@ function connection(ws, req) {
                 delete req.session.socket_id;
                 delete req.session.topics;
                 console.log("Connection with socket_id " + socket_id + " not resumed. Cleaning up everything");
-                unsubscribe.all(req.session.session_id, (err, org_id) => {
+                unsubscribe.all_orgs(req.session.session_id, (err, org_id) => {
                     if (err) console.log("Unable to clean up config for org_id " + org_id + ". Error: " + err);
                     if (org_id) PubSubManager.unsubscribe(ws, socket_id, org_id, topics);
                 })
