@@ -41,7 +41,6 @@ class WebhookPubSub {
     }
 
     publish(org_id, topic, message) {
-        console.log("test")
         if (this.channels.hasOwnProperty[org_id] && this.channels.hasOwnProperty[org_id][topic])
             this.channels[org_id][topic].messages.push(message);
     }
@@ -70,4 +69,6 @@ class WebhookPubSub {
         }
     }
 }
+
+
 module.exports = WebhookPubSub;
