@@ -43,14 +43,13 @@ router.get("/ws", (req, res) => {
     else {
         var prefix = "";
         var port = "";
-        if (global.CONFIG.NODE_WSS) {
-            prefix = "wss";
-            port = global.CONFIG.NODE_PORT_HTTPS;
-        } else {
-            prefix = "ws";
-            port = global.CONFIG.NODE_PORT_HTTP;
-        }
-        const socket_path = prefix + "://" + global.CONFIG.NODE_HOSTNAME + ":" + port + "/ws-collector/";
+
+        if (global.CONFIG.NODE_WEBSOCKET_SECURE) prefix = "wss";
+        else port = global.CONFIG.NODE_PORT_HTTP;
+
+        if (global.CONFIG.NODE_WEBSOCKET_PORT) port = ":" + NODE_WEBSOCKET_PORT;
+
+        const socket_path = prefix + "://" + global.CONFIG.NODE_HOSTNAME + port + "/ws-collector/";
         res.json({ socket_path: socket_path, session_id: get_sid(req) })
     }
 })

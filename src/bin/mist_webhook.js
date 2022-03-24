@@ -12,13 +12,13 @@ var crypto = require("crypto");
  *  */
 module.exports.create = function(mist, topics, cb) {
     var webhook_url;
-    if (global.CONFIG.NODE_WS_HOSTNAME) webhook_url = global.CONFIG.NODE_WS_HOSTNAME;
+    if (global.CONFIG.NODE_WEBHOOK_HOSTNAME) webhook_url = global.CONFIG.NODE_WEBHOOK_HOSTNAME;
     else webhook_url = global.CONFIG.NODE_HOSTNAME;
 
-    if (global.CONFIG.NODE_WS_PORT) webhook_url += ":" + global.CONFIG.NODE_WS_PORT;
+    if (global.CONFIG.NODE_WEBHOOK_PORT) webhook_url += ":" + global.CONFIG.NODE_WEBHOOK_PORT;
     webhook_url += "/collector/" + mist.org_id;
 
-    if (global.CONFIG.NODE_WSS) {
+    if (global.CONFIG.NODE_WEBHOOK_HTTPS) {
         webhook_url = "https://" + webhook_url;
     } else {
         webhook_url = "http://" + webhook_url;
@@ -27,12 +27,13 @@ module.exports.create = function(mist, topics, cb) {
     const path = "/api/v1/orgs/" + mist.org_id + "/wh-collector/"
     const data = {
         "enabled": true,
-        "name": global.CONFIG.NODE_WS_NAME,
-        "secret": secret,
+        "name": global.CONFIG.NODE_WEBHOOK_NAME,
+        // TODO
+        //  "secret": secret,
         "topics": topics,
         "type": "http-post",
         "url": webhook_url,
-        "verify-cert": global.CONFIG.NODE_WSS_CERT_CHECK
+        "verify-cert": global.CONFIG.NODE_WEBHOOK_CERT_CHECK
     }
 
     api.POST(mist, path, data, (err, data) => {

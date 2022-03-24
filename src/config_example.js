@@ -8,9 +8,13 @@
  ******************************************************************************/
 
 /******************************************************************************
- *                                 SERVER                                    *
+ *                                  SERVER                                    *
  ******************************************************************************/
 module.exports.appServer = {
+
+    /******************************************************************************
+     *                                NODE HTTP                                   *
+     ******************************************************************************/
     NODE_HOSTNAME: "localhost",
     NODE_PORT_HTTP: 3000,
     // Enable HTTPS directly with NodeJS. 
@@ -22,17 +26,31 @@ module.exports.appServer = {
     NODE_HTTPS_CERT: "default.pem",
     // key name. The key has to be installed into certs folder, without password
     NODE_HTTPS_KEY: "default.key",
+
+    /******************************************************************************
+     *                          NODE WEBHOOK COLLECTOR                            *
+     ******************************************************************************/
     // If the server has a different public IP/FDQN for the webhook collector, otherwise use the NODE_HOSTNAME
-    NODE_WS_HOSTNAME: "127.0.0.1",
+    NODE_WEBHOOK_HOSTNAME: "127.0.0.1",
     // If you are deploying the app behind a reverse proxy or NAT, the public facing port may be different than the port used by the app
     // If null, the app doesn't specify the port when creating the webhook in Mist (which will use the default ws / wss ports)
-    NODE_WS_PORT: 3000,
+    NODE_WEBHOOK_PORT: 3000,
     // name of the webhook created in Mist Org
-    NODE_WS_NAME: "webhook.mist-lab.fr",
-    // if NODE_HTTPS or if the app is behind a reverse proxy, enable Websocket over TLS
-    NODE_WSS: false,
-    // if NODE_WSS,tell Mist Cloud to check the TLS certificate or not
-    NODE_WSS_CERT_CHECK: false,
+    NODE_WEBHOOK_NAME: "webhook.mist-lab.fr",
+    // Ask Mist Cloud to send Webhook message through HTTPS (instead of HTTP). 
+    // Require NODE_HTTPS = true or a reverse proxy in front of the app to deal with TLS
+    NODE_WEBHOOK_HTTPS: false,
+    // if NODE_WEBHOOK_HTTPS = true, tell Mist Cloud to check the TLS certificate or not
+    NODE_WEBHOOK_CERT_CHECK: false,
+
+    /******************************************************************************
+     *                        NODE WEBSOCKET COLLECTOR                            *
+     ******************************************************************************/
+    // if the app is behind a reverse proxy, define the listening port
+    NODE_WEBSOCKET_PORT: 3000,
+    // to enable WSS at the app level. Require NODE_HTTPS = true
+    NODE_WEBSOCKET_SECURE: false,
+
     /******************************************************************************
      *                                MongoDB                                    *
      ******************************************************************************/
