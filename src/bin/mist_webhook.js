@@ -12,19 +12,19 @@ var crypto = require("crypto");
  *  */
 module.exports.create = function(mist, topics, cb) {
     var webhook_url;
-    if (global.CONFIG.NODE_WEBHOOK_HOSTNAME) webhook_url = global.CONFIG.NODE_WEBHOOK_HOSTNAME;
-    else webhook_url = global.CONFIG.NODE_HOSTNAME;
+
+    if (global.CONFIG.NODE_WEBHOOK_HTTPS) webhook_url = "https://";
+    else webhook_url = "http://";
+
+    if (global.CONFIG.NODE_WEBHOOK_HOSTNAME) webhook_url += global.CONFIG.NODE_WEBHOOK_HOSTNAME;
+    else webhook_url += global.CONFIG.NODE_HOSTNAME;
 
     if (global.CONFIG.NODE_WEBHOOK_PORT) webhook_url += ":" + global.CONFIG.NODE_WEBHOOK_PORT;
-    webhook_url += "/collector/" + mist.org_id;
 
-    if (global.CONFIG.NODE_WEBHOOK_HTTPS) {
-        webhook_url = "https://" + webhook_url;
-    } else {
-        webhook_url = "http://" + webhook_url;
-    }
+    webhook_url += "/wh-collector/" + mist.org_id;
+
     const secret = crypto.randomBytes(20).toString('hex');
-    const path = "/api/v1/orgs/" + mist.org_id + "/wh-collector/"
+    const path = "/api/v1/orgs/" + mist.org_id + "/webhooks"
     const data = {
         "enabled": true,
         "name": global.CONFIG.NODE_WEBHOOK_NAME,
