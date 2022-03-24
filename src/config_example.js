@@ -24,6 +24,9 @@ module.exports.appServer = {
     NODE_HTTPS_KEY: "default.key",
     // If the server has a different public IP/FDQN for the webhook collector, otherwise use the NODE_HOSTNAME
     NODE_WS_HOSTNAME: "127.0.0.1",
+    // If you are deploying the app behind a reverse proxy or NAT, the public facing port may be different than the port used by the app
+    // If null, the app doesn't specify the port when creating the webhook in Mist (which will use the default ws / wss ports)
+    NODE_WS_PORT: 3000,
     // name of the webhook created in Mist Org
     NODE_WS_NAME: "webhook.mist-lab.fr",
     // if NODE_HTTPS or if the app is behind a reverse proxy, enable Websocket over TLS
