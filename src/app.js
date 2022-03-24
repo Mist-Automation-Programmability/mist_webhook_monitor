@@ -32,6 +32,7 @@ try {
         NODE_PORT_HTTPS: process.env.NODE_PORT_HTTPS || 3443,
         NODE_HTTPS_CERT: process.env.NODE_HTTPS_CERT || null,
         NODE_HTTPS_KEY: process.env.NODE_HTTPS_KEY || null,
+        NODE_WS_HOSTNAME: process.env.NODE_WS_NAME || null,
         NODE_WS_NAME: process.env.NODE_WS_NAME || "webhook.mist-lab.fr",
         NODE_WSS: stringToBool(process.env.NODE_WSS, false),
         NODE_WSS_CERT_CHECK: stringToBool(process.env.NODE_WSS_CERT_CHECK, false),

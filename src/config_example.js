@@ -22,6 +22,9 @@ module.exports.appServer = {
     NODE_HTTPS_CERT: "default.pem",
     // key name. The key has to be installed into certs folder, without password
     NODE_HTTPS_KEY: "default.key",
+    // If the server has a different public IP/FDQN for the webhook collector, otherwise use the NODE_HOSTNAME
+    NODE_WS_HOSTNAME: "127.0.0.1",
+    // name of the webhook created in Mist Org
     NODE_WS_NAME: "webhook.mist-lab.fr",
     // if NODE_HTTPS or if the app is behind a reverse proxy, enable Websocket over TLS
     NODE_WSS: false,

@@ -11,7 +11,10 @@ var crypto = require("crypto");
  * @param {String} cb(err, data) 
  *  */
 module.exports.create = function(mist, topics, cb) {
-    var webhook_url = global.CONFIG.NODE_HOSTNAME + "/collector/" + mist.org_id;
+    var webhook_url;
+    if (global.CONFIG.NODE_WS_HOSTNAME) webhook_url = global.CONFIG.NODE_WS_HOSTNAME + "/collector/" + mist.org_id;
+    else webhook_url = global.CONFIG.NODE_HOSTNAME + "/collector/" + mist.org_id;
+
     if (global.CONFIG.NODE_WSS) {
         webhook_url = "https://" + webhook_url;
     } else {
