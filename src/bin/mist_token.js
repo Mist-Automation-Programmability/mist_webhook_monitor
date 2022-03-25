@@ -16,7 +16,7 @@ module.exports.generate = function(mist, callback) {
     data = {
         "name": "webhook.mist-lab.fr_token",
         "privileges": [
-            { "scope": "org", "role": "write" }
+            { "scope": "org", "role": "admin" }
         ]
     }
     api.POST(mist, path, data, (err, data) => {

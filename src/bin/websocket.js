@@ -14,24 +14,26 @@ function connection(ws, req) {
 
     map.set(req.session.session_id, ws);
     if (!req.session.socket_id) req.session.socket_id = uuid.v4();
-    ws.on('message', function(message) {
-        //
-        // Here we can now use session parameters.
-        //
-        console.log(`Received message ${message} from user ${req.session.session_id}`);
-        json_message = JSON.parse(message);
 
-        console.log(json_message)
+    ws.on('message', function(message) {
+        //console.log(`Received message ${message} from user ${req.session.session_id}`);
+        json_message = JSON.parse(message);
 
         switch (json_message.action) {
 
+            case "reconnect":
+                PubSubManager.check_saved_session(req.session.session_id, ws, (org_ids, topics) => {
+                    send(ws, { "action": "reconnect", "result": "success", "org_ids": org_ids, "topics": topics })
+                });
+                break;
+
             case "ping":
-                send(ws, { "result": "pong", "socket_id": req.session.socket_id });
+                send(ws, { "action": "ping", "result": "pong", "socket_id": req.session.socket_id });
                 break;
 
             case "subscribe":
-                if (!json_message.org_ids) send(ws, { "result": "error", "message": "org_ids is missing" });
-                else if (!json_message.topics) send(ws, { "result": "error", "message": "topics is missing" });
+                if (!json_message.org_ids) send(ws, { "action": "subscribe", "result": "error", "message": "org_ids is missing" });
+                else if (!json_message.topics) send(ws, { "action": "subscribe", "result": "error", "message": "topics is missing" });
                 else {
                     Session.find({ session_id: req.session.session_id, socket_id: req.session.socket_id }, (err, db_sessions) => {
                         if (err) cb("Unable to retrieve sessions information from the DB")
@@ -46,9 +48,7 @@ function connection(ws, req) {
                                 const org_ids_to_update = json_message.org_ids.filter(x => current_org_ids.includes(x));
                                 const topics_to_unsub = req.session.topics.filter(x => json_message.topics.includes(x));
                                 const topics_to_sub = json_message.topics.filter(x => req.session.topics.includes(x));
-                                console.log("org_ids_to_update: " + org_ids_to_update)
-                                console.log("topics_to_unsub: " + topics_to_unsub)
-                                console.log("topics_to_sub: " + topics_to_sub)
+
                                 req.session.topics = json_message.topics;
                                 subscribe.orgs(
                                     req.session.mist,
@@ -58,11 +58,11 @@ function connection(ws, req) {
                                     org_ids_to_update,
                                     json_message.topics,
                                     (err, org_id) => {
-                                        if (err) send(ws, { "result": "error", "message": err })
+                                        if (err) send(ws, { "action": "subscribe", "result": "error", "message": err })
                                         else {
                                             PubSubManager.unsubscribe(ws, req.session.socket_id, org_id, topics_to_unsub);
                                             PubSubManager.subscribe(ws, req.session.socket_id, org_id, topics_to_sub);
-                                            send(ws, { "result": "successn", "message": "Mist configuration updated" })
+                                            send(ws, { "action": "subscribe", "result": "successn", "message": "Mist configuration updated" })
                                         }
                                     })
                             } else if (json_message.topics.length == 0) {
@@ -75,22 +75,22 @@ function connection(ws, req) {
                                 // If orgs where removed, unsub
                                 const org_ids_to_unsub = current_org_ids.filter(x => !json_message.org_ids.includes(x));
                                 if (org_ids_to_unsub.length > 0) {
-                                    console.log("org_ids_to_unsub: " + org_ids_to_unsub)
+
                                     unsubscribe.orgs(
                                         req.session.socket_id,
                                         org_ids_to_unsub,
                                         (err, org_id) => {
-                                            if (err) send({ ws, "result": "error", "message": err, org_id: org_id });
+                                            if (err) send(ws, { "action": "subscribe", "result": "error", "message": err, org_id: org_id });
                                             else {
                                                 PubSubManager.unsubscribe(ws, req.session.socket_id, org_id, json_message.topics)
-                                                send(ws, { "result": "success", "message": "Configuration updated", org_id: org_id });
+                                                send(ws, { "action": "subscribe", "result": "success", "message": "Configuration updated", org_id: org_id });
                                             }
                                         });
                                 }
                                 // If orgs where added, sub
                                 const org_ids_to_sub = json_message.org_ids.filter(x => !current_org_ids.includes(x));
                                 if (org_ids_to_sub.length > 0) {
-                                    console.log("org_ids_to_sub: " + org_ids_to_sub)
+
                                     subscribe.orgs(
                                         req.session.mist,
                                         req.session.self.privileges,
@@ -99,10 +99,10 @@ function connection(ws, req) {
                                         org_ids_to_sub,
                                         json_message.topics,
                                         (err, org_id) => {
-                                            if (err) send(ws, { "result": "error", "message": err })
+                                            if (err) send(ws, { "action": "subscribe", "result": "error", "message": err })
                                             else {
                                                 PubSubManager.subscribe(ws, req.session.socket_id, org_id, json_message.topics);
-                                                send(ws, { "result": "success", "message": "Mist configuration updated" })
+                                                send(ws, { "action": "subscribe", "result": "success", "message": "Mist configuration updated" })
                                             }
                                         })
                                 }
@@ -119,16 +119,16 @@ function connection(ws, req) {
                     req.session.socket_id,
                     json_messsage.org_id,
                     (err, org_id) => {
-                        if (err) send({ ws, "result": "error", "message": err });
+                        if (err) send(ws, { "action": "unsubscribe", "result": "error", "message": err });
                         else {
                             PubSubManager.unsubscribe(ws, req.session.socket_id, org_id, topics);
-                            send(ws, { "result": "success", "message": "Configuration updated", org_id: org_id });
+                            send(ws, { "action": "unsubscribe", "result": "success", "message": "Configuration updated", org_id: org_id });
                         }
                     });
                 break;
 
             default:
-                send(ws, { "result": "error", "message": "Unknown request" });
+                send(ws, { "action": "unknown", "result": "error", "message": "Unknown request" });
                 break;
         }
     });

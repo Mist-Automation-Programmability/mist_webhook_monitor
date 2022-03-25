@@ -17,7 +17,6 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
 
 import { ConfigDialog } from './config/config.component';
-import { Message } from '@angular/compiler/src/i18n/i18n_ast';
 
 
 export interface Org {
@@ -49,8 +48,8 @@ export class DashboardComponent implements OnInit {
 
   /////////////////////////
   // table
-  displayedColumns: string[] = ['date', 'type', 'org_id', 'site_name', 'device_name', 'device_mac', 'text'];
-  eventDataSource: MatTableDataSource<any> = new MatTableDataSource();
+  displayedColumns: string[] = ['date', 'type', 'org_name', 'site_name', 'device_name', 'device_mac', 'text'];
+  eventDataSource: any[] = []
   itemsDisplayed: any[] = [];
   pageIndex: number = 0
   pageSize: number = 25
@@ -73,6 +72,7 @@ export class DashboardComponent implements OnInit {
   // Others
   orgs: Org[] = [];
   orgs_activated: Org[] = [];
+  org_names :any= {};
   is_working: boolean = false;
   error_mess: string = "";
   topics = {
@@ -118,13 +118,15 @@ export class DashboardComponent implements OnInit {
   /////           ORG
   //////////////////////////////////////////////////////////////////////////////
   parseOrgs(data: any): void {
-    if (data.orgs) this.orgs = data.orgs;
-    if (data.session_id) this.session_id = data.session_id;
-    console.log(this.session_id)
+    this.orgs = data;
+    console.log(this.orgs)
+    this.orgs.forEach(org => {
+      this.org_names[org.org_id] = org.name;
+    })
   }
   getOrgs(): void {
     this._http.get<Org[]>("api/orgs").subscribe({
-      next: data => this.orgs = data,
+      next: data => this.parseOrgs(data),
       error: error => this.parseError(error)
     })
   }
@@ -132,41 +134,99 @@ export class DashboardComponent implements OnInit {
   //////////////////////////////////////////////////////////////////////////////
   /////           WEBOSCKET
   //////////////////////////////////////////////////////////////////////////////
+  socketSendReconnect(msg: any): void {
+    this.openSnackBar("Websocket Connected!", "Dismiss")
+    this.socket.next({ "action": "reconnect", "socket_id": this.socket_id, "session_id": this.session_id })
+    this.socket_connected = true;
+    this.socket_retry_count = 0
+  }
+
+  socketReceivedReconnect(msg: any): void {
+    switch (msg.result) {
+      case "success":
+        const org_ids = msg.org_ids;
+        const topics: string[] = msg.topics;
+        this.orgs.forEach(org => {
+          if (org_ids.includes(org.org_id)) this.orgs_activated.push(org)
+        })
+        topics.forEach(topic => {
+          (this.topics as any)[topic] = true
+        })
+        break;
+    }
+  }
+
+  socketSendPing(): void {
+    this.socket.next({ "action": "ping" })
+  }
+
+  socketReceivedPong(msg: any): void {
+    if (msg.socket_id) this.socket_id = msg.socket_id;
+    if (msg.webhook) this.allItems.push(msg.webhook);
+  }
+
+  socketIsClosed(): void {
+    this.socket_connected = false;
+    this.socket_retry_count += 1;
+    const timeout = Math.min(this.socket_retry_count * this.socket_retry_inc_timeout, this.socket_retry_max_timeout);
+    this.openSnackBar("Websocket Disconnected! Retrying in " + timeout / 1000 + " sec.", "Dismiss")
+    this.socketSubscibe(timeout)
+  }
+
+  socketIsInError(): void {
+    this.socket_connected = false;
+    this.socket_retry_count += 1;
+    const timeout = Math.min(this.socket_retry_count * this.socket_retry_inc_timeout, this.socket_retry_max_timeout);
+    this.openSnackBar("Unable to connect the Websocket! Retrying in " + timeout / 1000 + " sec.", "Dismiss")
+    this.socketSubscibe(timeout)
+  }
+
+  socketReceivedWebhook(webhook: any) {
+    console.log(webhook)
+    webhook.events.forEach((event: any) => {
+      var copiedEvents = this.eventDataSource.slice();
+      var tmp: any = {
+        topic: webhook.topic,
+        raw_message: event
+      };
+      for (var key in event) {
+        tmp[key] = event[key];
+        if (key == "org_id") {
+          tmp["org_name"] = this.org_names[event[key]];
+        }
+      }
+      console.log(this.org_names)
+      console.log(tmp)
+      copiedEvents.push(tmp);
+      this.eventDataSource = copiedEvents;
+    })
+  }
 
   socketSubscibe(timeout: number = 0): void {
     setTimeout(() => {
-      console.log("test")
       this.socket = webSocket(this.socket_path)
       this.socket_initialized = true;
       this.socket.subscribe(
         msg => { // Called whenever there is a message from the server.}
-          if (!this.socket_connected) {
-            console.log('message received: ' + JSON.stringify(msg));
-            this.openSnackBar("Websocket Connected!", "Dismiss")
-            this.socket_connected = true;
-            this.socket_retry_count = 0
-          }
-          console.log(typeof (msg))
-          const message: { [key: string]: any } = msg as Object;
-          if (message.socket_id) this.socket_id = message.socket_id;
-          if (message.webhook)this.allItems.push(message.webhook);
+          if (!this.socket_connected) this.socketSendReconnect(msg)
+          if ((msg as any).action)
+            switch ((msg as any).action) {
+              case "ping":
+                this.socketReceivedPong(msg);
+                break;
+              case "reconnect":
+                this.socketReceivedReconnect(msg);
+                break;
+              case "webhook":
+                this.socketReceivedWebhook((msg as any).webhook);
+                break;
+            }
         }, err => {// Called if at any point WebSocket API signals some kind of error.
           console.log(err);
           console.log(err.type);
           console.log(this.socket);
-          if (this.socket_connected && err.type == "close") {
-            this.socket_connected = false;
-            this.socket_retry_count += 1;
-            const timeout = Math.min(this.socket_retry_count * this.socket_retry_inc_timeout, this.socket_retry_max_timeout);
-            this.openSnackBar("Websocket Disconnected! Retrying in " + timeout / 1000 + " sec.", "Dismiss")
-            this.socketSubscibe(timeout)
-          } else if (!this.socket_connected && err.type == "error") {
-            this.socket_connected = false;
-            this.socket_retry_count += 1;
-            const timeout = Math.min(this.socket_retry_count * this.socket_retry_inc_timeout, this.socket_retry_max_timeout);
-            this.openSnackBar("Unable to connect the Websocket! Retrying in " + timeout / 1000 + " sec.", "Dismiss")
-            this.socketSubscibe(timeout)
-          }
+          if (this.socket_connected && err.type == "close") this.socketIsClosed();
+          else if (!this.socket_connected && err.type == "error") this.socketIsInError();
         },
         () => { // Called when connection is closed (for whatever reason).
           console.log('complete')
@@ -174,14 +234,14 @@ export class DashboardComponent implements OnInit {
           console.log(this.socket_connected)
         }
       );
-      this.socket.next({ "action": "ping" })
+      this.socketSendPing();
     }, timeout)
   }
 
   socketUnsubscribe(): void {
     this.socket.unsubscribe()
   }
-  
+
   socketClose(): void {
     console.log("closed")
     this.socket.complete()
@@ -279,8 +339,8 @@ export class DashboardComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       console.log(result)
-        const message = { "action": "subscribe", "org_ids": result.org_ids, "topics": result.topics };
-        this.socket.next(message);
+      const message = { "action": "subscribe", "org_ids": result.org_ids, "topics": result.topics };
+      this.socket.next(message);
     })
   }
 
