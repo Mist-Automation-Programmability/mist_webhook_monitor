@@ -1,21 +1,20 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource, MatTable } from '@angular/material/table';
 
 import { webSocket } from "rxjs/webSocket";
-import { delay, tap, map, retryWhen, startWith } from "rxjs/operators";
-import { Observable, TimeoutError, timer } from 'rxjs';
+import { map, startWith } from "rxjs/operators";
+import { Observable } from 'rxjs';
 
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormBuilder, FormGroup } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
-
 import { ConfigDialog } from './config/config.component';
 
 
@@ -27,6 +26,16 @@ export interface WsSettings {
   socket_path: string,
   session_id: string
 }
+
+export interface Filter {
+  column: string,
+  values: string[]
+}
+
+export const _filter = (opt: string[], value: string): string[] => {
+  const filterValue = value.toLowerCase();
+  return opt.filter(item => item.toLowerCase().includes(filterValue));
+};
 
 @Component({
   selector: 'app-dashboard',
@@ -41,16 +50,19 @@ export class DashboardComponent implements OnInit {
 
   // table filter
   separatorKeysCodes: number[] = [ENTER, COMMA, SPACE];
-  filterCtrl = new FormControl();
-  filteredEvents: Observable<string[]>;
-  items: string[] = [];
-  allItems: string[] = [];
+
+  filteringItems: string[] = [];
+  possibleFilteringItems: Filter[] = [];
+  filterForm: FormGroup = this._formBuilder.group({
+    filterGroup: '',
+  });
+  filterOptions!: Observable<Filter[]>;
 
   /////////////////////////
   // table
-  displayedColumns: string[] = ['date', 'type', 'org_name', 'site_name', 'device_name', 'device_mac', 'text'];
-  eventDataSource: any[] = []
-  itemsDisplayed: any[] = [];
+  displayedColumns: string[] = ['date', 'type', 'org_name', 'site_name', 'device_name', 'device_mac', 'text', 'menu'];
+  eventDataSource: any[] = [];
+  filteredEventDataSource: MatTableDataSource<any> = new MatTableDataSource();
   pageIndex: number = 0
   pageSize: number = 25
   pageLength: number = 0
@@ -71,7 +83,7 @@ export class DashboardComponent implements OnInit {
   // Others
   orgs: Org[] = [];
   orgs_activated: Org[] = [];
-  org_names :any= {};
+  org_names: any = {};
   is_working: boolean = false;
   error_mess: string = "";
   topics = {
@@ -85,20 +97,22 @@ export class DashboardComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  //@ViewChild('filterInput') filterInput: ElementRef<HTMLInputElement>;
+  @ViewChild(MatTable) table!: MatTable<any>;
+  @ViewChild('filterInput') filterInput!: ElementRef<HTMLInputElement>;
 
   ///////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////// CONSTRUCTOR
-  constructor(private _http: HttpClient, public _dialog: MatDialog, private _snackBar: MatSnackBar, private _router: Router) {
-    this.filteredEvents = this.filterCtrl.valueChanges.pipe(
-      startWith(null),
-      map((item: string | null) => (item ? this._filter(item) : this.allItems.slice())),
-    );
-  }
+  constructor(private _http: HttpClient, public _dialog: MatDialog, private _snackBar: MatSnackBar, private _router: Router, private _formBuilder: FormBuilder) { }
 
   ///////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////// INIT
   ngOnInit(): void {
+    this.filterOptions = this.filterForm.get('filterGroup')!.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filterGroup(value)),
+    );
+    this.filteredEventDataSource.paginator = this.paginator;
+    this.filteredEventDataSource.sort = this.sort;
     this.getOrgs();
     this.getSocketSettings();
   }
@@ -113,12 +127,20 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  private _filterGroup(value: string): Filter[] {
+    if (value) {
+      return this.possibleFilteringItems
+        .map(item => ({ column: item.column, values: _filter(item.values, value) }))
+        .filter(item => item.values.length > 0);
+    }
+
+    return this.possibleFilteringItems;
+  }
   //////////////////////////////////////////////////////////////////////////////
   /////           ORG
   //////////////////////////////////////////////////////////////////////////////
   parseOrgs(data: any): void {
     this.orgs = data;
-    console.log(this.orgs)
     this.orgs.forEach(org => {
       this.org_names[org.org_id] = org.name;
     })
@@ -133,6 +155,8 @@ export class DashboardComponent implements OnInit {
   //////////////////////////////////////////////////////////////////////////////
   /////           WEBOSCKET
   //////////////////////////////////////////////////////////////////////////////
+
+  // SEND / RECEIVE FUNCTIONS
   socketSendReconnect(msg: any): void {
     this.openSnackBar("Websocket Connected!", "Dismiss")
     this.socket.next({ "action": "reconnect", "session_id": this.session_id })
@@ -160,7 +184,7 @@ export class DashboardComponent implements OnInit {
   }
 
   socketReceivedPong(msg: any): void {
-    if (msg.webhook) this.allItems.push(msg.webhook);
+    console.log(msg.webhook);
   }
 
   socketIsClosed(): void {
@@ -180,9 +204,7 @@ export class DashboardComponent implements OnInit {
   }
 
   socketReceivedWebhook(webhook: any) {
-    console.log(webhook)
     webhook.events.forEach((event: any) => {
-      var copiedEvents = this.eventDataSource.slice();
       var tmp: any = {
         topic: webhook.topic,
         raw_message: event
@@ -193,13 +215,14 @@ export class DashboardComponent implements OnInit {
           tmp["org_name"] = this.org_names[event[key]];
         }
       }
-      console.log(this.org_names)
-      console.log(tmp)
-      copiedEvents.push(tmp);
-      this.eventDataSource = copiedEvents;
+      this.eventDataSource.push(tmp);
+      this.updatePossibleFilteringItems(event);
     })
+
+    this.applyFilter();
   }
 
+  // WEBSOCKET FUNCTIONS
   socketSubscibe(timeout: number = 0): void {
     setTimeout(() => {
       this.socket = webSocket(this.socket_path)
@@ -265,66 +288,69 @@ export class DashboardComponent implements OnInit {
 
     // Add our item
     if (value) {
-      this.items.push(value);
+      this.filteringItems.push(value);
     }
 
     // Clear the input value
     event.chipInput!.clear();
-
-    this.filterCtrl.setValue(null);
   }
 
   remove(item: string): void {
-    const index = this.items.indexOf(item);
+    const index = this.filteringItems.indexOf(item);
 
     if (index >= 0) {
-      this.items.splice(index, 1);
-    }
+      this.filteringItems.splice(index, 1);
+    } 
+    this.applyFilter();
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
-    this.items.push(event.option.viewValue);
-    //  this.filterInput.nativeElement.value = '';
-    this.filterCtrl.setValue(null);
-  }
-
-  private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-
-    return this.allItems.filter(item => item.toLowerCase().includes(filterValue));
+    this.filteringItems.push(event.option.viewValue);
+    this.filterInput.nativeElement.value = '';
+    this.filterForm.get('filterGroup')!.setValue('');
+    this.applyFilter();
   }
 
   //////////////////////////////////////////////////////////////////////////////
   /////           TABLE
   //////////////////////////////////////////////////////////////////////////////
 
+  applyFilter() {
+    this.possibleFilteringItems = [];
+    console.log(this.filteringItems.length)
+    if (this.filteringItems.length == 0) this.filteredEventDataSource.data = this.eventDataSource;
+    else {
+      var tmp: any[] = [];
+      const fields_required = this.filteringItems.length;
+      this.eventDataSource.forEach(event => {
+        var fields_count = 0;
+        this.displayedColumns.forEach(column => { if (this.filteringItems.includes(event[column])) fields_count += 1 })
+        if (fields_count >= fields_required) tmp.push(event);
 
+      })
+      this.filteredEventDataSource.data = tmp;
+    }
 
-  // apply_filter() {
-  //   this.roguesDisplayed = [];
-  //   this.stats.rogues.forEach(rogue => {
-  //     const rogue_element = (rogue as RogueElement);
-  //     if (
-  //       (this.showInactive || rogue_element.first_seen > 0)
-  //       && (
-  //         (this.display.lan && rogue_element.rogue_type.lan)
-  //         || (this.display.honeypot && rogue_element.rogue_type.honeypot)
-  //         || (this.display.spoof && rogue_element.rogue_type.spoof)
-  //         || (this.display.others && rogue_element.rogue_type.others)
-  //       )
-  //       && (this.filter_site == "" || rogue_element.site_name.toLocaleLowerCase().includes(this.filter_site.toLocaleLowerCase()))
-  //       && (this.filter_ssid == "" || rogue_element.ssid.toLocaleLowerCase().includes(this.filter_ssid.toLocaleLowerCase()))
-  //       && (this.filter_ap_mac == "" || rogue_element.ap_mac.toLocaleLowerCase().includes(this.filter_ap_mac.toLocaleLowerCase()))
-  //       && (this.filter_bssid == "" || rogue_element.bssid.toLocaleLowerCase().includes(this.filter_bssid.toLocaleLowerCase()))
-  //     )
-  //       this.roguesDisplayed.push(rogue)
-  //   })
+    this.table.renderRows();
+    this.filteredEventDataSource.paginator = this.paginator;
+    this.filteredEventDataSource.sort = this.sort;
+    this.filteredEventDataSource.data.forEach(event => this.updatePossibleFilteringItems(event))
+  }
 
-  //   this.rogueDataSource = new MatTableDataSource<RogueElement>(this.roguesDisplayed)
-  //   this.rogueDataSource.paginator = this.paginator;
-  //   this.rogueDataSource.sort = this.sort;
-  // }
+  updatePossibleFilteringItems(event: any): void {
+    this.displayedColumns.forEach(column => {
+      if (column != "text" && event[column]) {
+        var tmp = this.possibleFilteringItems.filter(item => item.column == column);
+        if (tmp.length == 0) this.possibleFilteringItems.push({ "column": column, "values": [event[column]] })
+        else if (!tmp[0].values.includes(event[column])) (tmp[0].values.push(event[column]))
+      }
+    })
 
+    this.filterOptions = this.filterForm.get('filterGroup')!.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filterGroup(value)),
+    );
+  }
 
   //////////////////////////////////////////////////////////////////////////////
   /////           DIALOG BOXES

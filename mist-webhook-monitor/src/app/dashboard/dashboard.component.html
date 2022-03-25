@@ -4,49 +4,54 @@
         <div fxLayout="row" fxLayoutAlign="start">
             <button mat-icon-button color="primary" aria-label="Example icon button with a heart icon">
                 <mat-icon>view_column</mat-icon>
-              </button>
+            </button>
             <button mat-icon-button color="primary" aria-label="Configuration" (click)="openConfig()">
                 <mat-icon>settings</mat-icon>
-              </button>
+            </button>
             <button mat-icon-button color="primary" aria-label="Example icon button with a heart icon">
                 <mat-icon>logout</mat-icon>
-              </button>
+            </button>
         </div>
     </div>
     <!-- MAIN  -->
     <div fxLayout="column" fxLayoutAlign="stretch" class="main">
         <mat-card class="dashboard-content table-parent-container">
-            <div fxLayout="row" fxLayoutAlign="space-between center ">
-                <mat-form-field style="flex: auto; margin: 0 1em">
-                    <mat-label>Filter</mat-label>
-                    <mat-chip-list #chipList aria-label="Filter selection">
-                        <mat-chip *ngFor="let item of items" (removed)="remove(item)">
-                            {{item}}
-                            <button matChipRemove>
-                          <mat-icon>cancel</mat-icon>
-                        </button>
-                        </mat-chip>
-                        <input placeholder="New Filter..." #filterInput [formControl]="filterCtrl" [matAutocomplete]="auto" [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="add($event)">
-                    </mat-chip-list>
-                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-                        <mat-option *ngFor="let item of filteredEvents | async" [value]="item">
-                            {{item}}
-                        </mat-option>
-                    </mat-autocomplete>
-                </mat-form-field>
+            <div fxLayout="row" fxLayoutAlign="space-between flex-end" style="height: 5em">
+                <form [formGroup]="filterForm" style="flex: auto; margin: 0 1em">
+                    <mat-form-field style="width: 100%;">
+                        <mat-label>Filter</mat-label>
+                        <mat-chip-list #chipList aria-label="Filter selection">
+                            <mat-chip *ngFor="let item of filteringItems" (removed)="remove(item)" style="font-size: smaller; font-weight: normal; min-height: 20px;">
+                                {{item}}
+                                <button matChipRemove>
+                                <mat-icon>cancel</mat-icon>
+                            </button>
+                            </mat-chip>
+                            <input placeholder="New Filter..." #filterInput matInput formControlName="filterGroup" [matAutocomplete]="autoGroup" [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="add($event)">
+                        </mat-chip-list>
+                        <mat-autocomplete #autoGroup="matAutocomplete" (optionSelected)="selected($event)">
+                            <mat-optgroup *ngFor="let filter of filterOptions | async" [label]="filter.column">
+                                <mat-option *ngFor="let value of filter.values" [value]="value" style="font-size: smaller; height: 25px;;">
+                                    {{value}}
+                                </mat-option>
+                            </mat-optgroup>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                </form>
                 <div fxLayout="row" fxLayoutAlign="center center">
                     <mat-paginator #paginator [pageIndex]="pageIndex" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" aria-label="Select page">
                     </mat-paginator>
                 </div>
             </div>
             <div class="table-container">
-                <table mat-table [dataSource]="eventDataSource" matSort>
+                <table mat-table [dataSource]="filteredEventDataSource" matSort>
 
                     <!-- DATE -->
                     <ng-container matColumnDef="date">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
                         <td mat-cell *matCellDef="let element">
-                            <div *ngIf="element.timestamp"> {{element.timestamp * 1000 | date:'dd/MM/yy, hh:mm '}} </div>
+                            <div *ngIf="element.timestamp"> {{element.timestamp * 1000 | date:'dd/MM/yy, hh:mm:ss '}}
+                            </div>
                         </td>
                     </ng-container>
 
@@ -54,42 +59,82 @@
                     <ng-container matColumnDef="type">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>EVENT TYPE</th>
                         <td mat-cell *matCellDef="let element">
-                            {{element.type}} </td>
+                            {{element.type}}
+                        </td>
                     </ng-container>
 
                     <!-- ORG -->
                     <ng-container matColumnDef="org_name">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>ORG</th>
-                        <td mat-cell *matCellDef="let element" style="color: #0e63ad; cursor: pointer;">
-                            {{element.org_name}} </td>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.org_name}}
+                        </td>
                     </ng-container>
 
                     <!-- SITE -->
                     <ng-container matColumnDef="site_name">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>SITE</th>
-                        <td mat-cell *matCellDef="let element" style="color: #0e63ad; cursor: pointer;">
-                            {{element.site_name}} </td>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.site_name}}
+                        </td>
                     </ng-container>
 
                     <!-- DEVICE NAME -->
                     <ng-container matColumnDef="device_name">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>DEVICE NAME</th>
                         <td mat-cell *matCellDef="let element">
-                            {{element.device_name}}</td>
+                            {{element.device_name}}
+                        </td>
                     </ng-container>
 
                     <!-- DEVICE MAC -->
                     <ng-container matColumnDef="device_mac">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>DEVICE MAC</th>
-                        <td mat-cell *matCellDef="let element" style="color: #0e63ad; cursor: pointer;">
-                            {{element.device_mac}}</td>
+                        <td mat-cell *matCellDef="let element">
+                            {{element.mac}}</td>
                     </ng-container>
 
                     <!-- EVENT TEXT -->
                     <ng-container matColumnDef="text">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>EVENT DETAILS</th>
+                        <th mat-header-cell *matHeaderCellDef>EVENT DETAILS</th>
                         <td mat-cell *matCellDef="let element">
                             {{element.text}}</td>
+                    </ng-container>
+
+                    <!-- MENU -->
+                    <ng-container matColumnDef="menu">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element">
+                            <button mat-icon-button [matMenuTriggerFor]="menu" style="color: #0e63ad;" aria-label="Example icon-button with a menu">
+                                <mat-icon>more_vert</mat-icon>
+                            </button>
+                            <mat-menu #menu="matMenu">
+                                <button mat-menu-item>
+                                    <mat-icon>text_snippet</mat-icon>
+                                    <span>Raw Data</span>
+                                </button>
+                                <button mat-menu-item>
+                                    <mat-icon>analytics</mat-icon>
+                                    <span>Site Insights</span>
+                                </button>
+                                <button mat-menu-item>
+                                    <mat-icon>fact_check</mat-icon>
+                                    <span>Site Events</span>
+                                </button>
+                                <button mat-menu-item>
+                                    <mat-icon>list</mat-icon>
+                                    <span>Device List</span>
+                                </button>
+                                <button mat-menu-item>
+                                    <mat-icon>analytics</mat-icon>
+                                    <span>Device Insights</span>
+                                </button>
+                                <button mat-menu-item>
+                                    <mat-icon>settings</mat-icon>
+                                    <span>Device Configuration</span>
+                                </button>
+                            </mat-menu>
+                        </td>
                     </ng-container>
 
                     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
