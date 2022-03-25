@@ -110,15 +110,13 @@ function _create_mist_config(mist, topics, cb) {
 /**
  * Check if another session exists and update it or create a new one
  * @param {String} session_id - session_id (generated for each new user session)
- * @param {String} socket_id - socket_id (generated for each new websocket session)
  * @param {String} org_id - Mist ORG to use
  * @param {Array} topics - list of topics to register
  * @param {String} callback(err) 
  *  */
-function _save_socket_info(session_id, socket_id, org_id, topics, cb) {
+function _save_socket_info(session_id, org_id, topics, cb) {
     const new_session = {
         session_id: session_id,
-        socket_id: socket_id,
         org_id: org_id,
         topics: topics
     }
@@ -162,18 +160,17 @@ function _is_authorized(org_id, privileges) {
  * @param {String} mist.host - Mist Cloud to request
  * @param {Object} mist.cookie - If not token, use the Mist session cookies
  * @param {String} session_id - session_id (generated for each new user session)
- * @param {String} socket_id - socket_id (generated for each new websocket session)
  * @param {Array} org_ids - list of orgs to unsub
  * @param {Array} topics - list of topics to unsub
  * @param {String} callback(err, org_id) 
  *  */
-module.exports.orgs = function(mist, privileges, session_id, socket_id, org_ids, topics, cb) {
+module.exports.orgs = function(mist, privileges, session_id, org_ids, topics, cb) {
     org_ids.forEach(org_id => {
         if (!_is_authorized(org_id, privileges)) cb("This account does not have a write access the org", org_id)
         else {
             _init(mist, org_id, topics, (err) => {
                 if (err) cb(err, org_id)
-                else _save_socket_info(session_id, socket_id, org_id, topics, err => cb(err, org_id))
+                else _save_socket_info(session_id, org_id, topics, err => cb(err, org_id))
             })
         }
     })

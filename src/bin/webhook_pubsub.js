@@ -49,33 +49,31 @@ class WebhookPubSub {
     /**
      * Save a websocket to orgs/topics subscribed
      * @param {websocket} socket  - Browser session id
-     * @param {String} socket_id 
      * @param {String} org_id 
      * @param {Arrays} topics 
      */
-    subscribe(socket, socket_id, org_id, topics) {
+    subscribe(socket, org_id, topics) {
         if (!this.channels.hasOwnProperty(org_id)) this.channels[org_id] = {}
         topics.forEach(topic => {
-            console.log('socket ' + socket_id + 'subscribed to ' + topic + " for org " + org_id);
+            console.log('Session subscribed to ' + topic + " for org " + org_id);
             if (!this.channels[org_id].hasOwnProperty(topic)) this.channels[org_id][topic] = [socket]
-            else if (!this.channels[org_id][topics].includes(socket)) this.channels[org_id][topics].push(socket);
-            console.log(this.channels)
+            else if (!this.channels[org_id][topic].includes(socket)) this.channels[org_id][topic].push(socket);
         })
     }
 
     /**
      * Remove the websocket from the unsubscribed orgs/topics
      * @param {*} socket 
-     * @param {*} socket_id 
      * @param {*} org_id 
      * @param {*} topics 
      */
-    unsubscribe(socket, socket_id, org_id, topics) {
+    unsubscribe(socket, org_id, topics) {
+        console.log(topics)
         topics.forEach(topic => {
-            console.log('socket ' + socket_id + 'unsubscribed from ' + topic + " for org " + org_id);
             const index = this.channels[org_id][topic].indexOf(socket);
             this.channels[org_id][topic].splice(index, 1);
             if (this.channels[org_id][topic].length == 0) delete this.channels[org_id][topic];
+            console.log('Session unsubscribed from ' + topic + " for org " + org_id);
         })
         if (Object.keys(this.channels[org_id]).length == 0) delete this.channels[org_id];
     }
@@ -88,6 +86,7 @@ class WebhookPubSub {
      */
     publish(org_id, topic, message) {
         var count = 0;
+        console.log(this.channels[org_id])
         this.channels[org_id][topic].forEach(socket => {
             count += 1;
             socket.send(JSON.stringify({

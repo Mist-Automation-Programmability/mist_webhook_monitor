@@ -8,6 +8,7 @@ const Webhook_functions = require("./webhook_common");
  STOP SESSION FUNCTIONS
 ================================================================*/
 function _delete_org_config_and_token(org_id, cb) {
+    var error = { webhook: null, token: null };
     WH.findOne({ org_id: org_id }, (err, db_data) => {
         if (err) cb("Error when requesting the DB")
         else if (!db_data) cb("Session not found")
@@ -16,7 +17,7 @@ function _delete_org_config_and_token(org_id, cb) {
                 if (err) cb("Error when deleting the Webhook configuration from the Org")
                 else Token.delete(db_data, db_data.apitoken_id, (err) => {
                     if (err) cb("Error when deleting the Token from the Org")
-                    else cb(null, true)
+                    else cb(null)
                 })
             })
         }
@@ -24,7 +25,7 @@ function _delete_org_config_and_token(org_id, cb) {
 }
 
 
-function _update_org_topics_on_stop(socket_id, org_id, cb) {
+function _update_org_topics_on_stop(session_id, org_id, cb) {
     Session.find({ org_id: org_id }, (err, db_sessions) => {
         if (err) {
             console.log("Unable to retrieve the sessions from DB for org_id" + org_id + ". Error: " + err)
@@ -32,11 +33,11 @@ function _update_org_topics_on_stop(socket_id, org_id, cb) {
         } else if (db_sessions.length == 0) {
             console.log("Unable to retrieve the sessions froom DB for org_id" + org_id + ". Not found")
             cb("Session not found")
-        } else if (db_sessions.length == 1) _delete_org_config_and_token(org_id, (err, ok) => cb(err, ok))
+        } else if (db_sessions.length == 1) _delete_org_config_and_token(org_id, (err) => cb(err))
         else {
             let topics_in_use = [];
             db_sessions.forEach(session => {
-                if (session.socket_id != socket_id) {
+                if (session.session_id != session_id) {
                     session.topics.forEach(topic => {
                         if (!topics_in_use.includes(topic)) {
                             topics_in_use.push(topic)
@@ -53,8 +54,10 @@ function _update_org_topics_on_stop(socket_id, org_id, cb) {
                         db_data,
                         topics_in_use,
                         err => {
-                            console.log(err);
-                            cb("Error when updating the Webhook configuration in the Org");
+                            if (err) {
+                                console.log(err);
+                                cb("Error when updating the Webhook configuration in the Org");
+                            } else cb()
                         }
                     )
                 }
@@ -65,22 +68,24 @@ function _update_org_topics_on_stop(socket_id, org_id, cb) {
 
 /**
  * Stop all the sessions for a user and remove the corresponding settings from Mist and DB
- * @param {String} socket_id - socket_id (generated for each new websocket session)
+ * @param {String} session_id - session_id (generated for each new websocket session)
  * @param {Array} callback(err, success) - ({org_id, message}, org_id)
  *  */
-module.exports.all_orgs = function(socket_id, cb) {
-    Session.find({ socket_id: socket_id }, (err, db_sessions) => {
+module.exports.all_orgs = function(session_id, cb) {
+    Session.find({ session_id: session_id }, (err, db_sessions) => {
         if (err) {
             console.log(err)
             cb("Error when retrieving info from the DB")
         } else if (db_sessions.length == 0) {
-            console.log("Unable to retrieve the info from DB for socket_id" + socket_id + ". Not found ")
+            console.log("Unable to retrieve the info from DB for session_id " + session_id + ". Not found ")
             cb("Unable to retrieve the info from the DB")
         } else {
             db_sessions.forEach(db_session => {
-                _update_org_topics_on_stop(socket_id, db_session.org_id, err => {
-                    if (err) cb({ org_id: org_id, message: err })
-                    else cb(null, db_session.org_id)
+                _update_org_topics_on_stop(db_session.session_id, db_session.org_id, err => {
+                    if (err) cb(err, db_session.org_id, db_session.topics)
+                    else {
+                        db_session.delete(err => cb(err, db_session.org_id, db_session.topics));
+                    }
                 })
             })
         }
@@ -90,23 +95,23 @@ module.exports.all_orgs = function(socket_id, cb) {
 
 /**
  * Stop sessions for a user and remove the corresponding settings from Mist and DB
- * @param {String} socket_id - socket_id (generated for each new websocket session)
+ * @param {String} session_id - session_id (generated for each new websocket session)
  * @param {Array} org_ids - list of orgs to unsub
  * @param {Array} callback(err, org_id) - (message, org_id)
  *  */
-module.exports.orgs = function(socket_id, org_ids, cb) {
-    Session.find({ socket_id: socket_id, org_id: org_id }, (err, db_session) => {
+module.exports.orgs = function(session_id, org_ids, cb) {
+    Session.find({ session_id: session_id, org_id: org_id }, (err, db_session) => {
         if (err) {
             console.log(err)
             cb("Error when retrieving info from the DB")
         } else if (!db_session) {
-            console.log("Unable to retrieve the info from DB for socket_id" + socket_id + ". Not found ")
+            console.log("Unable to retrieve the info from DB for session_id " + session_id + ". Not found ")
             cb("Unable to retrieve the info from the DB")
         } else {
             org_ids.forEach(org_id => {
-                _update_org_topics_on_stop(socket_id, db_session.org_id, err => {
-                    if (err) cb({ org_id: org_id, message: err })
-                    else cb(null, org_id)
+                _update_org_topics_on_stop(db_session.session_id, db_session.org_id, err => {
+                    if (err) cb(err, db_session.org_id, db_session.topics)
+                    else cb(null, org_id, db_session.topics)
                 })
             })
         }

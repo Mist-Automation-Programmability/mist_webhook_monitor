@@ -61,7 +61,6 @@ export class DashboardComponent implements OnInit {
   // Websocket
   private session_id: string = "";
   private socket = webSocket('');
-  private socket_id: string = "";
   private socket_path: string = "";
   private socket_retry_count: number = 0;
   private socket_retry_inc_timeout: number = 5000;
@@ -136,7 +135,7 @@ export class DashboardComponent implements OnInit {
   //////////////////////////////////////////////////////////////////////////////
   socketSendReconnect(msg: any): void {
     this.openSnackBar("Websocket Connected!", "Dismiss")
-    this.socket.next({ "action": "reconnect", "socket_id": this.socket_id, "session_id": this.session_id })
+    this.socket.next({ "action": "reconnect", "session_id": this.session_id })
     this.socket_connected = true;
     this.socket_retry_count = 0
   }
@@ -161,7 +160,6 @@ export class DashboardComponent implements OnInit {
   }
 
   socketReceivedPong(msg: any): void {
-    if (msg.socket_id) this.socket_id = msg.socket_id;
     if (msg.webhook) this.allItems.push(msg.webhook);
   }
 
