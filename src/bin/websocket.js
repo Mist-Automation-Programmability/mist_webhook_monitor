@@ -49,7 +49,7 @@ function connection(ws, req) {
                             if (json_message.topics.length == 0) {
                                 unsubscribe.all_orgs(req.session.session_id, (err, org_id) => {
                                     if (err) console.log("Unable to clean up config for org_id " + org_id + ". Error: " + err);
-                                    if (org_id) PubSubManager.unsubscribe(ws, org_id, topics);
+                                    if (org_id) PubSubManager.unsubscribe(ws, org_id, current_topics);
                                 })
                             } else {
                                 const org_ids_to_update = json_message.org_ids.filter(x => current_org_ids.includes(x));
@@ -118,7 +118,7 @@ function connection(ws, req) {
                     (err, org_id, topics) => {
                         if (err) send(ws, { "action": "unsubscribe", "result": "error", "message": err });
                         else {
-                            PubSubManager.unsubscribe(ws, req.session.session_id, org_id, topics);
+                            PubSubManager.unsubscribe(ws, org_id, topics);
                             send(ws, { "action": "unsubscribe", "result": "success", "message": "Configuration updated", org_id: org_id });
                         }
                     });
@@ -143,7 +143,7 @@ function connection(ws, req) {
                     if (err) {
                         console.log("Unable to clean up config for org_id " + org_id)
                         console.log(err);
-                    } else if (org_id) PubSubManager.unsubscribe(ws, req.session.session_id, org_id, topics);
+                    } else if (org_id) PubSubManager.unsubscribe(ws, org_id, topics);
                 })
             }
         }, 5000)

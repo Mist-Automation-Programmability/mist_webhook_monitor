@@ -12,15 +12,15 @@ function _delete_org_config_and_token(org_id, cb) {
     WH.findOne({ org_id: org_id }, (err, db_data) => {
         if (err) cb("Error when requesting the DB")
         else if (!db_data) cb("Session not found")
-        else {
-            Webhook.delete(db_data, db_data.webhook_id, (err) => {
-                if (err) cb("Error when deleting the Webhook configuration from the Org")
-                else Token.delete(db_data, db_data.apitoken_id, (err) => {
-                    if (err) cb("Error when deleting the Token from the Org")
-                    else cb(null)
-                })
+        error.webhook = err;
+        Webhook.delete(db_data, db_data.webhook_id, (err) => {
+            if (err) cb("Error when deleting the Webhook configuration from the Org")
+            else Token.delete(db_data, db_data.apitoken_id, (err) => {
+                if (err) cb("Error when deleting the Token from the Org")
+                else cb(null)
+                error.token = err;
             })
-        }
+        })
     })
 }
 
@@ -100,20 +100,22 @@ module.exports.all_orgs = function(session_id, cb) {
  * @param {Array} callback(err, org_id) - (message, org_id)
  *  */
 module.exports.orgs = function(session_id, org_ids, cb) {
-    Session.find({ session_id: session_id, org_id: org_id }, (err, db_session) => {
-        if (err) {
-            console.log(err)
-            cb("Error when retrieving info from the DB")
-        } else if (!db_session) {
-            console.log("Unable to retrieve the info from DB for session_id " + session_id + ". Not found ")
-            cb("Unable to retrieve the info from the DB")
-        } else {
-            org_ids.forEach(org_id => {
-                _update_org_topics_on_stop(db_session.session_id, db_session.org_id, err => {
-                    if (err) cb(err, db_session.org_id, db_session.topics)
-                    else cb(null, org_id, db_session.topics)
+    org_ids.forEach(org_id => {
+        Session.find({ session_id: session_id, org_id: org_id }, (err, db_session) => {
+            if (err) {
+                console.log(err)
+                cb("Error when retrieving info from the DB")
+            } else if (!db_session) {
+                console.log("Unable to retrieve the info from DB for session_id " + session_id + ". Not found ")
+                cb("Unable to retrieve the info from the DB")
+            } else {
+                org_ids.forEach(org_id => {
+                    _update_org_topics_on_stop(db_session.session_id, db_session.org_id, err => {
+                        if (err) cb(err, db_session.org_id, db_session.topics)
+                        else cb(null, org_id, db_session.topics)
+                    })
                 })
-            })
-        }
+            }
+        })
     })
 }
