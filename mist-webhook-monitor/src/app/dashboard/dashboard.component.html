@@ -109,7 +109,7 @@
                                 <mat-icon>more_vert</mat-icon>
                             </button>
                             <mat-menu #menu="matMenu">
-                                <button mat-menu-item>
+                                <button mat-menu-item (click)="openRaw(element)">
                                     <mat-icon>text_snippet</mat-icon>
                                     <span>Raw Data</span>
                                 </button>

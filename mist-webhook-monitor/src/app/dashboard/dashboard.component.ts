@@ -15,7 +15,9 @@ import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
+
 import { ConfigDialog } from './config/config.component';
+import { RawDialog } from './raw_data/raw.component';
 
 
 export interface Org {
@@ -209,7 +211,7 @@ export class DashboardComponent implements OnInit {
     webhook.events.forEach((event: any) => {
       var tmp: any = {
         topic: webhook.topic,
-        raw_message: event
+        raw_message: webhook
       };
       for (var key in event) {
         tmp[key] = event[key];
@@ -358,30 +360,10 @@ export class DashboardComponent implements OnInit {
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  /////           DIALOG BOXES
+  /////           QUICK LINKS
   //////////////////////////////////////////////////////////////////////////////
 
-  // CONFIG
-  openConfig(): void {
-    const dialogRef = this._dialog.open(ConfigDialog, {
-      data: { orgs_list: this.orgs, orgs_activated: this.orgs_activated, topics: this.topics }
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      console.log(result)
-      const message = { "action": "subscribe", "org_ids": result.org_ids, "topics": result.topics };
-      this.socket.next(message);
-    })
-  }
-
-  // SNACK BAR
-  openSnackBar(message: string, action: string) {
-    this._snackBar.open(message, action, {
-      duration: 5000,
-      horizontalPosition: "center",
-      verticalPosition: "top",
-    });
-  }
-
+  
 
   openSiteInsights(org_id: string, site_id: string): void {
     const url = "https://" + this.host + "/admin/?org_id=" + org_id + "#!dashboard/insights/site/" + site_id + "/today/" + site_id;
@@ -447,7 +429,41 @@ export class DashboardComponent implements OnInit {
       const url = "https://" + this.host + "/admin/?org_id=" + org_id + "#!dashboard/insights/" + device + "/00000000-0000-0000-1000-" + device_mac + "/" + site_id;
       window.open(url, "_blank");
     }
+  }  
+  
+  //////////////////////////////////////////////////////////////////////////////
+  /////           DIALOG BOXES
+  //////////////////////////////////////////////////////////////////////////////
+
+  // CONFIG
+  openConfig(): void {
+    const dialogRef = this._dialog.open(ConfigDialog, {
+      data: { orgs_list: this.orgs, orgs_activated: this.orgs_activated, topics: this.topics }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(result)
+      const message = { "action": "subscribe", "org_ids": result.org_ids, "topics": result.topics };
+      this.socket.next(message);
+    })
   }
+
+  // RAW DASTA
+  openRaw(element:any): void {
+    console.log(element)
+    const dialogRef = this._dialog.open(RawDialog, {
+      data: element.raw_message
+    });    
+  }
+
+  // SNACK BAR
+  openSnackBar(message: string, action: string) {
+    this._snackBar.open(message, action, {
+      duration: 5000,
+      horizontalPosition: "center",
+      verticalPosition: "top",
+    });
+  }
+
 
   //////////////////////////////////////////////////////////////////////////////
   /////           BCK TO ORGS
