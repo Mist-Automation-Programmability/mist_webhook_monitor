@@ -75,10 +75,12 @@ export class DashboardComponent implements OnInit {
   private socket = webSocket('');
   private socket_path: string = "";
   private socket_retry_count: number = 0;
-  private socket_retry_inc_timeout: number = 5000;
-  private socket_retry_max_timeout: number = 30000;
+  private socket_retry_retry_timeout: number = 10000;
+  private socket_retry_max_retry: number = 30;
   socket_initialized: boolean = false;
   socket_connected: boolean = false;
+  socket_reconnecting: boolean = false;
+  socket_error: boolean = false;
   /////////////////////////
   // Others
   orgs: Org[] = [];
@@ -158,15 +160,16 @@ export class DashboardComponent implements OnInit {
 
   // SEND / RECEIVE FUNCTIONS
   socketSendReconnect(msg: any): void {
-    this.openSnackBar("Websocket Connected!", "Dismiss")
     this.socket.next({ "action": "reconnect", "session_id": this.session_id })
-    this.socket_connected = true;
-    this.socket_retry_count = 0
   }
 
   socketReceivedReconnect(msg: any): void {
     switch (msg.result) {
       case "success":
+        this.socket_connected = true;
+        this.socket_error = false;
+        this.socket_reconnecting = false;
+        this.socket_retry_count = 0
         const org_ids = msg.org_ids;
         const topics: string[] = msg.topics;
         this.orgs.forEach(org => {
@@ -184,23 +187,20 @@ export class DashboardComponent implements OnInit {
   }
 
   socketReceivedPong(msg: any): void {
-    console.log(msg.webhook);
+    this.socket_connected = true;
   }
 
   socketIsClosed(): void {
     this.socket_connected = false;
     this.socket_retry_count += 1;
-    const timeout = Math.min(this.socket_retry_count * this.socket_retry_inc_timeout, this.socket_retry_max_timeout);
-    this.openSnackBar("Websocket Disconnected! Retrying in " + timeout / 1000 + " sec.", "Dismiss")
-    this.socketSubscibe(timeout)
+    this.socketSubscibe(this.socket_retry_retry_timeout)
   }
 
   socketIsInError(): void {
     this.socket_connected = false;
     this.socket_retry_count += 1;
-    const timeout = Math.min(this.socket_retry_count * this.socket_retry_inc_timeout, this.socket_retry_max_timeout);
-    this.openSnackBar("Unable to connect the Websocket! Retrying in " + timeout / 1000 + " sec.", "Dismiss")
-    this.socketSubscibe(timeout)
+    if (this.socket_retry_count >= this.socket_retry_max_retry) this.socket_error = true;
+    else this.socketSubscibe(this.socket_retry_retry_timeout)
   }
 
   socketReceivedWebhook(webhook: any) {
@@ -243,9 +243,7 @@ export class DashboardComponent implements OnInit {
                 break;
             }
         }, err => {// Called if at any point WebSocket API signals some kind of error.
-          console.log(err);
-          console.log(err.type);
-          console.log(this.socket);
+          this.socket_reconnecting = true;
           if (this.socket_connected && err.type == "close") this.socketIsClosed();
           else if (!this.socket_connected && err.type == "error") this.socketIsInError();
         },
@@ -264,7 +262,6 @@ export class DashboardComponent implements OnInit {
   }
 
   socketClose(): void {
-    console.log("closed")
     this.socket.complete()
     this.socket_initialized = false;
   }
@@ -274,6 +271,7 @@ export class DashboardComponent implements OnInit {
       next: data => {
         this.session_id = data.session_id;
         this.socket_path = data.socket_path;
+        this.socket_initialized=true;
         this.socketSubscibe();
       }, error: error => this.parseError(error)
     })
@@ -300,7 +298,7 @@ export class DashboardComponent implements OnInit {
 
     if (index >= 0) {
       this.filteringItems.splice(index, 1);
-    } 
+    }
     this.applyFilter();
   }
 

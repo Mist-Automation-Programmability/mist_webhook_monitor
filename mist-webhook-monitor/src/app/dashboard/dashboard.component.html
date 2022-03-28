@@ -144,5 +144,23 @@
                 </table>
             </div>
         </mat-card>
+        <div fxLayout="row" fxLayoutAlign="center center" style="margin: 0.5em;">
+            <div style="margin: 0.5em;">Websocket Status: </div>
+            <div fxLayout="row" fxLayoutAlign="center center" *ngIf="!socket_initialized">Connecting...
+                <mat-spinner strokeWidth=3 diameter=20 style="margin: 0.5em;"></mat-spinner>
+            </div>
+            <div fxLayout="row" fxLayoutAlign="center center" *ngIf="socket_initialized && socket_connected && !socket_reconnecting && !socket_error">Connected
+                <mat-progress-spinner mode="determinate" color="accent" value="100" strokeWidth=3 diameter=20 style="margin: 0.5em;">
+                </mat-progress-spinner>
+            </div>
+            <div fxLayout="row" fxLayoutAlign="center center" *ngIf="socket_initialized && !socket_connected && socket_reconnecting && !socket_error">Reconnecting...
+                <mat-spinner color="warn" strokeWidth=3 diameter=20 style="margin: 0.5em;"></mat-spinner>
+            </div>
+            <div fxLayout="row" fxLayoutAlign="center center" *ngIf="socket_initialized && socket_error">Unable to reconnect to the server...
+                <mat-progress-spinner mode="determinate" color="warn" value="100" strokeWidth=3 diameter=20 style="margin: 0.5em;">
+                </mat-progress-spinner>
+            </div>
+
+        </div>
     </div>
 </div>

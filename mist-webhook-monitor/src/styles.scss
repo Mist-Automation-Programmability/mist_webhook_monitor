@@ -5,7 +5,7 @@
 @include mat-core();
 $mist-app-primary: mat-palette($mist-blue, 800, 200, 500);
 $mist-app-accent: mat-palette($mist-green, 700, 100, 400);
-$mist-app-warn: mat-palette($mat-red);
+$mist-app-warn: mat-palette($mist-red, 800, 200, 500);
 $mist-app-theme: mat-light-theme($mist-app-primary, $mist-app-accent, $mist-app-warn);
 @include angular-material-theme($mist-app-theme);
 html,
