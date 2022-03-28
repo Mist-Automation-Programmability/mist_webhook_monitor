@@ -13,7 +13,8 @@ function send(ws, message) {
 function connection(ws, req) {
 
     map.set(req.session.session_id, ws);
-
+    const socket_id = uuid.v4();
+    PubSubManager.opened(socket_id);
     ws.on('message', function(message) {
         //console.log(`Received message ${message} from user ${req.session.session_id}`);
         json_message = JSON.parse(message);
@@ -21,7 +22,7 @@ function connection(ws, req) {
         switch (json_message.action) {
 
             case "reconnect":
-                PubSubManager.check_saved_session(req.session.session_id, ws, (org_ids, topics) => {
+                PubSubManager.check_saved_session(req.session.session_id, socket_id, ws, (org_ids, topics) => {
                     send(ws, { "action": "reconnect", "result": "success", "org_ids": org_ids, "topics": topics })
                 });
                 break;
@@ -49,7 +50,7 @@ function connection(ws, req) {
                             if (json_message.topics.length == 0) {
                                 unsubscribe.all_orgs(req.session.session_id, (err, org_id) => {
                                     if (err) console.log("Unable to clean up config for org_id " + org_id + ". Error: " + err);
-                                    if (org_id) PubSubManager.unsubscribe(ws, org_id, current_topics);
+                                    if (org_id) PubSubManager.unsubscribe(socket_id, org_id, current_topics);
                                 })
                             } else {
                                 const org_ids_to_update = json_message.org_ids.filter(x => current_org_ids.includes(x));
@@ -67,8 +68,8 @@ function connection(ws, req) {
                                     (err, org_id) => {
                                         if (err) send(ws, { "action": "subscribe", "result": "error", "message": err })
                                         else {
-                                            PubSubManager.unsubscribe(ws, req.session.session_id, org_id, topics_to_unsub);
-                                            PubSubManager.subscribe(ws, org_id, topics_to_sub);
+                                            PubSubManager.unsubscribe(socket_id, org_id, topics_to_unsub);
+                                            PubSubManager.subscribe(socket_id, ws, org_id, topics_to_sub);
                                             send(ws, { "action": "subscribe", "result": "successn", "message": "Mist configuration updated" })
                                         }
                                     })
@@ -83,7 +84,7 @@ function connection(ws, req) {
                                         (err, org_id) => {
                                             if (err) send(ws, { "action": "subscribe", "result": "error", "message": err, org_id: org_id });
                                             else {
-                                                PubSubManager.unsubscribe(ws, org_id, json_message.topics)
+                                                PubSubManager.unsubscribe(socket_id, org_id, json_message.topics)
                                                 send(ws, { "action": "subscribe", "result": "success", "message": "Configuration updated", org_id: org_id });
                                             }
                                         });
@@ -100,7 +101,7 @@ function connection(ws, req) {
                                         (err, org_id) => {
                                             if (err) send(ws, { "action": "subscribe", "result": "error", "message": err })
                                             else {
-                                                PubSubManager.subscribe(ws, org_id, json_message.topics);
+                                                PubSubManager.subscribe(socket_id, ws, org_id, json_message.topics);
                                                 send(ws, { "action": "subscribe", "result": "success", "message": "Mist configuration updated" })
                                             }
                                         })
@@ -118,7 +119,7 @@ function connection(ws, req) {
                     (err, org_id, topics) => {
                         if (err) send(ws, { "action": "unsubscribe", "result": "error", "message": err });
                         else {
-                            PubSubManager.unsubscribe(ws, org_id, topics);
+                            PubSubManager.unsubscribe(socket_id, org_id, topics);
                             send(ws, { "action": "unsubscribe", "result": "success", "message": "Configuration updated", org_id: org_id });
                         }
                     });
@@ -133,9 +134,10 @@ function connection(ws, req) {
     ws.on('close', function() {
         console.log("Connection lost with session_id " + req.session.session_id)
         map.delete(req.session.session_id);
-        // if the socket did not reconnect after 1min, clean everything
+        PubSubManager.closed(socket_id)
+            // if the socket did not reconnect after 1min, clean everything
         setTimeout(function() {
-            if (map.get(req.session.session_id)) console.log("Connection with session_id " + req.session.session_id + " resumed");
+            if (map.get(req.session.session_id)) console.log("New socket found for session_id " + req.session.session_id);
             else {
                 delete req.session.socksession_idet_id;
                 console.log("Connection with session_id " + req.session.session_id + " not resumed. Cleaning up everything");
@@ -143,10 +145,10 @@ function connection(ws, req) {
                     if (err) {
                         console.log("Unable to clean up config for org_id " + org_id)
                         console.log(err);
-                    } else if (org_id) PubSubManager.unsubscribe(ws, org_id, topics);
+                    } else if (org_id) PubSubManager.unsubscribe(socket_id, org_id, topics);
                 })
             }
-        }, 5000)
+        }, 30000)
     });
 }
 

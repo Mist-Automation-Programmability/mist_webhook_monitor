@@ -4,11 +4,12 @@ class WebhookPubSub {
     constructor() {
         // channels = {
         //     [org_id]: {
-        //          [topic]: [socket]
+        //          [topic]: {socket_id: socket}
         //          }
         //     }
         // }
-        this.channels = {}
+        this.channels = {};
+        this.socket_ids = [];
     }
 
 
@@ -18,7 +19,7 @@ class WebhookPubSub {
      * @param {websocket} socket -websocket object, used to send message to the client
      * @param {Array, Array} cb - send back the orgs and topics the browser previously subribed
      */
-    check_saved_session(session_id, socket, cb) {
+    check_saved_session(session_id, socket_id, socket, cb) {
         Session.find({ session_id: session_id, }, (err, db_sessions) => {
             if (err) console.log("unable to find saved session in the DB for socket " + session_id);
             else if (db_sessions) {
@@ -29,9 +30,8 @@ class WebhookPubSub {
                     if (!this.channels.hasOwnProperty(session.org_id)) this.channels[session.org_id] = {}
 
                     session.topics.forEach(topic => {
-
-                        if (!this.channels[session.org_id].hasOwnProperty(topic)) this.channels[session.org_id][topic] = []
-                        this.channels[session.org_id][topic].push(socket)
+                        if (!this.channels[session.org_id].hasOwnProperty(topic)) this.channels[session.org_id][topic] = {}
+                        this.channels[session.org_id][topic][socket_id] = socket;
 
                         console.log("session restored: ", session.org_id, topic)
 
@@ -46,18 +46,26 @@ class WebhookPubSub {
         })
     }
 
+    opened(socket_id) {
+        this.socket_ids.push(socket_id);
+    }
+    closed(socket_id) {
+        const index = this.socket_ids.indexOf(socket_id);
+        if (index > -1) this.socket_ids.splice(index, 1)
+    }
+
     /**
      * Save a websocket to orgs/topics subscribed
      * @param {websocket} socket  - Browser session id
      * @param {String} org_id 
      * @param {Arrays} topics 
      */
-    subscribe(socket, org_id, topics) {
+    subscribe(socket_id, socket, org_id, topics) {
         if (!this.channels.hasOwnProperty(org_id)) this.channels[org_id] = {}
         topics.forEach(topic => {
             console.log('Session subscribed to ' + topic + " for org " + org_id);
-            if (!this.channels[org_id].hasOwnProperty(topic)) this.channels[org_id][topic] = [socket]
-            else if (!this.channels[org_id][topic].includes(socket)) this.channels[org_id][topic].push(socket);
+            if (!this.channels[org_id].hasOwnProperty(topic)) this.channels[org_id][topic] = {};
+            this.channels[org_id][topic][socket_id] = socket;
         })
     }
 
@@ -67,12 +75,10 @@ class WebhookPubSub {
      * @param {*} org_id 
      * @param {*} topics 
      */
-    unsubscribe(socket, org_id, topics) {
-        console.log(topics)
+    unsubscribe(socket_id, org_id, topics) {
         topics.forEach(topic => {
-            const index = this.channels[org_id][topic].indexOf(socket);
-            this.channels[org_id][topic].splice(index, 1);
-            if (this.channels[org_id][topic].length == 0) delete this.channels[org_id][topic];
+            if (this.channels[org_id][topic].hasOwnProperty(socket_id)) delete this.channels[org_id][topic][socket_id]
+            if (Object.keys(this.channels[org_id][topic]).length == 0) delete this.channels[org_id][topic];
             console.log('Session unsubscribed from ' + topic + " for org " + org_id);
         })
         if (Object.keys(this.channels[org_id]).length == 0) delete this.channels[org_id];
@@ -87,13 +93,17 @@ class WebhookPubSub {
     publish(org_id, topic, message) {
         var count = 0;
         if (this.channels[org_id] && this.channels[org_id][topic]) {
-            this.channels[org_id][topic].forEach(socket => {
-                count += 1;
-                socket.send(JSON.stringify({
-                    "action": "webhook",
-                    "webhook": message
-                }));
-            });
+            for (var socket_id in this.channels[org_id][topic]) {
+                if (!this.socket_ids.includes(socket_id)) delete this.channels[org_id][topic][socket_id];
+                else {
+                    const socket = this.channels[org_id][topic][socket_id];
+                    count += 1;
+                    socket.send(JSON.stringify({
+                        "action": "webhook",
+                        "webhook": message
+                    }));
+                }
+            }
             console.log("Sent new webhook message to ", count, " sockets")
         }
     }
