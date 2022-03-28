@@ -50,7 +50,7 @@ router.get("/ws", (req, res) => {
         if (global.CONFIG.NODE_WEBSOCKET_PORT) port = ":" + global.CONFIG.NODE_WEBSOCKET_PORT;
 
         const socket_path = prefix + global.CONFIG.NODE_HOSTNAME + port + "/ws-collector/";
-        res.json({ socket_path: socket_path, session_id: get_sid(req) })
+        res.json({ socket_path: socket_path, session_id: get_sid(req), host: req.session.mist.host })
     }
 })
 

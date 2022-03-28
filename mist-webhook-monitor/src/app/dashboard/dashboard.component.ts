@@ -12,7 +12,7 @@ import { map, startWith } from "rxjs/operators";
 import { Observable } from 'rxjs';
 
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { FormControl, FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { ConfigDialog } from './config/config.component';
@@ -24,7 +24,8 @@ export interface Org {
 }
 export interface WsSettings {
   socket_path: string,
-  session_id: string
+  session_id: string,
+  host: string
 }
 
 export interface Filter {
@@ -83,6 +84,7 @@ export class DashboardComponent implements OnInit {
   socket_error: boolean = false;
   /////////////////////////
   // Others
+  host: string = "";
   orgs: Org[] = [];
   orgs_activated: Org[] = [];
   org_names: any = {};
@@ -250,7 +252,6 @@ export class DashboardComponent implements OnInit {
         () => { // Called when connection is closed (for whatever reason).
           console.log('complete')
           this.socket_connected = false;
-          console.log(this.socket_connected)
         }
       );
       this.socketSendPing();
@@ -271,7 +272,8 @@ export class DashboardComponent implements OnInit {
       next: data => {
         this.session_id = data.session_id;
         this.socket_path = data.socket_path;
-        this.socket_initialized=true;
+        this.host = data.host.replace("api", "manage");
+        this.socket_initialized = true;
         this.socketSubscibe();
       }, error: error => this.parseError(error)
     })
@@ -315,7 +317,6 @@ export class DashboardComponent implements OnInit {
 
   applyFilter() {
     this.possibleFilteringItems = [];
-    console.log(this.filteringItems.length)
     if (this.filteringItems.length == 0) this.filteredEventDataSource.data = this.eventDataSource;
     else {
       var tmp: any[] = [];
@@ -333,6 +334,12 @@ export class DashboardComponent implements OnInit {
     this.filteredEventDataSource.paginator = this.paginator;
     this.filteredEventDataSource.sort = this.sort;
     this.filteredEventDataSource.data.forEach(event => this.updatePossibleFilteringItems(event))
+    this.filteredEventDataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'date': return item.timestamp;
+        default: return item[property];
+      }
+    };
   }
 
   updatePossibleFilteringItems(event: any): void {
@@ -376,7 +383,71 @@ export class DashboardComponent implements OnInit {
   }
 
 
+  openSiteInsights(org_id: string, site_id: string): void {
+    const url = "https://" + this.host + "/admin/?org_id=" + org_id + "#!dashboard/insights/site/" + site_id + "/today/" + site_id;
+    window.open(url, "_blank");
+  }
+  openSiteEvents(org_id: string, site_id: string): void {
+    const url = "https://" + this.host + "/admin/?org_id=" + org_id + "#!marvis/" + site_id;
+    window.open(url, "_blank");
+  }
 
+
+  openDevicesList(device_type: string, org_id: string, site_id: string): void {
+    var device = null;
+    switch (device_type) {
+      case 'ap':
+        device = "ap";
+        break;
+      case 'switch':
+        device = "switch";
+        break;
+      case 'gateway':
+        device = "gateway";
+        break;
+    }
+    if (device) {
+      const url = "https://" + this.host + "/admin/?org_id=" + org_id + "#!" + device + "/" + site_id;
+      window.open(url, "_blank");
+    }
+  }
+  openDeviceConfig(device_type: string, device_mac: string, org_id: string, site_id: string): void {
+    var device = null;
+    switch (device_type) {
+      case 'ap':
+        device = "ap";
+        break;
+      case 'switch':
+        device = "switch";
+        break;
+      case 'gateway':
+        device = "gateway";
+        break;
+    }
+    if (device) {
+      const url = "https://" + this.host + "/admin/?org_id=" + org_id + "#!" + device + "/detail/00000000-0000-0000-1000-" +device_mac +"/" + site_id;
+      window.open(url, "_blank");
+    }
+  }
+  
+  openDeviceInsights(device_type: string, device_mac: string, org_id: string, site_id: string): void {
+    var device = null;
+    switch (device_type) {
+      case 'ap':
+        device = "device";
+        break;
+      case 'switch':
+        device = "juniperSwitch";
+        break;
+      case 'gateway':
+        device = "juniperGateway";
+        break;
+    }
+    if (device != "") {
+      const url = "https://" + this.host + "/admin/?org_id=" + org_id + "#!dashboard/insights/" + device + "/00000000-0000-0000-1000-" + device_mac + "/" + site_id;
+      window.open(url, "_blank");
+    }
+  }
 
   //////////////////////////////////////////////////////////////////////////////
   /////           BCK TO ORGS

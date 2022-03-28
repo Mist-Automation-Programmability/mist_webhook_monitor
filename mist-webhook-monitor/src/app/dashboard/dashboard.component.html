@@ -24,8 +24,8 @@
                             <mat-chip *ngFor="let item of filteringItems" (removed)="remove(item)" style="font-size: smaller; font-weight: normal; min-height: 20px;">
                                 {{item}}
                                 <button matChipRemove>
-                                <mat-icon>cancel</mat-icon>
-                            </button>
+                                    <mat-icon>cancel</mat-icon>
+                                </button>
                             </mat-chip>
                             <input placeholder="New Filter..." #filterInput matInput formControlName="filterGroup" [matAutocomplete]="autoGroup" [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="add($event)">
                         </mat-chip-list>
@@ -113,23 +113,31 @@
                                     <mat-icon>text_snippet</mat-icon>
                                     <span>Raw Data</span>
                                 </button>
-                                <button mat-menu-item>
+                                <button mat-menu-item [disabled]="!element.org_id || !element.site_id" (click)="openSiteInsights(element.org_id, element.site_id)">
                                     <mat-icon>analytics</mat-icon>
                                     <span>Site Insights</span>
                                 </button>
-                                <button mat-menu-item>
+                                <button mat-menu-item [disabled]="!element.org_id || !element.site_id" (click)="openSiteEvents(element.org_id, element.site_id)">
                                     <mat-icon>fact_check</mat-icon>
                                     <span>Site Events</span>
                                 </button>
-                                <button mat-menu-item>
+                                <button mat-menu-item *ngIf="element.device_type && element.device_type=='ap'" [disabled]="!element.org_id || !element.site_id" (click)="openDevicesList(element.device_type, element.org_id, element.site_id)">
                                     <mat-icon>list</mat-icon>
-                                    <span>Device List</span>
+                                    <span>APs List</span>
                                 </button>
-                                <button mat-menu-item>
+                                <button mat-menu-item *ngIf="element.device_type && element.device_type=='switch'" [disabled]="!element.org_id || !element.site_id" (click)="openDevicesList(element.device_type,element.org_id, element.site_id)">
+                                    <mat-icon>list</mat-icon>
+                                    <span>Switches List</span>
+                                </button>
+                                <button mat-menu-item *ngIf="element.device_type && element.device_type=='gateway'" [disabled]="!element.org_id || !element.site_id" (click)="openDevicesList(element.device_type,element.org_id, element.site_id)">
+                                    <mat-icon>list</mat-icon>
+                                    <span>Gateways List</span>
+                                </button>
+                                <button mat-menu-item *ngIf="element.device_type && element.mac" [disabled]="!element.org_id || !element.site_id" (click)="openDeviceInsights(element.device_type,element.mac, element.org_id, element.site_id)">
                                     <mat-icon>analytics</mat-icon>
                                     <span>Device Insights</span>
                                 </button>
-                                <button mat-menu-item>
+                                <button mat-menu-item *ngIf="element.device_type && element.mac" [disabled]="!element.org_id || !element.site_id" (click)="openDeviceConfig(element.device_type,element.mac, element.org_id, element.site_id)">
                                     <mat-icon>settings</mat-icon>
                                     <span>Device Configuration</span>
                                 </button>
@@ -149,6 +157,10 @@
             <div fxLayout="row" fxLayoutAlign="center center" *ngIf="!socket_initialized">Connecting...
                 <mat-spinner strokeWidth=3 diameter=20 style="margin: 0.5em;"></mat-spinner>
             </div>
+            <div fxLayout="row" fxLayoutAlign="center center" *ngIf="socket_initialized && socket_error">Unable to reconnect to the server...
+                <mat-progress-spinner mode="determinate" color="warn" value="100" strokeWidth=3 diameter=20 style="margin: 0.5em;">
+                </mat-progress-spinner>
+            </div>
             <div fxLayout="row" fxLayoutAlign="center center" *ngIf="socket_initialized && socket_connected && !socket_reconnecting && !socket_error">Connected
                 <mat-progress-spinner mode="determinate" color="accent" value="100" strokeWidth=3 diameter=20 style="margin: 0.5em;">
                 </mat-progress-spinner>
@@ -156,11 +168,6 @@
             <div fxLayout="row" fxLayoutAlign="center center" *ngIf="socket_initialized && !socket_connected && socket_reconnecting && !socket_error">Reconnecting...
                 <mat-spinner color="warn" strokeWidth=3 diameter=20 style="margin: 0.5em;"></mat-spinner>
             </div>
-            <div fxLayout="row" fxLayoutAlign="center center" *ngIf="socket_initialized && socket_error">Unable to reconnect to the server...
-                <mat-progress-spinner mode="determinate" color="warn" value="100" strokeWidth=3 diameter=20 style="margin: 0.5em;">
-                </mat-progress-spinner>
-            </div>
-
         </div>
     </div>
 </div>

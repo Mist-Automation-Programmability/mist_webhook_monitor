@@ -86,15 +86,16 @@ class WebhookPubSub {
      */
     publish(org_id, topic, message) {
         var count = 0;
-        console.log(this.channels[org_id])
-        this.channels[org_id][topic].forEach(socket => {
-            count += 1;
-            socket.send(JSON.stringify({
-                "action": "webhook",
-                "webhook": message
-            }));
-        });
-        console.log("Sent new webhook message to ", count, " sockets")
+        if (this.channels[org_id] && this.channels[org_id][topic]) {
+            this.channels[org_id][topic].forEach(socket => {
+                count += 1;
+                socket.send(JSON.stringify({
+                    "action": "webhook",
+                    "webhook": message
+                }));
+            });
+            console.log("Sent new webhook message to ", count, " sockets")
+        }
     }
 }
 
