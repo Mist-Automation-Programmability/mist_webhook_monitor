@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, Sort, MatSortable } from '@angular/material/sort';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 
 import { webSocket } from "rxjs/webSocket";
@@ -53,7 +53,6 @@ export class DashboardComponent implements OnInit {
 
   // table filter
   separatorKeysCodes: number[] = [ENTER, COMMA, SPACE];
-
   filteringItems: string[] = [];
   possibleFilteringItems: Filter[] = [];
   filterForm: FormGroup = this._formBuilder.group({
@@ -63,9 +62,9 @@ export class DashboardComponent implements OnInit {
 
   /////////////////////////
   // table
-  displayedColumns: string[] = ['date', 'type', 'org_name', 'site_name', 'device_name', 'device_mac', 'text', 'menu'];
+  displayedColumns: string[] = ['timestamp', 'type', 'org_name', 'site_name', 'device_name', 'mac', 'text', 'menu'];
   eventDataSource: any[] = [];
-  filteredEventDataSource: MatTableDataSource<any> = new MatTableDataSource();
+  filteredEventDataSource: MatTableDataSource<any>;
   pageIndex: number = 0
   pageSize: number = 25
   pageLength: number = 0
@@ -102,27 +101,30 @@ export class DashboardComponent implements OnInit {
   box_opened: boolean = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatSort) sort: MatSort = new MatSort();
   @ViewChild(MatTable) table!: MatTable<any>;
   @ViewChild('filterInput') filterInput!: ElementRef<HTMLInputElement>;
 
   ///////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////// CONSTRUCTOR
-  constructor(private _http: HttpClient, public _dialog: MatDialog, private _snackBar: MatSnackBar, private _router: Router, private _formBuilder: FormBuilder) { }
+  constructor(private _http: HttpClient, public _dialog: MatDialog, private _snackBar: MatSnackBar, private _router: Router, private _formBuilder: FormBuilder) { 
+    this.filteredEventDataSource = new MatTableDataSource();
+  }
 
   ///////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////// INIT
   ngOnInit(): void {
+    //this.filteredEventDataSource.paginator = this.paginator;
+
     this.filterOptions = this.filterForm.get('filterGroup')!.valueChanges.pipe(
       startWith(''),
       map(value => this._filterGroup(value)),
     );
-    this.filteredEventDataSource.paginator = this.paginator;
-    this.filteredEventDataSource.sort = this.sort;
     this.getOrgs();
-    this.getSocketSettings();
+    this.getSocketSettings();    
   }
 
+  
   parseError(error: any): void {
     if (error.status == "401") this._router.navigate(["/"])
     else {
@@ -208,6 +210,8 @@ export class DashboardComponent implements OnInit {
   }
 
   socketReceivedWebhook(webhook: any) {
+    var init = false;
+    if (this.eventDataSource.length == 0) init = true
     webhook.events.forEach((event: any) => {
       var tmp: any = {
         topic: webhook.topic,
@@ -223,7 +227,7 @@ export class DashboardComponent implements OnInit {
       this.updatePossibleFilteringItems(event);
     })
 
-    this.applyFilter();
+    this.applyFilter(init);
   }
 
   // WEBSOCKET FUNCTIONS
@@ -252,7 +256,6 @@ export class DashboardComponent implements OnInit {
           else if (!this.socket_connected && err.type == "error") this.socketIsInError();
         },
         () => { // Called when connection is closed (for whatever reason).
-          console.log('complete')
           this.socket_connected = false;
         }
       );
@@ -317,7 +320,7 @@ export class DashboardComponent implements OnInit {
   /////           TABLE
   //////////////////////////////////////////////////////////////////////////////
 
-  applyFilter() {
+  applyFilter(init:boolean=false) {
     this.possibleFilteringItems = [];
     if (this.filteringItems.length == 0) this.filteredEventDataSource.data = this.eventDataSource;
     else {
@@ -336,17 +339,15 @@ export class DashboardComponent implements OnInit {
     this.filteredEventDataSource.paginator = this.paginator;
     this.filteredEventDataSource.sort = this.sort;
     this.filteredEventDataSource.data.forEach(event => this.updatePossibleFilteringItems(event))
-    this.filteredEventDataSource.sortingDataAccessor = (item, property) => {
-      switch (property) {
-        case 'date': return item.timestamp;
-        default: return item[property];
-      }
-    };
+    if (init){
+    this.sort.sort(({ id: 'timestamp', start: 'desc'}) as MatSortable);
+    this.filteredEventDataSource.sort = this.sort;
+    }
   }
 
   updatePossibleFilteringItems(event: any): void {
     this.displayedColumns.forEach(column => {
-      if (column != "text" && event[column]) {
+      if (!["text", "timestamp"].includes(column) && event[column]) {
         var tmp = this.possibleFilteringItems.filter(item => item.column == column);
         if (tmp.length == 0) this.possibleFilteringItems.push({ "column": column, "values": [event[column]] })
         else if (!tmp[0].values.includes(event[column])) (tmp[0].values.push(event[column]))
@@ -441,7 +442,6 @@ export class DashboardComponent implements OnInit {
       data: { orgs_list: this.orgs, orgs_activated: this.orgs_activated, topics: this.topics }
     });
     dialogRef.afterClosed().subscribe(result => {
-      console.log(result)
       const message = { "action": "subscribe", "org_ids": result.org_ids, "topics": result.topics };
       this.socket.next(message);
     })
@@ -449,7 +449,6 @@ export class DashboardComponent implements OnInit {
 
   // RAW DASTA
   openRaw(element:any): void {
-    console.log(element)
     const dialogRef = this._dialog.open(RawDialog, {
       data: element.raw_message
     });    

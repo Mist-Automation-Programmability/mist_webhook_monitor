@@ -2,7 +2,7 @@
     <!-- NAV  -->
     <div fxLayout="row" fxLayoutAlign="flex-end center" class="nav">
         <div fxLayout="row" fxLayoutAlign="start">
-            <button mat-icon-button color="primary" aria-label="Example icon button with a heart icon">
+            <button mat-icon-button color="primary" aria-label="Example icon button with a heart icon" disabled>
                 <mat-icon>view_column</mat-icon>
             </button>
             <button mat-icon-button color="primary" aria-label="Configuration" (click)="openConfig()">
@@ -47,10 +47,10 @@
                 <table mat-table [dataSource]="filteredEventDataSource" matSort>
 
                     <!-- DATE -->
-                    <ng-container matColumnDef="date">
+                    <ng-container matColumnDef="timestamp">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
                         <td mat-cell *matCellDef="let element">
-                            <div *ngIf="element.timestamp"> {{element.timestamp * 1000 | date:'dd/MM/yy, hh:mm:ss '}}
+                            <div *ngIf="element.timestamp"> {{element.timestamp * 1000 | date:'dd/MM/yy, HH:mm:ss '}}
                             </div>
                         </td>
                     </ng-container>
@@ -88,7 +88,7 @@
                     </ng-container>
 
                     <!-- DEVICE MAC -->
-                    <ng-container matColumnDef="device_mac">
+                    <ng-container matColumnDef="mac">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>DEVICE MAC</th>
                         <td mat-cell *matCellDef="let element">
                             {{element.mac}}</td>
