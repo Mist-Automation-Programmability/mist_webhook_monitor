@@ -60,3 +60,14 @@ tr.mat-footer-row {
     margin: auto;
     align-self: center;
 }
+
+td.new {
+    background-color: #86b2312d;
+}
+
+td.old {
+    background-color: unset;
+    -webkit-transition: background-color 1000ms linear;
+    -ms-transition: background-color 1000ms linear;
+    transition: background-color 1000ms linear;
+}

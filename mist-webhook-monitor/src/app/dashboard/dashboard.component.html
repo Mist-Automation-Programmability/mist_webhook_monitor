@@ -48,63 +48,71 @@
 
                     <!-- DATE -->
                     <ng-container matColumnDef="timestamp">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
-                        <td mat-cell *matCellDef="let element">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 10em;">Date</th>
+                        <td mat-cell *matCellDef="let element" [ngClass]="element._new ? 'new': 'old'">
                             <div *ngIf="element.timestamp"> {{element.timestamp * 1000 | date:'dd/MM/yy, HH:mm:ss '}}
                             </div>
                         </td>
                     </ng-container>
 
+                    <!-- EVENT TOPIC -->
+                    <ng-container matColumnDef="topic">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 8em;">TOPIC</th>
+                        <td mat-cell *matCellDef="let element" [ngClass]="element._new ? 'new': 'old'">
+                            {{element.topic}}
+                        </td>
+                    </ng-container>
+
                     <!-- EVENT TYPE -->
                     <ng-container matColumnDef="type">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>EVENT TYPE</th>
-                        <td mat-cell *matCellDef="let element">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 15em;">EVENT TYPE</th>
+                        <td mat-cell *matCellDef="let element" [ngClass]="element._new ? 'new': 'old'">
                             {{element.type}}
                         </td>
                     </ng-container>
 
                     <!-- ORG -->
                     <ng-container matColumnDef="org_name">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>ORG</th>
-                        <td mat-cell *matCellDef="let element">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 10em;">ORG</th>
+                        <td mat-cell *matCellDef="let element" [ngClass]="element._new ? 'new': 'old'">
                             {{element.org_name}}
                         </td>
                     </ng-container>
 
                     <!-- SITE -->
                     <ng-container matColumnDef="site_name">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>SITE</th>
-                        <td mat-cell *matCellDef="let element">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 12em;">SITE</th>
+                        <td mat-cell *matCellDef="let element" [ngClass]="element._new ? 'new': 'old'">
                             {{element.site_name}}
                         </td>
                     </ng-container>
 
                     <!-- DEVICE NAME -->
                     <ng-container matColumnDef="device_name">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>DEVICE NAME</th>
-                        <td mat-cell *matCellDef="let element">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 12em;">DEVICE NAME</th>
+                        <td mat-cell *matCellDef="let element" [ngClass]="element._new ? 'new': 'old'">
                             {{element.device_name}}
                         </td>
                     </ng-container>
 
                     <!-- DEVICE MAC -->
                     <ng-container matColumnDef="mac">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>DEVICE MAC</th>
-                        <td mat-cell *matCellDef="let element">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 9em;">DEVICE MAC</th>
+                        <td mat-cell *matCellDef="let element" [ngClass]="element._new ? 'new': 'old'">
                             {{element.mac}}</td>
                     </ng-container>
 
                     <!-- EVENT TEXT -->
                     <ng-container matColumnDef="text">
                         <th mat-header-cell *matHeaderCellDef>EVENT DETAILS</th>
-                        <td mat-cell *matCellDef="let element">
+                        <td mat-cell *matCellDef="let element" [ngClass]="element._new ? 'new': 'old'">
                             {{element.text}}</td>
                     </ng-container>
 
                     <!-- MENU -->
                     <ng-container matColumnDef="menu">
                         <th mat-header-cell *matHeaderCellDef></th>
-                        <td mat-cell *matCellDef="let element">
+                        <td mat-cell *matCellDef="let element" [ngClass]="element._new ? 'new': 'old'">
                             <button mat-icon-button [matMenuTriggerFor]="menu" style="color: #0e63ad;" aria-label="Example icon-button with a menu">
                                 <mat-icon>more_vert</mat-icon>
                             </button>
