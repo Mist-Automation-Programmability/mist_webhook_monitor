@@ -18,6 +18,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
 
 import { ConfigDialog } from './config/config.component';
 import { RawDialog } from './raw_data/raw.component';
+import { typeWithParameters } from '@angular/compiler/src/render3/util';
 
 
 export interface Org {
@@ -77,8 +78,8 @@ export class DashboardComponent implements OnInit {
   private socket = webSocket('');
   private socket_path: string = "";
   private socket_retry_count: number = 0;
-  private socket_retry_retry_timeout: number = 10000;
-  private socket_retry_max_retry: number = 30;
+  private socket_rretry_timeout: number = 5000;
+  private socket_retry_max_retry: number = 60;
   socket_initialized: boolean = false;
   socket_connected: boolean = false;
   socket_reconnecting: boolean = false;
@@ -203,14 +204,20 @@ export class DashboardComponent implements OnInit {
   socketIsClosed(): void {
     this.socket_connected = false;
     this.socket_retry_count += 1;
-    this.socketSubscibe(this.socket_retry_retry_timeout)
+
+    var timeout = this.socket_rretry_timeout;
+    if (this.socket_retry_count > this.socket_retry_max_retry) timeout = 60000;
+    this.socketSubscibe(timeout)
   }
 
   socketIsInError(): void {
     this.socket_connected = false;
     this.socket_retry_count += 1;
     if (this.socket_retry_count >= this.socket_retry_max_retry) this.socket_error = true;
-    else this.socketSubscibe(this.socket_retry_retry_timeout)
+    
+    var timeout = this.socket_rretry_timeout;
+    if (this.socket_retry_count > this.socket_retry_max_retry) timeout = 60000;
+    this.socketSubscibe(timeout)
   }
 
   socketReceivedWebhook(webhook: any) {
@@ -288,7 +295,7 @@ export class DashboardComponent implements OnInit {
         this.session_id = data.session_id;
         this.socket_path = data.socket_path;
         this.host = data.host.replace("api", "manage");
-        this.socket_initialized = true;
+        this.socket_initialized = true;        
         this.socketSubscibe();
       }, error: error => this.parseError(error)
     })
@@ -483,6 +490,9 @@ export class DashboardComponent implements OnInit {
   /////           BCK TO ORGS
   //////////////////////////////////////////////////////////////////////////////
   logout(): void {
-    this._http.post<any>("/api/logout", { session_id: this.session_id })
+    this._http.post<any>("/api/logout", { session_id: this.session_id }).subscribe({
+      next: data => this._router.navigate(["/"]),
+      error: error => this.parseError(error)
+    })
   }
 }

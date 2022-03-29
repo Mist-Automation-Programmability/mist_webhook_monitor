@@ -6,7 +6,7 @@
         <div fxLayout="row" fxLayoutAlign="center center" *ngIf="!socket_initialized">Connecting...
             <mat-spinner strokeWidth=2 diameter=15 style="margin: 0.5em;"></mat-spinner>
         </div>
-        <div fxLayout="row" fxLayoutAlign="center center" *ngIf="socket_initialized && socket_error">Unable to reconnect to the server...
+        <div fxLayout="row" fxLayoutAlign="center center" *ngIf="socket_initialized && socket_error">Lost...
             <mat-progress-spinner mode="determinate" color="warn" value="100" strokeWidth=2 diameter=15 style="margin: 0.5em;">
             </mat-progress-spinner>
         </div>
@@ -28,7 +28,7 @@
             <button mat-icon-button color="primary" aria-label="Configuration" (click)="openConfig()">
                 <mat-icon>settings</mat-icon>
             </button>
-            <button mat-icon-button color="primary" aria-label="Example icon button with a heart icon">
+            <button mat-icon-button color="primary" aria-label="Example icon button with a heart icon" (click)="logout()">
                 <mat-icon>logout</mat-icon>
             </button>
         </div>
