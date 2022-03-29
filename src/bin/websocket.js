@@ -10,6 +10,21 @@ function send(ws, message) {
     ws.send(JSON.stringify(message));
 }
 
+
+/**
+ * Check the user has a write access to the org
+ * @param {string} org_id - Org the user want to configure
+ * @param {Array} privileges - User Privileges
+ * @returns {Boolean} 
+ *  */
+function _is_authorized(org_id, privileges) {
+    var authorized = false;
+    privileges.forEach(privilege => {
+        if (privilege.scope == "org" && privilege.org_id == org_id && privilege.role == "admin") authorized = true;
+    })
+    return authorized;
+}
+
 function connection(ws, req) {
 
     map.set(req.session.session_id, ws);
@@ -49,6 +64,12 @@ function connection(ws, req) {
                                 })
                             })
 
+                            var message_org_ids = [];
+                            json_message.org_ids.forEach(org_id => {
+                                if (!_is_authorized(org_id, req.session.self.privileges)) send(ws, "Not authorized to accesss org " + org_id);
+                                else message_org_ids.push(org_id)
+                            })
+
                             // If topics changed, update the org already subscribed and save the new topic list
                             if (json_message.topics.length == 0) {
                                 unsubscribe.all_orgs(req.session.session_id, (err, org_id) => {
@@ -56,9 +77,9 @@ function connection(ws, req) {
                                     if (org_id) PubSubManager.unsubscribe(socket_id, org_id, current_topics);
                                 })
                             } else {
-                                const org_ids_to_update = json_message.org_ids.filter(x => current_org_ids.includes(x));
-                                const org_ids_to_unsub = current_org_ids.filter(x => !json_message.org_ids.includes(x));
-                                const org_ids_to_sub = json_message.org_ids.filter(x => !current_org_ids.includes(x));
+                                const org_ids_to_update = message_org_ids.filter(x => current_org_ids.includes(x));
+                                const org_ids_to_unsub = current_org_ids.filter(x => !message_org_ids.includes(x));
+                                const org_ids_to_sub = message_org_ids.filter(x => !current_org_ids.includes(x));
                                 const topics_to_unsub = current_topics.filter(x => !json_message.topics.includes(x));
                                 const topics_to_sub = json_message.topics.filter(x => !current_topics.includes(x));
 

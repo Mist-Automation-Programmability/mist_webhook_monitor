@@ -25,15 +25,17 @@ function _delete_org_config_and_token(org_id, cb) {
 
 
 function _update_org_topics_on_stop(session_id, org_id, cb) {
-    Session.find({ org_id: org_id }, (err, db_sessions) => {
+    Session.find({ org_id: org_id, session_id: { $ne: session_id } }, (err, db_sessions) => {
         if (err) {
             console.log("Unable to retrieve the sessions from DB for org_id" + org_id + ". Error: " + err)
             cb("Error when retrieving the sessions information from the DB")
         } else if (db_sessions.length == 0) {
-            console.log("Unable to retrieve the sessions froom DB for org_id" + org_id + ". Not found")
-            cb("Session not found")
-        } else if (db_sessions.length == 1) _delete_org_config_and_token(org_id, (err) => cb(err))
-        else {
+            _delete_org_config_and_token(org_id, (err) => {
+                if (err) cb(err);
+                WH.deleteOne({ org_id: org_id }, (err) => cb(err));
+            });
+
+        } else {
             let topics_in_use = [];
             db_sessions.forEach(session => {
                 if (session.session_id != session_id) {

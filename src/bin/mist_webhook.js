@@ -62,7 +62,7 @@ module.exports.update = function(mist, org_id, webhook_id, topics, cb) {
     const data = {
         "topics": topics
     }
-    console.log(data)
+
     api.PUT(mist, path, data, (err, data) => {
         if (err) {
             console.log(err)
