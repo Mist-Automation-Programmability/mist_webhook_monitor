@@ -19,6 +19,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 **Note:** 
 The application creates an Org API Token to be able to delete the Webhook configuration when the web browser session is closed. As of today, it is not possible to programmaticaly delete the Org Token, and it has to be done manually by the administrators.
 
+<div>
+<img src="https://github.com/tmunzer/mist_webhook_monitor/raw/main/._readme/img/config.png"  width="49%"  />
+<img src="https://github.com/tmunzer/mist_webhook_monitor/raw/main/._readme/img/view.png"  width="49%"  />
+</div>
+  
 ### Supported Webhook Topics
 * alarms
 * audit
