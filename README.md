@@ -19,6 +19,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 **Note:** 
 The application creates an Org API Token to be able to delete the Webhook configuration when the web browser session is closed. As of today, it is not possible to programmaticaly delete the Org Token, and it has to be done manually by the administrators.
 
+<div>
+<img src="https://github.com/tmunzer/mist_webhook_monitor/raw/main/._readme/img/config.png"  width="49%"  />
+<img src="https://github.com/tmunzer/mist_webhook_monitor/raw/main/._readme/img/view.png"  width="49%"  />
+</div>
+  
 ### Supported Webhook Topics
 * alarms
 * audit
@@ -70,8 +75,6 @@ SMTP_PASSWORD | string | null | SMTP user password (if authentication is require
 SMTP_FROM_NAME | string | Wi-Fi Access | Sender name |
 SMTP_FROM_EMAIL | string | wi-fi@corp.org | Sender email |
 SMTP_LOGO_URL | string | https://cdn.mist.com/wp-content/uploads/logo.png | URL to the logo to use in the Email |
-GOOGLE_CLIENTID | string | null | Google API Client_ID if Google Auth is used |
-GOOGLE_CLIENTSECRET | string | null | Google API Client_Secret if Google Auth is used |
 APP_DISCLAIMER | string | null | Disclaimer to display on the Admin login page |
 
 ### Permanent storage
