@@ -73,7 +73,7 @@ module.exports.POST = function(mist, path, data, callback) {
  * @param {String} path - path to request the ACS endpoint
  * @param {Object} data - data to include to the POST Request
  *  */
-module.exports.PUT = function(mist, path, callback) {
+module.exports.PUT = function(mist, path, data, callback) {
     let rejectUnauthorized = true;
 
     const headers = generate_headers(mist)
@@ -85,7 +85,8 @@ module.exports.PUT = function(mist, path, callback) {
         method: "PUT",
         headers: headers
     };
-    this.httpRequest(options, callback);
+    const body = JSON.stringify(data);
+    this.httpRequest(options, callback, body);
 };
 /**
  * HTTP DELETE Request

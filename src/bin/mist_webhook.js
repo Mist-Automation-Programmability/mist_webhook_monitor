@@ -4,13 +4,13 @@ var crypto = require("crypto");
  * Create Mist Webhook
  * @param {Object} mist - API credentials
  * @param {String} mist.host - Mist Cloud to request
- * @param {String} mist.org_id - Mist ORG to use
  * @param {String} mist.apitoken - Mist TOKEN to use
  * @param {Object} mist.cookie - If not token, use the Mist session cookies
+ * @param {String} org_id - Mist ORG to use
  * @param {Array} topics - list of topics to register
  * @param {String} cb(err, data) 
  *  */
-module.exports.create = function(mist, topics, cb) {
+module.exports.create = function(mist, org_id, topics, cb) {
     var webhook_url;
 
     if (global.CONFIG.NODE_WEBHOOK_HTTPS) webhook_url = "https://";
@@ -21,10 +21,10 @@ module.exports.create = function(mist, topics, cb) {
 
     if (global.CONFIG.NODE_WEBHOOK_PORT) webhook_url += ":" + global.CONFIG.NODE_WEBHOOK_PORT;
 
-    webhook_url += "/wh-collector/" + mist.org_id;
+    webhook_url += "/wh-collector/" + org_id;
 
     const secret = crypto.randomBytes(20).toString('hex');
-    const path = "/api/v1/orgs/" + mist.org_id + "/webhooks"
+    const path = "/api/v1/orgs/" + org_id + "/webhooks"
     const data = {
         "enabled": true,
         "name": global.CONFIG.NODE_WEBHOOK_NAME,
@@ -50,19 +50,19 @@ module.exports.create = function(mist, topics, cb) {
  * Update Mist Webhook
  * @param {Object} mist - API credentials
  * @param {String} mist.host - Mist Cloud to request
- * @param {String} mist.org_id - Mist ORG to use
  * @param {String} mist.apitoken - Mist TOKEN to use
  * @param {Object} mist.cookie - If not token, use the Mist session cookies
+ * @param {String} org_id - Mist ORG to use
  * @param {String} webhook_id - webhook_id to update
  * @param {Array} topics - list of topics to register
  * @param {String} cb(err, data) 
  *  */
-module.exports.update = function(mist, webhook_id, topics, cb) {
-    const path = "/api/v1/orgs/" + mist.org_id + "/webhooks/" + webhook_id
+module.exports.update = function(mist, org_id, webhook_id, topics, cb) {
+    const path = "/api/v1/orgs/" + org_id + "/webhooks/" + webhook_id
     const data = {
         "topics": topics
     }
-
+    console.log(data)
     api.PUT(mist, path, data, (err, data) => {
         if (err) {
             console.log(err)

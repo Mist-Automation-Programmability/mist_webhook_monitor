@@ -10,11 +10,11 @@ const Webhook_functions = require("./webhook_common");
  * Check if Mist API Token is still present
  * @param {Object} mist - API credentials
  * @param {String} mist.host - Mist Cloud to request
- * @param {String} mist.org_id - Mist ORG to use
+ * @param {String} org_id - Mist ORG to use
  * @param {String} callback(err, data) 
  *  */
-function _check_token(mist, cb) {
-    WH.findOne({ org_id: mist.org_id }, (err, db_data) => {
+function _check_token(mist, org_id, cb) {
+    WH.findOne({ org_id: org_id }, (err, db_data) => {
         if (err) cb(err);
         else if (!db_data) cb(null, false);
         else Token.check(mist, db_data.apitoken_id, (err, cloud_apitoken) => {
@@ -29,7 +29,6 @@ function _check_token(mist, cb) {
  * Update and save Mist API Token
  * @param {Object} mist - API credentials
  * @param {String} mist.host - Mist Cloud to request
- * @param {String} mist.org_id - Mist ORG to use
  * @param {Object} db_data - webhook object from WH
  * @param {String} callback(err, data) 
  *  */
@@ -52,14 +51,14 @@ function _update_and_save_token(mist, db_data, cb) {
  * Update Mist Webhooks and Tokens
  * @param {Object} mist - API credentials
  * @param {String} mist.host - Mist Cloud to request
- * @param {String} mist.org_id - Mist ORG to use
+ * @param {String} org_id - Mist ORG to use
  * @param {Object} db_data - webhook object from WH
  * @param {Array} topics - list of topics to register
  * @param {String} callback(err) 
  *  */
-function _update_mist_config(mist, db_data, topics, cb) {
+function _update_mist_config(mist, org_id, db_data, topics, cb) {
     // check if the token is in the DB and still exists in Mist
-    _check_token(mist, (err, exists) => {
+    _check_token(mist, org_id, (err, exists) => {
         if (err) cb(err);
         else if (!exists) {
             // If not, try to create a new one with the Mist Cookies from the user
@@ -67,31 +66,31 @@ function _update_mist_config(mist, db_data, topics, cb) {
                 if (err) cb(err)
                 if (!is_updated) cb("Unable to update API TOKEN")
                     // update the topics in Mist and save the changes in the Sessions DB
-                else Webhook_functions.update_topics(mist, db_data, topics, err => cb(err))
+                else Webhook_functions.update_topics(mist, org_id, db_data, topics, err => cb(err))
             })
-        } else Webhook_functions.update_topics(mist, db_data, topics, err => cb(err))
+        } else Webhook_functions.update_topics(mist, org_id, db_data, topics, err => cb(err))
     })
 }
 /**
  * Update Mist Webhooks and Tokens
  * @param {Object} mist - API credentials
  * @param {String} mist.host - Mist Cloud to request
- * @param {String} mist.org_id - Mist ORG to use
+ * @param {String} org_id - Mist ORG to use
  * @param {Array} topics - list of topics to register
  * @param {String} callback(err)
  *  */
-function _create_mist_config(mist, topics, cb) {
+function _create_mist_config(mist, org_id, topics, cb) {
     Token.generate(mist, (err, cloud_apitoken) => {
         if (err) cb(err)
         else if (!cloud_apitoken) cb()
         else {
-            Webhook.create(mist, topics, (err, webhook) => {
+            Webhook.create(mist, org_id, topics, (err, webhook) => {
                 if (err) cb(err)
                 else if (!webhook) cb()
                 else {
                     const data = {
                         host: mist.host,
-                        org_id: mist.org_id,
+                        org_id: org_id,
                         apitoken: cloud_apitoken.key,
                         apitoken_id: cloud_apitoken.id,
                         webhook_id: webhook.id,
@@ -115,12 +114,20 @@ function _create_mist_config(mist, topics, cb) {
  * @param {String} callback(err) 
  *  */
 function _save_socket_info(session_id, org_id, topics, cb) {
-    const new_session = {
-        session_id: session_id,
-        org_id: org_id,
-        topics: topics
-    }
-    Session(new_session).save(err => cb(err));
+    Session.findOne({ org_id: org_id, session_id: session_id }, (err, db_data) => {
+        if (err) cb("Unable to update session in DB");
+        else if (!db_data) {
+            const new_session = {
+                session_id: session_id,
+                org_id: org_id,
+                topics: topics
+            }
+            Session(new_session).save(err => cb(err));
+        } else {
+            db_data.topics = topics;
+            db_data.save(err => cb(err))
+        }
+    })
 }
 
 /**
@@ -132,11 +139,10 @@ function _save_socket_info(session_id, org_id, topics, cb) {
  * @param {String} callback(err) 
  *  */
 function _init(mist, org_id, topics, cb) {
-    mist.org_id = org_id;
-    WH.findOne({ org_id: mist.org_id }, (err, db_data) => {
+    WH.findOne({ org_id: org_id }, (err, db_data) => {
         if (err) cb(err)
-        else if (db_data) _update_mist_config(mist, db_data, topics, err => cb(err));
-        else _create_mist_config(mist, topics, err => cb(err));
+        else if (db_data) _update_mist_config(mist, org_id, db_data, topics, err => cb(err));
+        else _create_mist_config(mist, org_id, topics, err => cb(err));
     })
 }
 

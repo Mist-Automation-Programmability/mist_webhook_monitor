@@ -77,7 +77,7 @@ class WebhookPubSub {
      */
     unsubscribe(socket_id, org_id, topics) {
         topics.forEach(topic => {
-            if (this.channels[org_id][topic].hasOwnProperty(socket_id)) delete this.channels[org_id][topic][socket_id]
+            if (this.channels[org_id].hasOwnProperty(topic) && this.channels[org_id][topic].hasOwnProperty(socket_id)) delete this.channels[org_id][topic][socket_id]
             if (Object.keys(this.channels[org_id][topic]).length == 0) delete this.channels[org_id][topic];
             console.log('Session unsubscribed from ' + topic + " for org " + org_id);
         })

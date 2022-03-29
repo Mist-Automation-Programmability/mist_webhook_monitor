@@ -12,8 +12,7 @@ function _delete_org_config_and_token(org_id, cb) {
     WH.findOne({ org_id: org_id }, (err, db_data) => {
         if (err) cb("Error when requesting the DB")
         else if (!db_data) cb("Session not found")
-        error.webhook = err;
-        Webhook.delete(db_data, db_data.webhook_id, (err) => {
+        else Webhook.delete(db_data, db_data.webhook_id, (err) => {
             if (err) cb("Error when deleting the Webhook configuration from the Org")
             else Token.delete(db_data, db_data.apitoken_id, (err) => {
                 if (err) cb("Error when deleting the Token from the Org")
@@ -49,8 +48,11 @@ function _update_org_topics_on_stop(session_id, org_id, cb) {
                 if (err) cb(err)
                 else if (!db_data) cb("Session not found")
                 else {
-                    Webhook_functions.update_topics(
-                        db_data,
+                    Webhook_functions.update_topics({
+                            host: db_data.host,
+                            apitoken: db_data.apitoken
+                        },
+                        org_id,
                         db_data,
                         topics_in_use,
                         err => {
@@ -83,9 +85,7 @@ module.exports.all_orgs = function(session_id, cb) {
             db_sessions.forEach(db_session => {
                 _update_org_topics_on_stop(db_session.session_id, db_session.org_id, err => {
                     if (err) cb(err, db_session.org_id, db_session.topics)
-                    else {
-                        db_session.delete(err => cb(err, db_session.org_id, db_session.topics));
-                    }
+                    else db_session.delete(err => cb(err, db_session.org_id, db_session.topics));
                 })
             })
         }
@@ -112,7 +112,10 @@ module.exports.orgs = function(session_id, org_ids, cb) {
                 org_ids.forEach(org_id => {
                     _update_org_topics_on_stop(db_session.session_id, db_session.org_id, err => {
                         if (err) cb(err, db_session.org_id, db_session.topics)
-                        else cb(null, org_id, db_session.topics)
+                        else {
+                            db_session.delete();
+                            cb(null, org_id, db_session.topics);
+                        }
                     })
                 })
             }

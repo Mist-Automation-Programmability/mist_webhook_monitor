@@ -43,12 +43,13 @@ function connection(ws, req) {
                             var current_org_ids = [];
                             var current_topics = [];
                             db_sessions.forEach(db_session => {
-                                    current_org_ids.push(db_session.org_id)
-                                    db_session.topics.forEach(topic => {
-                                        if (!current_topics.includes(topic)) current_topics.push((topic));
-                                    })
+                                current_org_ids.push(db_session.org_id)
+                                db_session.topics.forEach(topic => {
+                                    if (!current_topics.includes(topic)) current_topics.push((topic));
                                 })
-                                // If topics changed, update the org already subscribed and save the new topic list
+                            })
+
+                            // If topics changed, update the org already subscribed and save the new topic list
                             if (json_message.topics.length == 0) {
                                 unsubscribe.all_orgs(req.session.session_id, (err, org_id) => {
                                     if (err) console.log("Unable to clean up config for org_id " + org_id + ". Error: " + err);
@@ -61,25 +62,25 @@ function connection(ws, req) {
                                 const topics_to_unsub = current_topics.filter(x => !json_message.topics.includes(x));
                                 const topics_to_sub = json_message.topics.filter(x => !current_topics.includes(x));
 
-                                if (org_ids_to_update.lenth > 0) subscribe.orgs(
-                                    req.session.mist,
-                                    req.session.self.privileges,
-                                    req.session.session_id,
-                                    org_ids_to_update,
-                                    json_message.topics,
-                                    (err, org_id) => {
-                                        if (err) send(ws, { "action": "subscribe", "result": "error", "message": err })
-                                        else {
-                                            PubSubManager.unsubscribe(socket_id, org_id, topics_to_unsub);
-                                            PubSubManager.subscribe(socket_id, ws, org_id, topics_to_sub);
-                                            send(ws, { "action": "subscribe", "result": "successn", "message": "Mist configuration updated" })
-                                        }
-                                    })
+                                if (org_ids_to_update.length > 0 && (topics_to_sub.length > 0 || topics_to_unsub.length > 0))
+                                    subscribe.orgs(
+                                        req.session.mist,
+                                        req.session.self.privileges,
+                                        req.session.session_id,
+                                        org_ids_to_update,
+                                        json_message.topics,
+                                        (err, org_id) => {
+                                            if (err) send(ws, { "action": "subscribe", "result": "error", "message": err })
+                                            else {
+                                                PubSubManager.unsubscribe(socket_id, org_id, topics_to_unsub);
+                                                PubSubManager.subscribe(socket_id, ws, org_id, topics_to_sub);
+                                                send(ws, { "action": "subscribe", "result": "successn", "message": "Mist configuration updated" })
+                                            }
+                                        })
 
 
                                 // If orgs where removed, unsub
-                                if (org_ids_to_unsub.length > 0) {
-
+                                if (org_ids_to_unsub.length > 0)
                                     unsubscribe.orgs(
                                         req.session.session_id,
                                         org_ids_to_unsub,
@@ -90,10 +91,9 @@ function connection(ws, req) {
                                                 send(ws, { "action": "subscribe", "result": "success", "message": "Configuration updated", org_id: org_id });
                                             }
                                         });
-                                }
-                                // If orgs where added, sub
-                                if (org_ids_to_sub.length > 0) {
 
+                                // If orgs where added, sub
+                                if (org_ids_to_sub.length > 0)
                                     subscribe.orgs(
                                         req.session.mist,
                                         req.session.self.privileges,
@@ -107,7 +107,7 @@ function connection(ws, req) {
                                                 send(ws, { "action": "subscribe", "result": "success", "message": "Mist configuration updated" })
                                             }
                                         })
-                                }
+
                             }
                         }
                     })
