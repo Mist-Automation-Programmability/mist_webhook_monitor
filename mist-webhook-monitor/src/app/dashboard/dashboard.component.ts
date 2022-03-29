@@ -178,9 +178,13 @@ export class DashboardComponent implements OnInit {
         this.socket_retry_count = 0
         const org_ids = msg.org_ids;
         const topics: string[] = msg.topics;
+        var tmp_orgs:Org[] = [];
         this.orgs.forEach(org => {
-          if (org_ids.includes(org.org_id)) this.orgs_activated.push(org)
+          if (org_ids.includes(org.org_id)) this.orgs_activated.push(org)            
+          else tmp_orgs.push(org)
         })
+        this.orgs = tmp_orgs;
+
         topics.forEach(topic => {
           (this.topics as any)[topic] = true
         })
@@ -492,7 +496,11 @@ export class DashboardComponent implements OnInit {
   //////////////////////////////////////////////////////////////////////////////
   logout(): void {
     this._http.post<any>("/api/logout", { session_id: this.session_id }).subscribe({
-      next: data => this._router.navigate(["/"]),
+      next: data => {
+        this.socket.complete();
+        this.session_id = "";
+        this._router.navigate(["/"]);
+      },
       error: error => this.parseError(error)
     })
   }
