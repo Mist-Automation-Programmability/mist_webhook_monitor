@@ -1,8 +1,23 @@
 <mat-card-content fxLayout="column">
-    <div>
+    <div fxLayout="row" fxLayoutAlign="start end">
+        <h3>General</h3>
+        <div style="margin-left: 2em">
+            <mat-form-field>
+                <mat-label>Max Events in Memory</mat-label>
+                <input type="number" matInput [(ngModel)]="maxItems" cdkFocusInitial min="0" placeholder="5000">
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div style="margin: 1em 3em">
+        <mat-divider></mat-divider>
+    </div>
+
+    <div fxLayout="row" fxLayoutAlign="start end" style="margin-top: 16px">
         <h3>Topics</h3>
-        <div fxLayout="row" fxLayoutAlign="space-between start">
-            <div *ngFor="let topic of topics | keyvalue">
+
+        <div fxLayout="row" fxLayoutAlign="space-between start" style="margin:0 0 16px">
+            <div *ngFor="let topic of topics | keyvalue" style="margin: 0 2em;">
 
                 <mat-slide-toggle [checked]="topic.value" (change)="updateTopic(topic.key, $event)">
                     {{topic.key}}
@@ -10,38 +25,40 @@
 
             </div>
         </div>
-        <div style="margin: 3em">
-            <mat-divider></mat-divider>
-        </div>
-        <h3>Orgs</h3>
-        <div fxLayout="row" fxLayoutAlign="space-around" style="width: 75vw;">
-            <div fxLayout="column">
-                <h4>Available Orgs</h4>
+    </div>
 
-                <mat-list style="height: 400px; width: 350px; overflow-y: auto; overflow-x:clip; border: 1px solid lightgray; border-radius: 5px;">
-                    <mat-list-item *ngFor="let org of orgs_list" class="orgs" (click)="addOneOrg(org)" style="justify-content: space-between;">
-                        <div style="flex: auto;">
-                            {{org.name}}
-                        </div>
-                        <span class="material-icons">
-                                arrow_forward
-                                </span>
-                    </mat-list-item>
-                </mat-list>
-            </div>
-            <div fxLayout="column">
-                <h4>Activated Orgs</h4>
-                <mat-list style="height: 400px; width: 350px; overflow-y: auto; overflow-x:clip; border: 1px solid lightgray; border-radius: 5px; ">
-                    <mat-list-item *ngFor="let org of orgs_activated" class="orgs" (click)="deleteOneOrg(org)">
-                        <span class="material-icons">
-                                arrow_backward
-                            </span>
-                        <div style="flex: auto;">
-                            {{org.name}}
-                        </div>
-                    </mat-list-item>
-                </mat-list>
-            </div>
+    <div style="margin: 1em 3em">
+        <mat-divider></mat-divider>
+    </div>
+
+    <div fxLayout="row" fxLayoutAlign="space-around" style="width: 60em;">
+        <h3>Orgs</h3>
+        <div fxLayout="column">
+            <h4>Available Orgs</h4>
+
+            <mat-list style="height: 400px; width: 350px; overflow-y: auto; overflow-x:clip; border: 1px solid lightgray; border-radius: 5px;">
+                <mat-list-item *ngFor="let org of orgs_list" class="orgs" (click)="addOneOrg(org)" style="justify-content: space-between;">
+                    <div style="flex: auto;">
+                        {{org.name}}
+                    </div>
+                    <span class="material-icons">
+                        arrow_forward
+                    </span>
+                </mat-list-item>
+            </mat-list>
+        </div>
+        <div fxLayout="column">
+            <h4>Activated Orgs</h4>
+            <mat-list style="height: 400px; width: 350px; overflow-y: auto; overflow-x:clip; border: 1px solid lightgray; border-radius: 5px; ">
+                <mat-list-item *ngFor="let org of orgs_activated" class="orgs" (click)="deleteOneOrg(org)">
+                    <span class="material-icons">
+                        arrow_backward
+                    </span>
+                    <div style="flex: auto;">
+                        {{org.name}}
+                    </div>
+                </mat-list-item>
+            </mat-list>
         </div>
     </div>
     <mat-card-actions style="margin-top:  2em;display: flex;justify-content: flex-end;margin-right: 2em;">

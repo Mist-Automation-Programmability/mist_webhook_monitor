@@ -13,9 +13,7 @@ export interface Org {
 })
 export class ConfigDialog implements OnInit {
   public orgs_list: Org[] = [];
-  //public orgs_list_selected: Org[] = [];
   public orgs_activated: Org[] = [];
-  //public orgs_activated_selected: Org[] = [];
   public topics = {
     "device-events": false,
     "alarms": false,
@@ -24,7 +22,7 @@ export class ConfigDialog implements OnInit {
     "mxedge-events": false
   }
   topic_list = [];
-
+  public maxItems: number = 5000;
   constructor(
     public dialogRef: MatDialogRef<ConfigDialog>,
     @Inject(MAT_DIALOG_DATA) public data: any
@@ -35,6 +33,7 @@ export class ConfigDialog implements OnInit {
     this.orgs_list = this.data.orgs_list;
     this.orgs_activated = this.data.orgs_activated;
     this.topics = this.data.topics;
+    this.maxItems = this.data.maxItems;
   }
 
   // Manage Orgs selection
@@ -68,7 +67,8 @@ export class ConfigDialog implements OnInit {
     }
     this.dialogRef.close({
       org_ids: org_ids,
-      topics: topics
+      topics: topics,
+      maxItems : this.maxItems
     });
   }
   cancel(): void {

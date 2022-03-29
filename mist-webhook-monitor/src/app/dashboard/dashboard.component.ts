@@ -62,7 +62,7 @@ export class DashboardComponent implements OnInit {
 
   /////////////////////////
   // table
-  displayedColumns: string[] = ['timestamp', 'type', 'org_name', 'site_name', 'device_name', 'mac', 'text', 'menu'];
+  displayedColumns: string[] = ['timestamp', 'topic', 'type', 'org_name', 'site_name', 'device_name', 'mac', 'text', 'menu'];
   eventDataSource: any[] = [];
   filteredEventDataSource: MatTableDataSource<any>;
   pageIndex: number = 0
@@ -107,7 +107,7 @@ export class DashboardComponent implements OnInit {
 
   ///////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////// CONSTRUCTOR
-  constructor(private _http: HttpClient, public _dialog: MatDialog, private _snackBar: MatSnackBar, private _router: Router, private _formBuilder: FormBuilder) { 
+  constructor(private _http: HttpClient, public _dialog: MatDialog, private _snackBar: MatSnackBar, private _router: Router, private _formBuilder: FormBuilder) {
     this.filteredEventDataSource = new MatTableDataSource();
   }
 
@@ -121,10 +121,10 @@ export class DashboardComponent implements OnInit {
       map(value => this._filterGroup(value)),
     );
     this.getOrgs();
-    this.getSocketSettings();    
+    this.getSocketSettings();
   }
 
-  
+
   parseError(error: any): void {
     if (error.status == "401") this._router.navigate(["/"])
     else {
@@ -223,8 +223,14 @@ export class DashboardComponent implements OnInit {
           tmp["org_name"] = this.org_names[event[key]];
         }
       }
+      tmp._new = true;
       this.eventDataSource.push(tmp);
+      while (this.eventDataSource.length > this.maxItems) this.eventDataSource.shift();
       this.updatePossibleFilteringItems(event);
+      console.log(this.eventDataSource)
+      setTimeout(()=>{
+        tmp._new = false;
+      }, 1000)
     })
 
     this.applyFilter(init);
@@ -320,7 +326,7 @@ export class DashboardComponent implements OnInit {
   /////           TABLE
   //////////////////////////////////////////////////////////////////////////////
 
-  applyFilter(init:boolean=false) {
+  applyFilter(init: boolean = false) {
     this.possibleFilteringItems = [];
     if (this.filteringItems.length == 0) this.filteredEventDataSource.data = this.eventDataSource;
     else {
@@ -339,9 +345,9 @@ export class DashboardComponent implements OnInit {
     this.filteredEventDataSource.paginator = this.paginator;
     this.filteredEventDataSource.sort = this.sort;
     this.filteredEventDataSource.data.forEach(event => this.updatePossibleFilteringItems(event))
-    if (init){
-    this.sort.sort(({ id: 'timestamp', start: 'desc'}) as MatSortable);
-    this.filteredEventDataSource.sort = this.sort;
+    if (init) {
+      this.sort.sort(({ id: 'timestamp', start: 'desc' }) as MatSortable);
+      this.filteredEventDataSource.sort = this.sort;
     }
   }
 
@@ -364,7 +370,7 @@ export class DashboardComponent implements OnInit {
   /////           QUICK LINKS
   //////////////////////////////////////////////////////////////////////////////
 
-  
+
 
   openSiteInsights(org_id: string, site_id: string): void {
     const url = "https://" + this.host + "/admin/?org_id=" + org_id + "#!dashboard/insights/site/" + site_id + "/today/" + site_id;
@@ -408,11 +414,11 @@ export class DashboardComponent implements OnInit {
         break;
     }
     if (device) {
-      const url = "https://" + this.host + "/admin/?org_id=" + org_id + "#!" + device + "/detail/00000000-0000-0000-1000-" +device_mac +"/" + site_id;
+      const url = "https://" + this.host + "/admin/?org_id=" + org_id + "#!" + device + "/detail/00000000-0000-0000-1000-" + device_mac + "/" + site_id;
       window.open(url, "_blank");
     }
   }
-  
+
   openDeviceInsights(device_type: string, device_mac: string, org_id: string, site_id: string): void {
     var device = null;
     switch (device_type) {
@@ -430,8 +436,8 @@ export class DashboardComponent implements OnInit {
       const url = "https://" + this.host + "/admin/?org_id=" + org_id + "#!dashboard/insights/" + device + "/00000000-0000-0000-1000-" + device_mac + "/" + site_id;
       window.open(url, "_blank");
     }
-  }  
-  
+  }
+
   //////////////////////////////////////////////////////////////////////////////
   /////           DIALOG BOXES
   //////////////////////////////////////////////////////////////////////////////
@@ -439,19 +445,24 @@ export class DashboardComponent implements OnInit {
   // CONFIG
   openConfig(): void {
     const dialogRef = this._dialog.open(ConfigDialog, {
-      data: { orgs_list: this.orgs, orgs_activated: this.orgs_activated, topics: this.topics }
+      data: { orgs_list: this.orgs, orgs_activated: this.orgs_activated, topics: this.topics, maxItems: this.maxItems }
     });
     dialogRef.afterClosed().subscribe(result => {
-      const message = { "action": "subscribe", "org_ids": result.org_ids, "topics": result.topics };
-      this.socket.next(message);
+      if (result) {
+        this.maxItems = result.maxItems;
+        while (this.eventDataSource.length > this.maxItems) this.eventDataSource.shift();
+        this.applyFilter();
+        const message = { "action": "subscribe", "org_ids": result.org_ids, "topics": result.topics };
+        this.socket.next(message);
+      }
     })
   }
 
   // RAW DASTA
-  openRaw(element:any): void {
+  openRaw(element: any): void {
     const dialogRef = this._dialog.open(RawDialog, {
       data: element.raw_message
-    });    
+    });
   }
 
   // SNACK BAR
