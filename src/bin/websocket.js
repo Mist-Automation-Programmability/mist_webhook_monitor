@@ -150,7 +150,7 @@ function connection(ws, req) {
                     } else if (org_id) PubSubManager.unsubscribe(socket_id, org_id, topics);
                 })
             }
-        }, 30000)
+        }, 60000)
     });
 }
 

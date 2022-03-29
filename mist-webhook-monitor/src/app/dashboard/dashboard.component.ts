@@ -86,13 +86,12 @@ export class DashboardComponent implements OnInit {
   socket_error: boolean = false;
   /////////////////////////
   // Others
-  host: string = "";
-  orgs: Org[] = [];
-  orgs_activated: Org[] = [];
+  private config_initialized: boolean=false;
+  private host: string = "";
+  private orgs: Org[] = [];
+  private orgs_activated: Org[] = [];
   org_names: any = {};
-  is_working: boolean = false;
-  error_mess: string = "";
-  topics = {
+  private topics = {
     "device-events": false,
     "alarms": false,
     "audit": false,

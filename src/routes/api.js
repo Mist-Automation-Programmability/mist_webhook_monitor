@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mist_login = require("../bin/mist_login");
 const uuid = require('uuid');
+const Session = require("./../bin/models/session");
 
 function get_sid(req) {
     if (!req.session.session_id) req.session.session_id = uuid.v4();
@@ -46,6 +47,14 @@ router.post("/logout", (req, res) => {
 router.get("/ws", (req, res) => {
     if (!req.session || !req.session.self) res.status(401).send()
     else {
+        // Session.find({ session_id: req.session.session_id }, (err, db_sessions) => {
+        //     var orgs = [];
+        //     var topics = [];
+        //     if (err) console.log(err)
+        //     if (db_sessions.length > 0) db_sessions.forEach(session => {
+        //         if (!orgs.includes(session.org_id)) orgs.push(session.org_id);
+        //         session.topics.forEach(topic => { if (!topics.includes(topic)) topics.push(topic) })
+        //     })
         var prefix = "";
         var port = "";
 
@@ -56,6 +65,7 @@ router.get("/ws", (req, res) => {
 
         const socket_path = prefix + global.CONFIG.NODE_HOSTNAME + port + "/ws-collector/";
         res.json({ socket_path: socket_path, session_id: get_sid(req), host: req.session.mist.host })
+            //})
     }
 })
 
