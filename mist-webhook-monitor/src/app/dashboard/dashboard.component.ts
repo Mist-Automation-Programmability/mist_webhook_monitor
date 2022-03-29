@@ -184,6 +184,7 @@ export class DashboardComponent implements OnInit {
         topics.forEach(topic => {
           (this.topics as any)[topic] = true
         })
+        if (!this.config_initialized && org_ids.length==0 && topics.length==0) this.openConfig();
         break;
     }
   }
