@@ -329,6 +329,7 @@ export class DashboardComponent implements OnInit {
   selected(event: MatAutocompleteSelectedEvent): void {
     this.filteringItems.push(event.option.viewValue);
     this.filterInput.nativeElement.value = '';
+    this.filterInput.nativeElement.blur();
     this.filterForm.get('filterGroup')!.setValue('');
     this.applyFilter();
   }
