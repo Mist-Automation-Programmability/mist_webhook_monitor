@@ -28,6 +28,8 @@ function connection(ws, req) {
                 break;
 
             case "ping":
+                req.session.touch();
+                req.session.save();
                 send(ws, { "action": "ping", "result": "pong", "session_id": req.session.session_id });
                 break;
 

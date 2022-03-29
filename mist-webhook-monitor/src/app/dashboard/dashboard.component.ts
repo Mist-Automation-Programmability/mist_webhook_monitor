@@ -188,12 +188,16 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+
   socketSendPing(): void {
     this.socket.next({ "action": "ping" })
   }
 
   socketReceivedPong(msg: any): void {
     this.socket_connected = true;
+    if (this.socket_connected) setTimeout(()=>{
+      this.socketSendPing();
+    }, 60000)
   }
 
   socketIsClosed(): void {
