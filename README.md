@@ -19,6 +19,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 **Note:** 
 The application creates an Org API Token to be able to delete the Webhook configuration when the web browser session is closed. As of today, it is not possible to programmaticaly delete the Org Token, and it has to be done manually by the administrators.
 
+### Supported Webhook Topics
+* alarms
+* audit
+* device-events
+* device-updowns
+* mxedge-events
 
 # Install
 This Reference Application can be used as a standalone Application, or it can be deployed as a Docker Image (recommanded).
