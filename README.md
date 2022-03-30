@@ -26,7 +26,7 @@ The application creates an Org API Token to be able to delete the Webhook config
   
 ### Supported Webhook Topics
 * alarms
-* audit
+* audits
 * device-events
 * device-updowns
 * mxedge-events

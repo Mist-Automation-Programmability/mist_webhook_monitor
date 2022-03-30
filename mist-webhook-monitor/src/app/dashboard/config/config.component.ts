@@ -17,7 +17,7 @@ export class ConfigDialog implements OnInit {
   public topics = {
     "device-events": false,
     "alarms": false,
-    "audit": false,
+    "audits": false,
     "device-updowns": false,
     "mxedge-events": false
   }
