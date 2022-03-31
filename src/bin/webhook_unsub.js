@@ -11,7 +11,7 @@ function _delete_org_config_and_token(org_id, cb) {
     var error = { webhook: null, token: null };
     WH.findOne({ org_id: org_id }, (err, db_data) => {
         if (err) cb("Error when requesting the DB")
-        else if (!db_data) cb("Session not found")
+        else if (!db_data) cb("Webhook not found in the DB")
         else Webhook.delete(db_data, db_data.webhook_id, (err) => {
             if (err) cb("Error when deleting the Webhook configuration from the Org")
             else Token.delete(db_data, db_data.apitoken_id, (err) => {
@@ -23,8 +23,44 @@ function _delete_org_config_and_token(org_id, cb) {
     })
 }
 
+function _update_topics_configuration(db_sessions, org_id, cb) {
+    let topics_in_use = [];
+    db_sessions.forEach(session => {
+        if (session.session_id != session_id) {
+            session.topics.forEach(topic => {
+                if (!topics_in_use.includes(topic)) {
+                    topics_in_use.push(topic)
+                }
+            })
+        }
+    })
+    WH.findOne({ org_id: org_id }, (err, db_data) => {
+        if (err) cb(err)
+        else if (!db_data) {
+            cb("Session not found")
+        } else {
+            Webhook_functions.update_topics({
+                    host: db_data.host,
+                    apitoken: db_data.apitoken
+                },
+                org_id,
+                db_data,
+                topics_in_use,
+                err => {
+                    if (err) {
+                        console.log(err);
+                        cb("Error when updating the Webhook configuration in the Org");
+                    } else cb()
+                }
+            )
+        }
+    })
+}
 
 function _update_org_topics_on_stop(session_id, org_id, cb) {
+    // Get all the sessions for the same org_id with different session_id.
+    // If none, delete the webhook
+    // otherwise, update the webhook to keep only the required topics    
     Session.find({ org_id: org_id, session_id: { $ne: session_id } }, (err, db_sessions) => {
         if (err) {
             console.log("Unable to retrieve the sessions from DB for org_id" + org_id + ". Error: " + err)
@@ -34,39 +70,7 @@ function _update_org_topics_on_stop(session_id, org_id, cb) {
                 if (err) cb(err);
                 WH.deleteOne({ org_id: org_id }, (err) => cb(err));
             });
-
-        } else {
-            let topics_in_use = [];
-            db_sessions.forEach(session => {
-                if (session.session_id != session_id) {
-                    session.topics.forEach(topic => {
-                        if (!topics_in_use.includes(topic)) {
-                            topics_in_use.push(topic)
-                        }
-                    })
-                }
-            })
-            WH.findOne({ org_id: org_id }, (err, db_data) => {
-                if (err) cb(err)
-                else if (!db_data) cb("Session not found")
-                else {
-                    Webhook_functions.update_topics({
-                            host: db_data.host,
-                            apitoken: db_data.apitoken
-                        },
-                        org_id,
-                        db_data,
-                        topics_in_use,
-                        err => {
-                            if (err) {
-                                console.log(err);
-                                cb("Error when updating the Webhook configuration in the Org");
-                            } else cb()
-                        }
-                    )
-                }
-            })
-        }
+        } else _update_topics_configuration(db_sessions, org_id, (err) => cb(err))
     })
 }
 
@@ -87,7 +91,7 @@ module.exports.all_orgs = function(session_id, cb) {
             db_sessions.forEach(db_session => {
                 _update_org_topics_on_stop(db_session.session_id, db_session.org_id, err => {
                     if (err) cb(err, db_session.org_id, db_session.topics)
-                    else db_session.delete(err => cb(err, db_session.org_id, db_session.topics));
+                    else Session.deleteOne({ _id: db_session._id }, err => cb(err, db_session.org_id, db_session.topics));
                 })
             })
         }
@@ -103,24 +107,17 @@ module.exports.all_orgs = function(session_id, cb) {
  *  */
 module.exports.orgs = function(session_id, org_ids, cb) {
     org_ids.forEach(org_id => {
-        Session.find({ session_id: session_id, org_id: org_id }, (err, db_session) => {
+        Session.findOne({ session_id: session_id, org_id: org_id }, (err, db_session) => {
             if (err) {
                 console.log(err)
                 cb("Error when retrieving info from the DB")
             } else if (!db_session) {
                 console.log("Unable to retrieve the info from DB for session_id " + session_id + ". Not found ")
                 cb("Unable to retrieve the info from the DB")
-            } else {
-                org_ids.forEach(org_id => {
-                    _update_org_topics_on_stop(db_session.session_id, db_session.org_id, err => {
-                        if (err) cb(err, db_session.org_id, db_session.topics)
-                        else {
-                            db_session.delete();
-                            cb(null, org_id, db_session.topics);
-                        }
-                    })
-                })
-            }
+            } else _update_org_topics_on_stop(session_id, org_id, err => {
+                if (err) cb(err, db_session.org_id, db_session.topics)
+                else Session.deleteOne({ _id: db_session._id }, err => cb(err, org_id, db_session.topics));
+            })
         })
     })
 }

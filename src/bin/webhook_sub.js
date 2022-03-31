@@ -6,20 +6,6 @@ const Webhook_functions = require("./webhook_common");
 /*================================================================
  START SESSION FUNCTIONS
 ================================================================*/
-/**
- * Check if Mist API Token is still present
- * @param {Object} mist - API credentials
- * @param {String} mist.host - Mist Cloud to request
- * @param {String} org_id - Mist ORG to use
- * @param {String} callback(err, data) 
- *  */
-function _check_token(mist, apitoken, cb) {
-    Token.check(mist, apitoken, (err, cloud_apitoken) => {
-        if (err) cb(err);
-        else if (!cloud_apitoken) cb(null, false);
-        else cb(null, true);
-    })
-}
 
 /**
  * Update and save Mist API Token
@@ -53,9 +39,9 @@ function _update_and_save_token(mist, db_data, cb) {
  * @param {String} callback(err) 
  *  */
 function _update_mist_config(mist, org_id, db_data, topics, cb) {
-    // check if the token is in the DB and still exists in Mist
-    _check_token(mist, db_data.apitoken, (err, exists) => {
-        if (err || !exists) {
+    // check if the token in the DB still exists in Mist
+    Token.check(mist, db_data.apitoken, (err) => {
+        if (err) {
             // If not, try to create a new one with the Mist Cookies from the user
             _update_and_save_token(mist, db_data, (err, is_updated) => {
                 if (err) cb(err)

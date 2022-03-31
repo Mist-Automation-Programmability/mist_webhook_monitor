@@ -33,13 +33,9 @@ module.exports.generate = function(mist, callback) {
  *  */
 module.exports.check = function(mist, apitoken, callback) {
     const path = "/api/v1/self"
-    api.GET({ host: mist.host, apitoken: apitoken }, path, (err, data) => {
-        if (err) {
-            console.log(err)
-            callback(err)
-        } else {
-            callback(null, data)
-        }
+    api.GET({ host: mist.host, apitoken: apitoken }, path, (err) => {
+        if (err) callback(err)
+        else callback()
     });
 };
 
