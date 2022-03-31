@@ -59,8 +59,7 @@ function _update_and_save_token(mist, db_data, cb) {
 function _update_mist_config(mist, org_id, db_data, topics, cb) {
     // check if the token is in the DB and still exists in Mist
     _check_token(mist, org_id, (err, exists) => {
-        if (err) cb(err);
-        else if (!exists) {
+        if (err || !exists) {
             // If not, try to create a new one with the Mist Cookies from the user
             _update_and_save_token(mist, db_data, (err, is_updated) => {
                 if (err) cb(err)

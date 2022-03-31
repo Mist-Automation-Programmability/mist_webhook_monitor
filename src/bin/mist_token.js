@@ -29,10 +29,9 @@ module.exports.generate = function(mist, callback) {
  * @param {String} mist.host - Mist Cloud to request
  * @param {String} mist.apitoken - Mist TOKEN to use
  * @param {Object} mist.cookie - If not token, use the Mist session cookies
- * @param {String} apitoken_id - token id to delete
  * @param {String} callback(err, data) 
  *  */
-module.exports.check = function(mist, apitoken_id, callback) {
+module.exports.check = function(mist, callback) {
     const path = "/api/v1/self"
     api.GET(mist, path, (err, data) => {
         if (err) {
