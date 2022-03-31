@@ -86,7 +86,6 @@ function connection(ws, req) {
                                 if (org_ids_to_update.length > 0 && (topics_to_sub.length > 0 || topics_to_unsub.length > 0))
                                     subscribe.orgs(
                                         req.session.mist,
-                                        req.session.self.privileges,
                                         req.session.session_id,
                                         org_ids_to_update,
                                         json_message.topics,
@@ -117,7 +116,6 @@ function connection(ws, req) {
                                 if (org_ids_to_sub.length > 0)
                                     subscribe.orgs(
                                         req.session.mist,
-                                        req.session.self.privileges,
                                         req.session.session_id,
                                         org_ids_to_sub,
                                         json_message.topics,

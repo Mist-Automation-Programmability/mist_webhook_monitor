@@ -114,20 +114,6 @@ function _init(mist, org_id, topics, cb) {
 }
 
 /**
- * Check the user has a write access to the org
- * @param {string} org_id - Org the user want to configure
- * @param {Array} privileges - User Privileges
- * @returns {Boolean} 
- *  */
-function _is_authorized(org_id, privileges) {
-    var authorized = false;
-    privileges.forEach(privilege => {
-        if (privilege.scope == "org" && privilege.org_id == org_id && privilege.role == "admin") authorized = true;
-    })
-    return authorized;
-}
-
-/**
  * Stop a user session and configure the corresponding settings from Mist and DB
  * @param {Object} mist - API credentials
  * @param {String} mist.host - Mist Cloud to request
@@ -137,14 +123,11 @@ function _is_authorized(org_id, privileges) {
  * @param {Array} topics - list of topics to unsub
  * @param {String} callback(err, org_id) 
  *  */
-module.exports.orgs = function(mist, privileges, session_id, org_ids, topics, cb) {
+module.exports.orgs = function(mist, session_id, org_ids, topics, cb) {
     org_ids.forEach(org_id => {
-        if (!_is_authorized(org_id, privileges)) cb("This account does not have a write access the org", org_id)
-        else {
-            _init(mist, org_id, topics, (err) => {
-                if (err) cb(err, org_id)
-                else _save_socket_info(session_id, org_id, topics, err => cb(err, org_id))
-            })
-        }
+        _init(mist, org_id, topics, (err) => {
+            if (err) cb(err, org_id)
+            else _save_socket_info(session_id, org_id, topics, err => cb(err, org_id))
+        })
     })
 }
