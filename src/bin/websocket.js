@@ -27,9 +27,18 @@ function _is_authorized(org_id, privileges) {
 
 function connection(ws, req) {
 
-    map.set(req.session.session_id, ws);
     const socket_id = uuid.v4();
-    PubSubManager.opened(socket_id);
+
+    if (req.session.session_id == undefined) {
+        console.log("no associated session found. Sending close message to endpoint.")
+        send(ws, { "action": "error", "message": "Unauthorized", "code": 401 })
+        ws.close();
+    } else {
+        console.log("associated session found. generating socket_id.")
+        map.set(req.session.session_id, ws);
+        PubSubManager.opened(socket_id);
+    }
+
     ws.on('message', function(message) {
         //console.log(`Received message ${message} from user ${req.session.session_id}`);
         json_message = JSON.parse(message);
@@ -153,39 +162,34 @@ function connection(ws, req) {
     });
 
     ws.on('close', function() {
-        console.log("Connection lost with session_id " + req.session.session_id)
-        map.delete(req.session.session_id);
-        PubSubManager.closed(socket_id)
-            // if the socket did not reconnect after 1min, clean everything
-        setTimeout(function() {
-            if (map.get(req.session.session_id)) console.log("New socket found for session_id " + req.session.session_id);
-            else {
-                delete req.session.socksession_idet_id;
-                console.log("Connection with session_id " + req.session.session_id + " not resumed. Cleaning up everything");
-                unsubscribe.all_orgs(req.session.session_id, (err, org_id, topics) => {
-                    if (err) {
-                        console.log("Unable to clean up config for org_id " + org_id)
-                        console.log(err);
-                    } else if (org_id) PubSubManager.unsubscribe(socket_id, org_id, topics);
-                })
-            }
-        }, 60000)
+        if (req.session.session_id != undefined) {
+            console.log("Connection lost with session_id " + req.session.session_id)
+            map.delete(req.session.session_id);
+            PubSubManager.closed(socket_id)
+                // if the socket did not reconnect after 1min, clean everything
+            setTimeout(function() {
+                if (map.get(req.session.session_id)) console.log("New socket found for session_id " + req.session.session_id);
+                else {
+                    delete req.session.socksession_idet_id;
+                    console.log("Connection with session_id " + req.session.session_id + " not resumed. Cleaning up everything");
+                    unsubscribe.all_orgs(req.session.session_id, (err, org_id, topics) => {
+                        if (err) {
+                            console.log("Unable to clean up config for org_id " + org_id)
+                            console.log(err);
+                        } else if (org_id) PubSubManager.unsubscribe(socket_id, org_id, topics);
+                    })
+                }
+            }, 60000)
+        }
     });
 }
 
-function upgrade(request, socket, cb) {
+function upgrade(request, cb) {
     console.log('Parsing session from request...');
     sessionParser(request, {}, () => {
-        if (!request.session.session_id) {
-            console.log("no associated session found. Rejecting the WS.")
-            socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-            socket.destroy();
-            return;
-        }
-
-        console.log('Websocket connection request from user ' + request.session.session_id);
-        cb(true)
-
+        if (!request.session.session_id) console.log("no associated session found. Rejecting the WS.")
+        else console.log('Websocket connection request from user ' + request.session.session_id);
+        cb()
     });
 }
 

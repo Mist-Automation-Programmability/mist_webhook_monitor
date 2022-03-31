@@ -19,11 +19,9 @@ var httpServer = http.createServer(app);
 //INIT WS
 const wsServer = new websocket.Server({ clientTracking: false, noServer: true });
 httpServer.on('upgrade', (request, socket, head) => {
-    ws_system.upgrade(request, socket, (is_authenticated) => {
-        if (is_authenticated) wsServer.handleUpgrade(request, socket, head, ws => {
-            wsServer.emit('connection', ws, request);
-        });
-    })
+    ws_system.upgrade(request, () => {
+        wsServer.handleUpgrade(request, socket, head, ws => { wsServer.emit('connection', ws, request); })
+    });
 });
 
 wsServer.on("connection", function connection(ws, req) {
@@ -54,10 +52,8 @@ if (global.CONFIG.NODE_HTTPS) {
     //INIT WSS
     const wssServer = new websocket.Server({ server: httpsServer });
     httpsServer.on('upgrade', (request, socket, head) => {
-        ws_system.upgrade(request, socket, (is_authenticated) => {
-            if (is_authenticated) wssServer.handleUpgrade(request, socket, head, ws => {
-                wssServer.emit('connection', ws, request);
-            });
+        ws_system.upgrade(request, () => {
+            wssServer.handleUpgrade(request, socket, head, ws => { wssServer.emit('connection', ws, request); })
         })
     });
 
