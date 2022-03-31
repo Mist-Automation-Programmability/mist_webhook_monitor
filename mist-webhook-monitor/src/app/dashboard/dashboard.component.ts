@@ -233,7 +233,6 @@ export class DashboardComponent implements OnInit {
     this.eventDataSource.push(new_event);
     while (this.eventDataSource.length > this.maxItems) this.eventDataSource.shift();
     this.updatePossibleFilteringItems(new_event);
-    console.log(this.eventDataSource)
     setTimeout(() => {
       new_event._new = false;
     }, 1000)
@@ -406,8 +405,6 @@ export class DashboardComponent implements OnInit {
   }
 
   socketReceiveError(webhook_message: any) {
-    console.log(webhook_message)
-    console.log(webhook_message.code)
     switch (webhook_message.code) {
       case 401:
         this.socket.complete();
