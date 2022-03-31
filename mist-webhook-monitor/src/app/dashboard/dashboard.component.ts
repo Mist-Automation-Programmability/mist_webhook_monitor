@@ -17,6 +17,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
 
 import { ConfigDialog } from './config/config.component';
+import { ErrorDialog } from './../common/error';
 import { RawDialog } from './raw_data/raw.component';
 
 
@@ -85,6 +86,8 @@ export class DashboardComponent implements OnInit {
   socket_error: boolean = false;
   /////////////////////////
   // Others
+  private error_opened: boolean = false;
+  private config_opened: boolean = false;
   private config_initialized: boolean = false;
   private host: string = "";
   private orgs: Org[] = [];
@@ -204,7 +207,8 @@ export class DashboardComponent implements OnInit {
     }, 60000)
   }
 
-  socketIsClosed(): void {
+  socketIsClosed(err: any): void {
+    console.log(err)
     this.socket_connected = false;
     this.socket_retry_count += 1;
 
@@ -213,7 +217,8 @@ export class DashboardComponent implements OnInit {
     this.socketSubscibe(timeout)
   }
 
-  socketIsInError(): void {
+  socketIsInError(err: any): void {
+    console.log(err)
     this.socket_connected = false;
     this.socket_retry_count += 1;
     if (this.socket_retry_count >= this.socket_retry_max_retry) this.socket_error = true;
@@ -400,9 +405,31 @@ export class DashboardComponent implements OnInit {
     this.applyFilter(init);
   }
 
+  socketReceiveError(webhook_message: any) {
+    console.log(webhook_message)
+    console.log(webhook_message.code)
+    switch (webhook_message.code) {
+      case 401:
+        this.socket.complete();
+        this.session_id = "";
+        if (!this.error_opened) {
+          this.error_opened = true;
+          const dialogRef = this._dialog.open(ErrorDialog, {
+            data: { title: "Authentication expired", text: "Your authentication session expired. This means you cannont receive new webhook messages anymore, and you need to log back in. You can stay on this page or go back to the login page.", cancel:"Stay", ok:"Log Back In" }
+          });
+          dialogRef.afterClosed().subscribe(result => {
+            this.error_opened = false;
+            if (result) this._router.navigate(["/"]).then(() => { window.location.reload(); });
+          })
+        }
+        break;
+    }
+  }
+
   // WEBSOCKET FUNCTIONS
   socketSubscibe(timeout: number = 0): void {
     setTimeout(() => {
+      this.socket.error
       this.socket = webSocket(this.socket_path)
       this.socket_initialized = true;
       this.socket.subscribe(
@@ -410,6 +437,9 @@ export class DashboardComponent implements OnInit {
           if (!this.socket_connected) this.socketSendReconnect(msg)
           if ((msg as any).action)
             switch ((msg as any).action) {
+              case "error":
+                this.socketReceiveError(msg);
+                break;
               case "ping":
                 this.socketReceivedPong(msg);
                 break;
@@ -422,8 +452,8 @@ export class DashboardComponent implements OnInit {
             }
         }, err => {// Called if at any point WebSocket API signals some kind of error.
           this.socket_reconnecting = true;
-          if (this.socket_connected && err.type == "close") this.socketIsClosed();
-          else if (!this.socket_connected && err.type == "error") this.socketIsInError();
+          if (this.socket_connected && err.type == "close") this.socketIsClosed(err);
+          else if (!this.socket_connected && err.type == "error") this.socketIsInError(err);
         },
         () => { // Called when connection is closed (for whatever reason).
           this.socket_connected = false;
@@ -499,9 +529,10 @@ export class DashboardComponent implements OnInit {
       const fields_required = this.filteringItems.length;
       this.eventDataSource.forEach(event => {
         var fields_count = 0;
-        this.displayedColumns.forEach(column => { 
-          if (Array.isArray(event[column])) event[column].forEach((entry : string) => {if (this.filteringItems.includes(entry)) fields_count += 1 })
-          if (this.filteringItems.includes(event[column])) fields_count += 1 })
+        this.displayedColumns.forEach(column => {
+          if (Array.isArray(event[column])) event[column].forEach((entry: string) => { if (this.filteringItems.includes(entry)) fields_count += 1 })
+          if (this.filteringItems.includes(event[column])) fields_count += 1
+        })
         if (fields_count >= fields_required) tmp.push(event);
 
       })
@@ -625,24 +656,28 @@ export class DashboardComponent implements OnInit {
 
   // CONFIG
   openConfig(): void {
-    const dialogRef = this._dialog.open(ConfigDialog, {
-      data: { orgs_list: this.orgs, orgs_activated: this.orgs_activated, topics: this.topics, maxItems: this.maxItems }
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.maxItems = result.maxItems;
-        while (this.eventDataSource.length > this.maxItems) this.eventDataSource.shift();
-        this.applyFilter();
-        const message = { "action": "subscribe", "org_ids": result.org_ids, "topics": result.topics };
-        this.socket.next(message);
-      }
-    })
+    if (!this.config_opened) {
+      this.config_opened = true;
+      const dialogRef = this._dialog.open(ConfigDialog, {
+        data: { orgs_list: this.orgs, orgs_activated: this.orgs_activated, topics: this.topics, maxItems: this.maxItems }
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        this.config_opened = false;
+        if (result) {
+          this.maxItems = result.maxItems;
+          while (this.eventDataSource.length > this.maxItems) this.eventDataSource.shift();
+          this.applyFilter();
+          const message = { "action": "subscribe", "org_ids": result.org_ids, "topics": result.topics };
+          this.socket.next(message);
+        }
+      })
+    }
   }
 
   // RAW DASTA
   openRaw(element: any): void {
     const dialogRef = this._dialog.open(RawDialog, {
-      data: {raw_message: element.raw_message, raw_event: element.raw_event}
+      data: { raw_message: element.raw_message, raw_event: element.raw_event }
     });
   }
 
@@ -655,7 +690,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  typeOf(data:any):string{
+  typeOf(data: any): string {
     return typeof data;
   }
 
@@ -667,7 +702,7 @@ export class DashboardComponent implements OnInit {
       next: data => {
         this.socket.complete();
         this.session_id = "";
-        this._router.navigate(["/"]);
+        this._router.navigate(["/"]).then(() => window.location.reload());
       },
       error: error => this.parseError(error)
     })
