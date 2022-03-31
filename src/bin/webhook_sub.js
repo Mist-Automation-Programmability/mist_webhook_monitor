@@ -70,27 +70,7 @@ function _create_mist_config(mist, org_id, topics, cb) {
     Token.generate(mist, (err, cloud_apitoken) => {
         if (err) cb(err)
         else if (!cloud_apitoken) cb()
-        else {
-            Webhook.create(mist, org_id, topics, (err, webhook) => {
-                if (err) cb(err)
-                else if (!webhook) cb()
-                else {
-                    const data = {
-                        host: mist.host,
-                        org_id: org_id,
-                        apitoken: cloud_apitoken.key,
-                        apitoken_id: cloud_apitoken.id,
-                        webhook_id: webhook.id,
-                        secret: webhook.secret,
-                        topics: topics
-                    }
-                    WH(data).save((err) => {
-                        if (err) cb(err)
-                        else cb(null)
-                    })
-                }
-            })
-        }
+        else Webhook_functions.create_webhook(mist, cloud_apitoken, org_id, topics, (err) => cb(err))
     })
 }
 /**
