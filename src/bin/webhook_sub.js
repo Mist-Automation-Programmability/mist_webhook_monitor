@@ -13,15 +13,11 @@ const Webhook_functions = require("./webhook_common");
  * @param {String} org_id - Mist ORG to use
  * @param {String} callback(err, data) 
  *  */
-function _check_token(mist, org_id, cb) {
-    WH.findOne({ org_id: org_id }, (err, db_data) => {
+function _check_token(mist, apitoken, cb) {
+    Token.check(mist, apitoken, (err, cloud_apitoken) => {
         if (err) cb(err);
-        else if (!db_data) cb(null, false);
-        else Token.check(mist, db_data.apitoken_id, (err, cloud_apitoken) => {
-            if (err) cb(err);
-            else if (!cloud_apitoken) cb(null, false);
-            else cb(null, true);
-        })
+        else if (!cloud_apitoken) cb(null, false);
+        else cb(null, true);
     })
 }
 
@@ -58,7 +54,7 @@ function _update_and_save_token(mist, db_data, cb) {
  *  */
 function _update_mist_config(mist, org_id, db_data, topics, cb) {
     // check if the token is in the DB and still exists in Mist
-    _check_token(mist, org_id, (err, exists) => {
+    _check_token(mist, db_data.apitoken, (err, exists) => {
         if (err || !exists) {
             // If not, try to create a new one with the Mist Cookies from the user
             _update_and_save_token(mist, db_data, (err, is_updated) => {

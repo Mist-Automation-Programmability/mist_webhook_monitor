@@ -31,9 +31,9 @@ module.exports.generate = function(mist, callback) {
  * @param {Object} mist.cookie - If not token, use the Mist session cookies
  * @param {String} callback(err, data) 
  *  */
-module.exports.check = function(mist, callback) {
+module.exports.check = function(mist, apitoken, callback) {
     const path = "/api/v1/self"
-    api.GET(mist, path, (err, data) => {
+    api.GET({ host: mist.host, apitoken: apitoken }, path, (err, data) => {
         if (err) {
             console.log(err)
             callback(err)
