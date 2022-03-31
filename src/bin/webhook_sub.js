@@ -16,14 +16,14 @@ const Webhook_functions = require("./webhook_common");
  *  */
 function _update_and_save_token(mist, db_data, cb) {
     Token.generate(mist, (err, cloud_apitoken) => {
-        if (err) cb(err)
-        else if (!cloud_apitoken) cb()
+        if (err) cb(err);
+        else if (!cloud_apitoken) cb();
         else {
-            db_data.apitoken = cloud_apitoken.apitoken;
-            db_data.apitoken_id = cloud_apitoken.apitoken_id;
+            db_data.apitoken = cloud_apitoken.key;
+            db_data.apitoken_id = cloud_apitoken.id;
             db_data.save((err, new_db_data) => {
                 if (err) cb(err)
-                else cb(null, new_db_data)
+                else cb(null, new_db_data.apitoken)
             })
         }
     })
@@ -43,11 +43,17 @@ function _update_mist_config(mist, org_id, db_data, topics, cb) {
     Token.check(mist, db_data.apitoken, (err) => {
         if (err) {
             // If not, try to create a new one with the Mist Cookies from the user
-            _update_and_save_token(mist, db_data, (err, is_updated) => {
-                if (err) cb(err)
-                if (!is_updated) cb("Unable to update API TOKEN")
-                    // update the topics in Mist and save the changes in the Sessions DB
-                else Webhook_functions.update_topics(mist, org_id, db_data, topics, err => cb(err))
+            console.log("Previous token not working, creating a new one")
+            _update_and_save_token(mist, db_data, (err, new_token) => {
+                if (err || !new_token) {
+                    console.log("Unable to create a new token")
+                    console.log(db_data)
+                    console.log(err)
+                    cb("unable to create a new token")
+                } else {
+                    mist.apitoken = new_token
+                    Webhook_functions.update_topics(mist, org_id, db_data, topics, err => cb(err))
+                }
             })
         } else Webhook_functions.update_topics(mist, org_id, db_data, topics, err => cb(err))
     })
