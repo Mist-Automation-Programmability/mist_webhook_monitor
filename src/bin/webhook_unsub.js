@@ -23,7 +23,7 @@ function _delete_org_config_and_token(org_id, cb) {
     })
 }
 
-function _update_topics_configuration(db_sessions, org_id, cb) {
+function _update_topics_configuration(db_sessions, session_id, org_id, cb) {
     let topics_in_use = [];
     db_sessions.forEach(session => {
         if (session.session_id != session_id) {
@@ -70,7 +70,7 @@ function _update_org_topics_on_stop(session_id, org_id, cb) {
                 if (err) cb(err);
                 WH.deleteOne({ org_id: org_id }, (err) => cb(err));
             });
-        } else _update_topics_configuration(db_sessions, org_id, (err) => cb(err))
+        } else _update_topics_configuration(db_sessions, session_id, org_id, (err) => cb(err))
     })
 }
 
