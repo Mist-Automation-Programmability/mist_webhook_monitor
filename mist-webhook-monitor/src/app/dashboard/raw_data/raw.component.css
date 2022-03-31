@@ -1,0 +1,29 @@
+pre {
+    background-color: whitesmoke;
+    border: 1px solid silver;
+    border-radius: 5px;
+    padding: 10px 20px;
+    margin: 20px;
+    color: darkslateblue;
+}
+
+.key {
+    color: brown;
+}
+
+.string {
+    color: navy;
+}
+
+.number {
+    color: green;
+}
+
+.boolean {
+    color: blue;
+}
+
+.raw {
+    height: 70vh;
+    min-width: 70vw;
+}

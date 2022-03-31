@@ -18,7 +18,6 @@ import { MatChipInputEvent } from '@angular/material/chips';
 
 import { ConfigDialog } from './config/config.component';
 import { RawDialog } from './raw_data/raw.component';
-import { typeWithParameters } from '@angular/compiler/src/render3/util';
 
 
 export interface Org {
@@ -86,7 +85,7 @@ export class DashboardComponent implements OnInit {
   socket_error: boolean = false;
   /////////////////////////
   // Others
-  private config_initialized: boolean=false;
+  private config_initialized: boolean = false;
   private host: string = "";
   private orgs: Org[] = [];
   private orgs_activated: Org[] = [];
@@ -178,9 +177,9 @@ export class DashboardComponent implements OnInit {
         this.socket_retry_count = 0
         const org_ids = msg.org_ids;
         const topics: string[] = msg.topics;
-        var tmp_orgs:Org[] = [];
+        var tmp_orgs: Org[] = [];
         this.orgs.forEach(org => {
-          if (org_ids.includes(org.org_id)) this.orgs_activated.push(org)            
+          if (org_ids.includes(org.org_id)) this.orgs_activated.push(org)
           else tmp_orgs.push(org)
         })
         this.orgs = tmp_orgs;
@@ -188,7 +187,7 @@ export class DashboardComponent implements OnInit {
         topics.forEach(topic => {
           (this.topics as any)[topic] = true
         })
-        if (!this.config_initialized && org_ids.length==0 && topics.length==0) this.openConfig();
+        if (!this.config_initialized && org_ids.length == 0 && topics.length == 0) this.openConfig();
         break;
     }
   }
@@ -200,7 +199,7 @@ export class DashboardComponent implements OnInit {
 
   socketReceivedPong(msg: any): void {
     this.socket_connected = true;
-    if (this.socket_connected) setTimeout(()=>{
+    if (this.socket_connected) setTimeout(() => {
       this.socketSendPing();
     }, 60000)
   }
@@ -218,19 +217,29 @@ export class DashboardComponent implements OnInit {
     this.socket_connected = false;
     this.socket_retry_count += 1;
     if (this.socket_retry_count >= this.socket_retry_max_retry) this.socket_error = true;
-    
+
     var timeout = this.socket_rretry_timeout;
     if (this.socket_retry_count > this.socket_retry_max_retry) timeout = 60000;
     this.socketSubscibe(timeout)
   }
 
-  socketReceivedWebhook(webhook: any) {
-    var init = false;
-    if (this.eventDataSource.length == 0) init = true
-    webhook.events.forEach((event: any) => {
+  addNewEventInList(new_event: any): void {
+    new_event._new = true;
+    this.eventDataSource.push(new_event);
+    while (this.eventDataSource.length > this.maxItems) this.eventDataSource.shift();
+    this.updatePossibleFilteringItems(new_event);
+    console.log(this.eventDataSource)
+    setTimeout(() => {
+      new_event._new = false;
+    }, 1000)
+  }
+
+  processDeviceEvents(webhook_message: any) {
+    webhook_message.events.forEach((event: any) => {
       var tmp: any = {
-        topic: webhook.topic,
-        raw_message: webhook
+        topic: webhook_message.topic,
+        raw_message: webhook_message,
+        raw_event: event
       };
       for (var key in event) {
         tmp[key] = event[key];
@@ -238,16 +247,156 @@ export class DashboardComponent implements OnInit {
           tmp["org_name"] = this.org_names[event[key]];
         }
       }
-      tmp._new = true;
-      this.eventDataSource.push(tmp);
-      while (this.eventDataSource.length > this.maxItems) this.eventDataSource.shift();
-      this.updatePossibleFilteringItems(event);
-      console.log(this.eventDataSource)
-      setTimeout(()=>{
-        tmp._new = false;
-      }, 1000)
+      this.addNewEventInList(tmp);
     })
+  }
 
+  processDefault(webhook_message: any): void {
+    webhook_message.events.forEach((event: any) => {
+      var tmp: any = {
+        topic: webhook_message.topic,
+        raw_message: webhook_message,
+        raw_event: event
+      };
+      for (var key in event) {
+        tmp[key] = event[key];
+        if (key == "org_id") {
+          tmp["org_name"] = this.org_names[event[key]];
+        }
+      }
+      this.addNewEventInList(tmp);
+    })
+  }
+  processAudits(webhook_message: any): void {
+    webhook_message.events.forEach((event: any) => {
+      var tmp: any = {
+        topic: webhook_message.topic,
+        raw_message: webhook_message,
+        raw_event: event
+      };
+      for (var key in event) {
+        if (key == "message") tmp["text"] = event[key];
+        else {
+          tmp[key] = event[key];
+          if (key == "org_id") {
+            tmp["org_name"] = this.org_names[event[key]];
+          }
+        }
+      }
+      this.addNewEventInList(tmp);
+    })
+  }
+
+  processAlarmsInfra(event: any, webhook_message: any): void {
+    var tmp: any = {
+      topic: webhook_message.topic,
+      raw_message: webhook_message,
+      raw_event: event
+    };
+    for (var key in event) {
+      switch (key) {
+        case "aps":
+          tmp["mac"] = event[key];
+          tmp["device_type"] = "ap";
+          break;
+        case "switches":
+          tmp["mac"] = event[key];
+          tmp["device_type"] = "switch";
+          break;
+        case "gateways":
+          tmp["mac"] = event[key];
+          tmp["device_type"] = "gateway";
+          break;
+        case "hostnames":
+          tmp["device_name"] = event[key];
+          break;
+        case "reasons":
+        case "reason":
+          tmp["text"] = event[key];
+          break;
+        default:
+          tmp[key] = event[key];
+          if (key == "org_id") {
+            tmp["org_name"] = this.org_names[event[key]];
+          }
+          break;
+      }
+    }
+    this.addNewEventInList(tmp);
+  }
+
+  processAlarmsMarvis(event: any, webhook_message: any): void {
+    var tmp: any = {
+      topic: webhook_message.topic,
+      raw_message: webhook_message,
+      raw_event: event
+    };
+    for (var key in event) {
+      switch (key) {
+        case "email_content":
+          for (var email_key in event[key]) {
+            switch (email_key) {
+              case "impacted_aps":
+                tmp["device_name"] = event[key][email_key];
+                tmp["device_type"] = "ap";
+                break;
+              case "impacted_switches":
+                tmp["device_name"] = event[key][email_key];
+                tmp["device_type"] = "switch";
+                break;
+              case "impacted_gateways":
+                tmp["device_name"] = event[key][email_key];
+                tmp["device_type"] = "gateway";
+                break;
+            }
+
+          }
+          break;
+        case "details":
+          tmp["text"] = event[key]?.symptom;
+          break;
+        default:
+          tmp[key] = event[key];
+          if (key == "org_id") {
+            tmp["org_name"] = this.org_names[event[key]];
+          }
+          break;
+      }
+    }
+    this.addNewEventInList(tmp);
+  }
+
+  processAlarms(webhook_message: any): void {
+    webhook_message.events.forEach((event: any) => {
+      switch (event.group) {
+        case "infrastructure":
+          this.processAlarmsInfra(event, webhook_message);
+          break;
+        case "marvis":
+          this.processAlarmsMarvis(event, webhook_message);
+          break;
+        default:
+          this.processDefault(webhook_message);
+          break;
+      }
+
+    })
+  }
+
+  socketReceivedWebhook(webhook_message: any) {
+    var init = false;
+    if (this.eventDataSource.length == 0) init = true
+    switch (webhook_message.topic) {
+      case "alarms":
+        this.processAlarms(webhook_message);
+        break;
+      case "audits":
+        this.processAudits(webhook_message);
+        break;
+      default:
+        this.processDefault(webhook_message);
+        break;
+    }
     this.applyFilter(init);
   }
 
@@ -299,7 +448,7 @@ export class DashboardComponent implements OnInit {
         this.session_id = data.session_id;
         this.socket_path = data.socket_path;
         this.host = data.host.replace("api", "manage");
-        this.socket_initialized = true;        
+        this.socket_initialized = true;
         this.socketSubscibe();
       }, error: error => this.parseError(error)
     })
@@ -350,7 +499,9 @@ export class DashboardComponent implements OnInit {
       const fields_required = this.filteringItems.length;
       this.eventDataSource.forEach(event => {
         var fields_count = 0;
-        this.displayedColumns.forEach(column => { if (this.filteringItems.includes(event[column])) fields_count += 1 })
+        this.displayedColumns.forEach(column => { 
+          if (Array.isArray(event[column])) event[column].forEach((entry : string) => {if (this.filteringItems.includes(entry)) fields_count += 1 })
+          if (this.filteringItems.includes(event[column])) fields_count += 1 })
         if (fields_count >= fields_required) tmp.push(event);
 
       })
@@ -367,14 +518,23 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  addNewPossibleFilter(column: string, value: string) {
+    var tmp = this.possibleFilteringItems.filter(item => item.column == column);
+    if (tmp.length == 0) this.possibleFilteringItems.push({ "column": column, "values": [value] })
+    else if (!tmp[0].values.includes(value)) (tmp[0].values.push(value))
+  }
+
   updatePossibleFilteringItems(event: any): void {
     this.displayedColumns.forEach(column => {
       if (!["text", "timestamp"].includes(column) && event[column]) {
-        var tmp = this.possibleFilteringItems.filter(item => item.column == column);
-        if (tmp.length == 0) this.possibleFilteringItems.push({ "column": column, "values": [event[column]] })
-        else if (!tmp[0].values.includes(event[column])) (tmp[0].values.push(event[column]))
+        if (Array.isArray(event[column])) {
+          for (const value in event[column]) {
+            this.addNewPossibleFilter(column, event[column][value]);
+          }
+        } else this.addNewPossibleFilter(column, event[column]);
       }
     })
+
 
     this.filterOptions = this.filterForm.get('filterGroup')!.valueChanges.pipe(
       startWith(''),
@@ -453,6 +613,11 @@ export class DashboardComponent implements OnInit {
       window.open(url, "_blank");
     }
   }
+  openAudit(org_id: string): void {
+    const url = "https://" + this.host + "/admin/?org_id=" + org_id + "#!auditLogs";
+    window.open(url, "_blank");
+
+  }
 
   //////////////////////////////////////////////////////////////////////////////
   /////           DIALOG BOXES
@@ -477,7 +642,7 @@ export class DashboardComponent implements OnInit {
   // RAW DASTA
   openRaw(element: any): void {
     const dialogRef = this._dialog.open(RawDialog, {
-      data: element.raw_message
+      data: {raw_message: element.raw_message, raw_event: element.raw_event}
     });
   }
 
@@ -490,6 +655,9 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  typeOf(data:any):string{
+    return typeof data;
+  }
 
   //////////////////////////////////////////////////////////////////////////////
   /////           BCK TO ORGS
