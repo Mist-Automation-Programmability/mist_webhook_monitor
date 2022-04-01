@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 # Features
 * Automatically create and delete Webhook configuration in Mist Org (based on the required settings)
+* Multiple simultanuous sessions from the same org (only one webhook configuration is created)
 * Listen for Webhook messages comming from Mist Cloud
 * Create a Websocket with the web browser, to forward the webhook messages to each web browser registered for the specific topic/org
 
