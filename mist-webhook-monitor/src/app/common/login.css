@@ -1,0 +1,39 @@
+.login-form-inputs {
+    width: 35em;
+    text-align: center;
+    justify-content: space-between;
+    border-radius: 5px;
+    background-color: white;
+}
+
+.loading {
+    position: absolute;
+    top: calc((100vh - 10em) / 2);
+    left: calc((100vw - 35em) / 2);
+    width: 35em;
+    height: 15em;
+    background-color: #ffffff9c;
+    border-radius: 5px;
+}
+
+.loading div {
+    margin: auto;
+    align-self: center;
+}
+
+mat-card {
+    height: 100%
+}
+
+mat-form-field {
+    width: 100%;
+}
+
+mat-card-content {
+    width: 35em;
+    height: 25em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    margin: 0;
+}

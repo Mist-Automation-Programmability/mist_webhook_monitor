@@ -5,7 +5,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ErrorDialog } from './common/error';
 import { LoginComponent } from './login/login.component';
-import { TwoFactorDialog } from './login/login-2FA';
+import { TwoFactorDialog } from './common/login-2FA';
+import { LoginDialog } from './common/login';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ConfigDialog } from './dashboard/config/config.component';
 import { RawDialog } from './dashboard/raw_data/raw.component';
@@ -46,7 +47,7 @@ import { TsArrayPipe } from './common/pipe/ts_array_pipe'
   declarations: [
     AppComponent,
     ErrorDialog,
-    LoginComponent, TwoFactorDialog,
+    LoginComponent, TwoFactorDialog, LoginDialog,
     DashboardComponent, ConfigDialog, RawDialog,
     NextDayPipe,
     TsArrayPipe

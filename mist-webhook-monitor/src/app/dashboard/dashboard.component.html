@@ -1,21 +1,40 @@
 <div fxLayout="row" style="height: 100%;">
 
     <!-- NAV  -->
-    <div fxLayout="row" fxLayoutAlign="center center" class="status">
-        <div style="margin: 0.5em;">Websocket Status: </div>
-        <div fxLayout="row" fxLayoutAlign="center center" *ngIf="!socket_initialized">Connecting...
-            <mat-spinner strokeWidth=2 diameter=15 style="margin: 0.5em;"></mat-spinner>
+    <div fxLayout="column" class="status">
+        <div fxLayout="row" fxLayoutAlign="start center">
+            <div style="margin-right: 0.5em;">Webhooks: </div>
+            <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="wehbook_configured">
+                <div>Confiugred</div>
+                <mat-progress-spinner mode="determinate" color="accent" value="100" strokeWidth=2 diameter=15 style="margin: 0.5em;">
+                </mat-progress-spinner>
+            </div>
+            <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="!wehbook_configured">
+                <div>Not Configured</div>
+                <mat-progress-spinner mode="determinate" color="warn" value="100" strokeWidth=2 diameter=15 style="margin: 0.5em;">
+                </mat-progress-spinner>
+            </div>
         </div>
-        <div fxLayout="row" fxLayoutAlign="center center" *ngIf="socket_initialized && socket_error">Lost...
-            <mat-progress-spinner mode="determinate" color="warn" value="100" strokeWidth=2 diameter=15 style="margin: 0.5em;">
-            </mat-progress-spinner>
-        </div>
-        <div fxLayout="row" fxLayoutAlign="center center" *ngIf="socket_initialized && socket_connected && !socket_reconnecting && !socket_error">Connected
-            <mat-progress-spinner mode="determinate" color="accent" value="100" strokeWidth=2 diameter=15 style="margin: 0.5em;">
-            </mat-progress-spinner>
-        </div>
-        <div fxLayout="row" fxLayoutAlign="center center" *ngIf="socket_initialized && !socket_connected && socket_reconnecting && !socket_error">Reconnecting...
-            <mat-spinner color="warn" strokeWidth=2 diameter=15 style="margin: 0.5em;"></mat-spinner>
+        <div fxLayout="row" fxLayoutAlign="start center">
+            <div style="margin-right: 0.5em;">Websocket: </div>
+            <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="!socket_initialized">
+                <div>Connecting...</div>
+                <mat-spinner strokeWidth=2 diameter=15 style="margin: 0.5em;"></mat-spinner>
+            </div>
+            <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="socket_initialized && socket_error">
+                <div>Lost...</div>
+                <mat-progress-spinner mode="determinate" color="warn" value="100" strokeWidth=2 diameter=15 style="margin: 0.5em;">
+                </mat-progress-spinner>
+            </div>
+            <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="socket_initialized && socket_connected && !socket_reconnecting && !socket_error">
+                <div>Connected</div>
+                <mat-spinner color="accent" strokeWidth=2 diameter=15 style="margin: 0.5em;">
+                </mat-spinner>
+            </div>
+            <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="socket_initialized && !socket_connected && socket_reconnecting && !socket_error">
+                <div>Reconnecting...</div>
+                <mat-spinner color="warn" strokeWidth=2 diameter=15 style="margin: 0.5em;"></mat-spinner>
+            </div>
         </div>
     </div>
 

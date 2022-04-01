@@ -19,6 +19,7 @@ import { MatChipInputEvent } from '@angular/material/chips';
 import { ConfigDialog } from './config/config.component';
 import { ErrorDialog } from './../common/error';
 import { RawDialog } from './raw_data/raw.component';
+import { LoginDialog } from './../common/login';
 
 
 export interface Org {
@@ -28,7 +29,8 @@ export interface Org {
 export interface WsSettings {
   socket_path: string,
   session_id: string,
-  host: string
+  host: string,
+  username: string
 }
 
 export interface Filter {
@@ -86,12 +88,15 @@ export class DashboardComponent implements OnInit {
   socket_error: boolean = false;
   /////////////////////////
   // Others
+  private login_opened: boolean = false;
   private error_opened: boolean = false;
   private config_opened: boolean = false;
   private config_initialized: boolean = false;
+  private username: string = "";
   private host: string = "";
   private orgs: Org[] = [];
   private orgs_activated: Org[] = [];
+  wehbook_configured: boolean = false;
   org_names: any = {};
   private topics = {
     "device-events": false,
@@ -191,10 +196,40 @@ export class DashboardComponent implements OnInit {
           (this.topics as any)[topic] = true
         })
         if (!this.config_initialized && org_ids.length == 0 && topics.length == 0) this.openConfig();
+        else this.wehbook_configured = true;
         break;
     }
   }
 
+  socketSendSubscribe():void{
+    var org_ids: string[] = []
+    var topics: string[]=[];
+    this.orgs_activated.forEach(org => {
+      org_ids.push(org.org_id)
+    })
+    for (var topic in this.topics){
+      if ((this.topics as any)[topic]) topics.push(topic)
+    }
+    console.log(this.topics)
+    console.log(topics)
+    const message = { "action": "subscribe", "org_ids": org_ids, "topics": topics };
+    this.socket.next(message);
+  }
+
+  sockerReceivedSubscribe(msg:any):void{
+    switch (msg.result){
+      case "success":     var org_ids: string[] = []
+      var topics: string[]=[];
+      this.orgs_activated.forEach(org => {
+        org_ids.push(org.org_id)
+      })
+      for (var topic in this.topics){
+        if ((this.topics as any)[topic]) topics.push(topic)
+      }
+      if (org_ids.length>0 && topics.length >0) this.wehbook_configured = true;
+      else this.wehbook_configured = false;
+    }
+  }
 
   socketSendPing(): void {
     this.socket.next({ "action": "ping" })
@@ -409,16 +444,7 @@ export class DashboardComponent implements OnInit {
       case 401:
         this.socket.complete();
         this.session_id = "";
-        if (!this.error_opened) {
-          this.error_opened = true;
-          const dialogRef = this._dialog.open(ErrorDialog, {
-            data: { title: "Authentication expired", text: "Your authentication session expired. This means you cannont receive new webhook messages anymore, and you need to log back in. You can stay on this page or go back to the login page.", cancel:"Stay", ok:"Log Back In" }
-          });
-          dialogRef.afterClosed().subscribe(result => {
-            this.error_opened = false;
-            if (result) this._router.navigate(["/"]).then(() => { window.location.reload(); });
-          })
-        }
+        if (!this.login_opened) this.openLogIn();
         break;
     }
   }
@@ -431,7 +457,8 @@ export class DashboardComponent implements OnInit {
       this.socket_initialized = true;
       this.socket.subscribe(
         msg => { // Called whenever there is a message from the server.}
-          if (!this.socket_connected) this.socketSendReconnect(msg)
+          if (!this.socket_connected) this.socketSendReconnect(msg);
+          if (this.wehbook_configured) this.socketSendSubscribe();;
           if ((msg as any).action)
             switch ((msg as any).action) {
               case "error":
@@ -446,6 +473,9 @@ export class DashboardComponent implements OnInit {
               case "webhook":
                 this.socketReceivedWebhook((msg as any).webhook);
                 break;
+              case "subscribe":
+                this.sockerReceivedSubscribe((msg as any));
+                break;
             }
         }, err => {// Called if at any point WebSocket API signals some kind of error.
           this.socket_reconnecting = true;
@@ -457,6 +487,7 @@ export class DashboardComponent implements OnInit {
         }
       );
       this.socketSendPing();
+
     }, timeout)
   }
 
@@ -474,6 +505,7 @@ export class DashboardComponent implements OnInit {
       next: data => {
         this.session_id = data.session_id;
         this.socket_path = data.socket_path;
+        this.username = data.username;
         this.host = data.host.replace("api", "manage");
         this.socket_initialized = true;
         this.socketSubscibe();
@@ -604,6 +636,7 @@ export class DashboardComponent implements OnInit {
       window.open(url, "_blank");
     }
   }
+
   openDeviceConfig(device_type: string, device_mac: string, org_id: string, site_id: string): void {
     var device = null;
     switch (device_type) {
@@ -664,11 +697,30 @@ export class DashboardComponent implements OnInit {
           this.maxItems = result.maxItems;
           while (this.eventDataSource.length > this.maxItems) this.eventDataSource.shift();
           this.applyFilter();
-          const message = { "action": "subscribe", "org_ids": result.org_ids, "topics": result.topics };
-          this.socket.next(message);
+          this.orgs_activated = result.orgs_activated;
+          this.topics = result.topics;
+          this.socketSendSubscribe();
         }
       })
     }
+  }
+
+  openLogIn(): void {
+    this.wehbook_configured = false;
+    if (!this.login_opened) {
+      this.login_opened = true;
+      const dialogRef = this._dialog.open(LoginDialog, {
+        data: { host: this.host, username: this.username, text: "Your authentication session expired. This means you cannont receive new webhook messages anymore, and you need to log back in. You can go back to the login page, stay on this page or log back in to keep your history."}
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        this.login_opened = false;
+        if (result) {
+          this.getSocketSettings();
+         this.openConfig();         
+        }
+      })
+    }
+
   }
 
   // RAW DASTA

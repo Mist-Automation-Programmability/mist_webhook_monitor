@@ -1,0 +1,33 @@
+<div [formGroup]="frmStepLogin" fxLayout="column" class="login-form-inputs">
+    <mat-card-title>
+        Log In with your Mist Account
+    </mat-card-title>
+
+    <mat-card-content>
+        <div style="margin: 2em 0;">{{data.text}}</div>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="username" type="email">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" (keydown.enter)="submitCredentials()" />
+        </mat-form-field>
+        <div style="margin-bottom: 1em; min-height: 20px;">
+            <span style="color:red; font-weight: normal; ">{{error_message}}</span>
+        </div>
+        <div class="loading" fxLayout="row" *ngIf="loading">
+            <div fxLayout="column">
+                <mat-spinner strokeWidth=3></mat-spinner>
+            </div>
+        </div>
+    </mat-card-content>
+
+    <mat-card-actions fxLayout="row" fxLayoutAlign="end" style="margin-bottom: 0;">
+        <button mat-stroked-button color="primary" (click)="exit()">Exit</button>
+        <button mat-stroked-button color="primary" (click)="cancel()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="submitCredentials()" [disabled]="loading">Log Back In</button>
+    </mat-card-actions>
+</div>

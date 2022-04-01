@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { FormBuilder } from '@angular/forms';
 import { PlatformLocation } from '@angular/common';
-import { TwoFactorDialog } from './login-2FA';
+import { TwoFactorDialog } from './../common/login-2FA';
 
 export interface TwoFactorData {
   twoFactor: string;
@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
   docker_url!: string;
   disclaimer!: string;
   host: string = "";
-  loading!: boolean;
+  loading: boolean = false;
   hosts = [
     { value: 'api.mist.com', viewValue: 'US - manage.mist.com' },
     { value: 'api.eu.mist.com', viewValue: 'EU - manage.eu.mist.com' },

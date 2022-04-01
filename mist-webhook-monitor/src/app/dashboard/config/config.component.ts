@@ -57,17 +57,9 @@ export class ConfigDialog implements OnInit {
 
   // Save and Close
   save() {
-    var org_ids: string[] = []
-    var topics: string[]=[];
-    this.orgs_activated.forEach(org => {
-      org_ids.push(org.org_id)
-    })
-    for (var topic in this.topics){
-      if ((this.topics as any)[topic]) topics.push(topic)
-    }
     this.dialogRef.close({
-      org_ids: org_ids,
-      topics: topics,
+      orgs_activated: this.orgs_activated,
+      topics: this.topics,
       maxItems : this.maxItems
     });
   }
