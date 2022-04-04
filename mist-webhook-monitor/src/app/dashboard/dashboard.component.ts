@@ -81,7 +81,8 @@ export class DashboardComponent implements OnInit {
   private socket_path: string = "";
   private socket_retry_count: number = 0;
   private socket_retry_timeout: number = 5000;
-  private socket_retry_max_retry: number = 5;
+  private socket_retry_max_retry: number = 60;
+  private socket_ping: any;
   socket_initialized: boolean = false;
   socket_connected: boolean = false;
   socket_error: boolean = false;
@@ -237,7 +238,7 @@ export class DashboardComponent implements OnInit {
 
   socketReceivedPong(): void {
     this.socket_connected = true;
-    if (this.socket_connected) setTimeout(() => {
+    if (this.socket_connected) this.socket_ping = setTimeout(() => {
       this.socketSendPing();
     }, 60000)
   }
@@ -484,7 +485,6 @@ export class DashboardComponent implements OnInit {
           else if (!this.socket_connected && err.type == "error") this.socketIsInError(err);
         },
         () => { // Called when connection is closed (for whatever reason).
-          console.log("closed")
           this.socket_connected = false;
         }
       );
@@ -493,7 +493,7 @@ export class DashboardComponent implements OnInit {
     }, timeout)
   }
 
-  socketForceRetry():void{
+  socketForceRetry(): void {
     this.socket_error = false;
     this.socket_retry_count = 0;
     this.socketSubscibe();
@@ -504,6 +504,8 @@ export class DashboardComponent implements OnInit {
   }
 
   socketClose(): void {
+    clearTimeout(this.socket_ping);
+    this.socket.unsubscribe();
     this.socket.complete()
     this.socket_connected = false;
   }
