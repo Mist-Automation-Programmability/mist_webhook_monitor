@@ -68,11 +68,11 @@ export class DashboardComponent implements OnInit {
   displayedColumns: string[] = ['timestamp', 'topic', 'type', 'org_name', 'site_name', 'device_name', 'mac', 'text', 'menu'];
   eventDataSource: any[] = [];
   filteredEventDataSource: MatTableDataSource<any>;
-  pageIndex: number = 0
-  pageSize: number = 25
-  pageLength: number = 0
-  pageSizeOptions: number[] = [5, 25, 50, 100]
-  maxItems: number = 5000
+  pageIndex: number = 0;
+  pageSize: number = 25;
+  pageLength: number = 0;
+  pageSizeOptions: number[] = [5, 25, 50, 100];
+  maxItems: number = 5000;
 
   /////////////////////////
   // Websocket
@@ -80,11 +80,10 @@ export class DashboardComponent implements OnInit {
   private socket = webSocket('');
   private socket_path: string = "";
   private socket_retry_count: number = 0;
-  private socket_rretry_timeout: number = 5000;
-  private socket_retry_max_retry: number = 60;
+  private socket_retry_timeout: number = 5000;
+  private socket_retry_max_retry: number = 5;
   socket_initialized: boolean = false;
   socket_connected: boolean = false;
-  socket_reconnecting: boolean = false;
   socket_error: boolean = false;
   /////////////////////////
   // Others
@@ -172,7 +171,9 @@ export class DashboardComponent implements OnInit {
   //////////////////////////////////////////////////////////////////////////////
 
   // SEND / RECEIVE FUNCTIONS
-  socketSendReconnect(msg: any): void {
+
+  // Reconnect
+  socketSendReconnect(): void {
     this.socket.next({ "action": "reconnect", "session_id": this.session_id })
   }
 
@@ -181,7 +182,6 @@ export class DashboardComponent implements OnInit {
       case "success":
         this.socket_connected = true;
         this.socket_error = false;
-        this.socket_reconnecting = false;
         this.socket_retry_count = 0
         const org_ids = msg.org_ids;
         const topics: string[] = msg.topics;
@@ -201,67 +201,70 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  socketSendSubscribe():void{
+  // Subscribe
+  socketSendSubscribe(): void {
     var org_ids: string[] = []
-    var topics: string[]=[];
+    var topics: string[] = [];
     this.orgs_activated.forEach(org => {
       org_ids.push(org.org_id)
     })
-    for (var topic in this.topics){
+    for (var topic in this.topics) {
       if ((this.topics as any)[topic]) topics.push(topic)
     }
-    console.log(this.topics)
-    console.log(topics)
     const message = { "action": "subscribe", "org_ids": org_ids, "topics": topics };
     this.socket.next(message);
   }
 
-  sockerReceivedSubscribe(msg:any):void{
-    switch (msg.result){
-      case "success":     var org_ids: string[] = []
-      var topics: string[]=[];
-      this.orgs_activated.forEach(org => {
-        org_ids.push(org.org_id)
-      })
-      for (var topic in this.topics){
-        if ((this.topics as any)[topic]) topics.push(topic)
-      }
-      if (org_ids.length>0 && topics.length >0) this.wehbook_configured = true;
-      else this.wehbook_configured = false;
+  sockerReceivedSubscribe(msg: any): void {
+    switch (msg.result) {
+      case "success": var org_ids: string[] = []
+        var topics: string[] = [];
+        this.orgs_activated.forEach(org => {
+          org_ids.push(org.org_id)
+        })
+        for (var topic in this.topics) {
+          if ((this.topics as any)[topic]) topics.push(topic)
+        }
+        if (org_ids.length > 0 && topics.length > 0) this.wehbook_configured = true;
+        else this.wehbook_configured = false;
     }
   }
 
+  // Ping
   socketSendPing(): void {
     this.socket.next({ "action": "ping" })
   }
 
-  socketReceivedPong(msg: any): void {
+  socketReceivedPong(): void {
     this.socket_connected = true;
     if (this.socket_connected) setTimeout(() => {
       this.socketSendPing();
     }, 60000)
   }
 
+  // Close
   socketIsClosed(err: any): void {
-    console.log(err)
-    this.socket_connected = false;
+    console.log(err);
+    this.socketClose();
     this.socket_retry_count += 1;
 
-    var timeout = this.socket_rretry_timeout;
+    var timeout = this.socket_retry_timeout;
     if (this.socket_retry_count > this.socket_retry_max_retry) timeout = 60000;
     this.socketSubscibe(timeout)
   }
 
+  // Error
   socketIsInError(err: any): void {
-    console.log(err)
-    this.socket_connected = false;
+    console.log(err);
+    this.socketClose();
     this.socket_retry_count += 1;
     if (this.socket_retry_count >= this.socket_retry_max_retry) this.socket_error = true;
 
-    var timeout = this.socket_rretry_timeout;
+    var timeout = this.socket_retry_timeout;
     if (this.socket_retry_count > this.socket_retry_max_retry) timeout = 60000;
     this.socketSubscibe(timeout)
   }
+
 
   addNewEventInList(new_event: any): void {
     new_event._new = true;
@@ -452,12 +455,11 @@ export class DashboardComponent implements OnInit {
   // WEBSOCKET FUNCTIONS
   socketSubscibe(timeout: number = 0): void {
     setTimeout(() => {
-      this.socket.error
-      this.socket = webSocket(this.socket_path)
+      this.socket = webSocket(this.socket_path);
       this.socket_initialized = true;
       this.socket.subscribe(
         msg => { // Called whenever there is a message from the server.}
-          if (!this.socket_connected) this.socketSendReconnect(msg);
+          if (!this.socket_connected) this.socketSendReconnect();
           if (this.wehbook_configured) this.socketSendSubscribe();;
           if ((msg as any).action)
             switch ((msg as any).action) {
@@ -465,7 +467,7 @@ export class DashboardComponent implements OnInit {
                 this.socketReceiveError(msg);
                 break;
               case "ping":
-                this.socketReceivedPong(msg);
+                this.socketReceivedPong();
                 break;
               case "reconnect":
                 this.socketReceivedReconnect(msg);
@@ -478,11 +480,11 @@ export class DashboardComponent implements OnInit {
                 break;
             }
         }, err => {// Called if at any point WebSocket API signals some kind of error.
-          this.socket_reconnecting = true;
           if (this.socket_connected && err.type == "close") this.socketIsClosed(err);
           else if (!this.socket_connected && err.type == "error") this.socketIsInError(err);
         },
         () => { // Called when connection is closed (for whatever reason).
+          console.log("closed")
           this.socket_connected = false;
         }
       );
@@ -491,13 +493,19 @@ export class DashboardComponent implements OnInit {
     }, timeout)
   }
 
+  socketForceRetry():void{
+    this.socket_error = false;
+    this.socket_retry_count = 0;
+    this.socketSubscibe();
+  }
+
   socketUnsubscribe(): void {
     this.socket.unsubscribe()
   }
 
   socketClose(): void {
     this.socket.complete()
-    this.socket_initialized = false;
+    this.socket_connected = false;
   }
 
   getSocketSettings(): void {
@@ -517,33 +525,63 @@ export class DashboardComponent implements OnInit {
   //////////////////////////////////////////////////////////////////////////////
   /////           FILTER
   //////////////////////////////////////////////////////////////////////////////
+
+  // user adds a filter value
   add(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
-
-    // Add our item
-    if (value) {
-      this.filteringItems.push(value);
-    }
-
+    if (value) this.filteringItems.push(value);
     // Clear the input value
     event.chipInput!.clear();
   }
 
+
+  // user rmeoves a filter value
   remove(item: string): void {
     const index = this.filteringItems.indexOf(item);
-
-    if (index >= 0) {
-      this.filteringItems.splice(index, 1);
-    }
+    if (index >= 0) this.filteringItems.splice(index, 1);
     this.applyFilter();
   }
 
+  // user selects a value from the list
   selected(event: MatAutocompleteSelectedEvent): void {
     this.filteringItems.push(event.option.viewValue);
     this.filterInput.nativeElement.value = '';
     this.filterInput.nativeElement.blur();
     this.filterForm.get('filterGroup')!.setValue('');
     this.applyFilter();
+  }
+
+  // Add new filter value (filter list and count)
+  addPossibleFilter(column: string, value: string) {
+    var tmp = this.possibleFilteringItems.filter(item => item.column == column);
+    if (tmp.length == 0) this.possibleFilteringItems.push({ "column": column, "values": [value] })
+    else if (!tmp[0].values.includes(value)) {
+      tmp[0].values.push(value)
+      tmp[0].values.sort((a: string, b: string) => {
+        if (a.toLowerCase() < b.toLowerCase()) return -1;
+        else if (a.toLowerCase() > b.toLowerCase()) return 1;
+        else return 0;
+      });
+    }
+  }
+
+
+  updatePossibleFilteringItems(event: any): void {
+    this.displayedColumns.forEach(column => {
+      if (!["text", "timestamp"].includes(column) && event[column]) {
+        if (Array.isArray(event[column])) {
+          for (const value in event[column]) {
+            this.addPossibleFilter(column, event[column][value]);
+          }
+        } else this.addPossibleFilter(column, event[column]);
+      }
+    })
+
+
+    this.filterOptions = this.filterForm.get('filterGroup')!.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filterGroup(value)),
+    );
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -578,29 +616,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  addNewPossibleFilter(column: string, value: string) {
-    var tmp = this.possibleFilteringItems.filter(item => item.column == column);
-    if (tmp.length == 0) this.possibleFilteringItems.push({ "column": column, "values": [value] })
-    else if (!tmp[0].values.includes(value)) (tmp[0].values.push(value))
-  }
-
-  updatePossibleFilteringItems(event: any): void {
-    this.displayedColumns.forEach(column => {
-      if (!["text", "timestamp"].includes(column) && event[column]) {
-        if (Array.isArray(event[column])) {
-          for (const value in event[column]) {
-            this.addNewPossibleFilter(column, event[column][value]);
-          }
-        } else this.addNewPossibleFilter(column, event[column]);
-      }
-    })
-
-
-    this.filterOptions = this.filterForm.get('filterGroup')!.valueChanges.pipe(
-      startWith(''),
-      map(value => this._filterGroup(value)),
-    );
-  }
 
   //////////////////////////////////////////////////////////////////////////////
   /////           QUICK LINKS
@@ -710,13 +725,13 @@ export class DashboardComponent implements OnInit {
     if (!this.login_opened) {
       this.login_opened = true;
       const dialogRef = this._dialog.open(LoginDialog, {
-        data: { host: this.host, username: this.username, text: "Your authentication session expired. This means you cannont receive new webhook messages anymore, and you need to log back in. You can go back to the login page, stay on this page or log back in to keep your history."}
+        data: { host: this.host, username: this.username, text: "Your authentication session expired. This means you cannont receive new webhook messages anymore, and you need to log back in. You can go back to the login page, stay on this page or log back in to keep your history." }
       });
       dialogRef.afterClosed().subscribe(result => {
         this.login_opened = false;
         if (result) {
           this.getSocketSettings();
-         this.openConfig();         
+          this.openConfig();
         }
       })
     }

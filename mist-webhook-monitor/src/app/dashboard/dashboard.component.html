@@ -17,21 +17,28 @@
         </div>
         <div fxLayout="row" fxLayoutAlign="start center">
             <div style="margin-right: 0.5em;">Websocket: </div>
-            <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="!socket_initialized">
+            <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="!socket_initialized && !socket_connected && !socket_error">
                 <div>Connecting...</div>
                 <mat-spinner strokeWidth=2 diameter=15 style="margin: 0.5em;"></mat-spinner>
             </div>
             <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="socket_initialized && socket_error">
-                <div>Lost...</div>
+                <div fxLayout="row">Lost...
+                    <span (click)="socketForceRetry()" fxLayout="row" fxLayoutAlign="start center" style="margin-left: 0.5em; color: #0e63ad; cursor: pointer;">
+                        (Retry
+                        <span class="material-icons" style="font-size: small;">
+                            refresh
+                        </span> )
+                    </span>
+                </div>
                 <mat-progress-spinner mode="determinate" color="warn" value="100" strokeWidth=2 diameter=15 style="margin: 0.5em;">
                 </mat-progress-spinner>
             </div>
-            <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="socket_initialized && socket_connected && !socket_reconnecting && !socket_error">
+            <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="socket_initialized && socket_connected && !socket_error">
                 <div>Connected</div>
                 <mat-spinner color="accent" strokeWidth=2 diameter=15 style="margin: 0.5em;">
                 </mat-spinner>
             </div>
-            <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="socket_initialized && !socket_connected && socket_reconnecting && !socket_error">
+            <div fxLayout="row" fxLayoutAlign="space-between center" style="flex:auto;" *ngIf="socket_initialized && !socket_error && !socket_connected">
                 <div>Reconnecting...</div>
                 <mat-spinner color="warn" strokeWidth=2 diameter=15 style="margin: 0.5em;"></mat-spinner>
             </div>
@@ -41,13 +48,13 @@
     <!-- NAV  -->
     <div fxLayout="row" fxLayoutAlign="flex-end center" class="nav">
         <div fxLayout="row" fxLayoutAlign="start">
-            <button mat-icon-button color="primary" aria-label="Example icon button with a heart icon" disabled>
+            <!-- <button mat-icon-button color="primary" aria-label="Example icon button with a heart icon" disabled>
                 <mat-icon>view_column</mat-icon>
-            </button>
-            <button mat-icon-button color="primary" aria-label="Configuration" (click)="openConfig()">
+            </button> -->
+            <button mat-icon-button color="primary" aria-label="Configuration" (click)="openConfig()" matTooltip="Settings">
                 <mat-icon>settings</mat-icon>
             </button>
-            <button mat-icon-button color="primary" aria-label="Example icon button with a heart icon" (click)="logout()">
+            <button mat-icon-button color="primary" aria-label="Example icon button with a heart icon" (click)="logout()" matTooltip="Log Out">
                 <mat-icon>logout</mat-icon>
             </button>
         </div>
@@ -196,17 +203,17 @@
                             <ng-template #deviceMacArray>
                                 <div *ngFor="let mac of element.mac">
                                     <button mat-icon-button [matMenuTriggerFor]="menu" style="color: #0e63ad;font-size: small; height: 30px;" fxLayout="row" fxLayoutAlign="start center" aria-label="Example icon-button with a menu">
-                                    {{mac}}
-                                </button>
+                                        {{mac}}
+                                    </button>
                                     <mat-menu #menu="matMenu">
                                         <button mat-menu-item [disabled]="!element.org_id || !element.site_id" (click)="openDeviceInsights(element.device_type,mac, element.org_id, element.site_id)">
-                                        <mat-icon>analytics</mat-icon>
-                                        <span>Device Insights</span>
-                                    </button>
+                                            <mat-icon>analytics</mat-icon>
+                                            <span>Device Insights</span>
+                                        </button>
                                         <button mat-menu-item [disabled]="!element.org_id || !element.site_id" (click)="openDeviceConfig(element.device_typ,mac, element.org_id, element.site_id)">
-                                        <mat-icon>settings</mat-icon>
-                                        <span>Device Configuration</span>
-                                    </button>
+                                            <mat-icon>settings</mat-icon>
+                                            <span>Device Configuration</span>
+                                        </button>
                                     </mat-menu>
                                 </div>
                             </ng-template>
