@@ -768,7 +768,9 @@ export class DashboardComponent implements OnInit {
       next: data => {
         this.socket.complete();
         this.session_id = "";
-        this._router.navigate(["/"]).then(() => window.location.reload());
+        this._router.navigate(["/"])
+          .catch(console.error)
+          .then(() => window.location.reload());
       },
       error: error => this.parseError(error)
     })

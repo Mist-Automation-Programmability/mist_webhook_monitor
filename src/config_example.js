@@ -16,6 +16,8 @@ module.exports.appServer = {
      *                                NODE HTTP                                   *
      ******************************************************************************/
     NODE_HOSTNAME: "localhost",
+    // secret to allows express-session to use it to encrypt the sessionId (can be generated with `openssl rand -base64 32` command)
+    NODE_SESSION_SECRET: "3RMUqsJrX1orvJNBAlrA0KyLqD3fI7/BgiDZ8c8eAto=",
     NODE_PORT_HTTP: 3000,
     // Enable HTTPS directly with NodeJS. 
     // Set to false if you are using a reverse proxy to manage HTTPS (nginx, apache, ...)

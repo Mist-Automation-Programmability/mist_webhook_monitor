@@ -148,7 +148,6 @@ function connection(ws, req) {
             case "unsubscribe":
                 unsubscribe.all_orgs(
                     req.session.session_id,
-                    json_messsage.org_id,
                     (err, org_id, topics) => {
                         if (err) send(ws, { "action": "unsubscribe", "result": "error", "message": err });
                         else {

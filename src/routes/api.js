@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const mist_login = require("../bin/mist_login");
 const uuid = require('uuid');
-const Session = require("./../bin/models/session");
 
 function get_sid(req) {
     if (!req.session.session_id) req.session.session_id = uuid.v4();
@@ -25,7 +24,7 @@ router.post("/login", (req, res) => {
         req.session.mist = { host: mist.host }
         req.session.username = username
         mist_login.login(mist, username, password, two_factor_code, (err, data) => {
-            if (err) res.status(err.code).send(err.error)
+            if (err) res.status(err.code).send()
             else if (data.self.two_factor_required && !data.self.two_factor_passed) res.json({ "result": "two_factor_required" })
             else {
                 req.session.self = data.self;
@@ -121,7 +120,7 @@ router.get("/orgs", (req, res) => {
  SELF
  ================================================================*/
 router.get("/self", (req, res) => {
-    if (!req.session && req.session.self) res.status(401).send()
+    if (!req.session || !req.session.self) res.status(401).send()
     else {
         res.json({ self: req.session.mist.self, session_id: get_sid(req) })
     }

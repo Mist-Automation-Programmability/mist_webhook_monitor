@@ -130,3 +130,4 @@ dist
 # custom
 config.js
 .vscode/
+.dccache

@@ -99,7 +99,9 @@ export class LoginDialog implements OnInit {
 
     exit(): void {
         this.dialogRef.close();
-        this._router.navigate(["/"]).then(() => window.location.reload());
+        this._router.navigate(["/"])
+            .catch(console.error)
+            .then(() => window.location.reload());
     }
 
     //// AUTHENTICATION ////
