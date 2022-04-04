@@ -83,7 +83,7 @@ class WebhookPubSub {
                 console.log('Socket ' + socket_id + ' unsubscribed from ' + topic + " for org " + org_id);
             } else console.log("Unable to find socket " + socket_id + " in PubSubManager for " + topic + " in org " + org_id)
         })
-        if (Object.keys(this.channels[org_id]).length == 0) delete this.channels[org_id];
+        if (this.channels.hasOwnProperty(org_id) && Object.keys(this.channels[org_id]).length == 0) delete this.channels[org_id];
     }
 
     /**
