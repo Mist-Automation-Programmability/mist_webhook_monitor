@@ -55,7 +55,6 @@ function connection(ws, req) {
                 req.session.touch();
                 req.session.save();
                 send(ws, { "action": "ping", "result": "pong", "session_id": req.session.session_id });
-                console.log("ping: ", req.session.session_id)
                 Session.updateOne({ session_id: req.session.session_id }, { last_ping: Date.now() }, (err) => {
                     if (err) console.log(err);
                 });
