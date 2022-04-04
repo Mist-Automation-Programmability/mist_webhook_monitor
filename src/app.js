@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const rateLimit = require('express-rate-limit')
 const path = require('path');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const WebhookPubSub = require("./bin/webhook_pubsub")
@@ -27,7 +28,9 @@ try {
 
     CONFIG = {
         NODE_HOSTNAME: process.env.NODE_HOSTNAME || null,
+        NODE_SESSION_SECRET: process.env.NODE_SESSION_SECRET || "3RMUqsJrX1orvJNBAlrA0KyLqD3fI7/BgiDZ8c8eAto=",
         NODE_PORT_HTTP: process.env.NODE_PORT_HTTP || 3000,
+        NODE_FORCE_HTTP_ONLY: stringToBool(process.env.NODE_FORCE_HTTP_ONLY, false),
         NODE_HTTPS: stringToBool(process.env.NODE_HTTPS, false),
         NODE_PORT_HTTPS: process.env.NODE_PORT_HTTPS || 3443,
         NODE_HTTPS_CERT: process.env.NODE_HTTPS_CERT || null,
@@ -107,13 +110,23 @@ app.use(morgan('\x1b[32minfo\x1b[0m: :remote-addr - :remote-user [:date[clf]] ":
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+
+//============RATE LIMITER==============
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+app.use(limiter);
+
 // configure session
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(express.json({ limit: '1mb' }));
 // express-session parameters:
 // save sessions into mongodb 
 const sessionParser = session({
-    secret: 'T9QrskYinhvSyt6NUrEcCaQdgez3',
+    secret: global.CONFIG.NODE_SESSION_SECRET,
     store: new MongoDBStore({
         uri: 'mongodb://' + mongo_host + '/express-session?authSource=admin',
         collection: global.CONFIG.MONGO_DB
@@ -122,6 +135,8 @@ const sessionParser = session({
     resave: true,
     saveUninitialized: false,
     cookie: {
+        httpOnly: true,
+        secure: global.CONFIG.NODE_FORCE_HTTP_ONLY,
         maxAge: 60 * 60 * 1000 // 60 minutes
     },
     unset: "destroy"
@@ -146,7 +161,7 @@ const webhook_collector = require('./routes/webhook');
 app.use('/wh-collector/', webhook_collector);
 
 //Otherwise
-app.get("*", function(req, res) {
+app.get('*', (req, res) => {
     if (req.session) res.sendFile(global.appPath + '/views/index.html');
     else res.redirect("/");
 });
