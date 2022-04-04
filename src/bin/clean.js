@@ -13,7 +13,7 @@ function cleanSessions(cb) {
                 Session.deleteOne({ _id: session._id }, err => {
                     done += 1;
                     if (done == session_count) {
-                        console.info("\x1b[32minfo\x1b[0m:", count + " zombie session(s) cleaned.");
+                        console.info("\x1b[32minfo\x1b[0m:", session_count + " zombie session(s) cleaned.");
                         cb()
                     }
                 })
@@ -25,9 +25,15 @@ function cleanSessions(cb) {
 function cleanWebhooks() {
     Webhook.find({}, (err, webhooks) => {
         if (webhooks.length > 0) {
+            const webhooks_count = sessions.length;
+            var done = 0;
             webhooks.forEach(webhook => {
                 Session.find({ org_id: webhook.org_id }, (err, data) => {
                     if (!err && !data) unsub.clean(org_id);
+                    done += 1;
+                    if (done == webhooks_count) {
+                        console.info("\x1b[32minfo\x1b[0m:", webhooks_count + " zombie webhook(s) cleaned.");
+                    }
                 })
             })
         }
@@ -35,6 +41,5 @@ function cleanWebhooks() {
 }
 
 module.exports = function() {
-    console.log("new clean turn")
     cleanSessions(() => cleanWebhooks())
 }
