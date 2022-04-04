@@ -121,3 +121,8 @@ module.exports.orgs = function(session_id, org_ids, cb) {
         })
     })
 }
+
+
+module.exports.clean = function(org_id) {
+    _delete_org_config_and_token(null, org_id);
+}

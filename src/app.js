@@ -182,5 +182,10 @@ if (app.get('env') === 'development') {
     });
 }
 
+const clean = require("./bin/clean");
+setInterval(() => {
+    clean()
+}, 900000)
+
 module.exports.app = app;
 module.exports.sessionParser = sessionParser;
