@@ -23,6 +23,7 @@ The application creates an Org API Token to be able to delete the Webhook config
 <div>
 <img src="https://github.com/tmunzer/mist_webhook_monitor/raw/main/._readme/img/config.png"  width="49%"  />
 <img src="https://github.com/tmunzer/mist_webhook_monitor/raw/main/._readme/img/view.png"  width="49%"  />
+<img src="https://github.com/tmunzer/mist_webhook_monitor/raw/main/._readme/img/details.png"  width="49%"  />
 </div>
   
 ### Supported Webhook Topics
