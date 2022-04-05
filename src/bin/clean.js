@@ -25,7 +25,7 @@ function cleanSessions(cb) {
 function cleanWebhooks() {
     Webhook.find({}, (err, webhooks) => {
         if (webhooks.length > 0) {
-            const webhooks_count = sessions.length;
+            const webhooks_count = webhooks.length;
             var done = 0;
             webhooks.forEach(webhook => {
                 Session.find({ org_id: webhook.org_id }, (err, data) => {
