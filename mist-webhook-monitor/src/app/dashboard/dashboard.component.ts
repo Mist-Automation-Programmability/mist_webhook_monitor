@@ -62,7 +62,6 @@ export class DashboardComponent implements OnInit {
     filterGroup: '',
   });
   filterOptions!: Observable<Filter[]>;
-
   /////////////////////////
   // table
   displayedColumns: string[] = ['timestamp', 'topic', 'type', 'org_name', 'site_name', 'device_name', 'mac', 'text', 'menu'];
@@ -534,6 +533,7 @@ export class DashboardComponent implements OnInit {
     if (value) this.filteringItems.push(value);
     // Clear the input value
     event.chipInput!.clear();
+    this.applyFilter();
   }
 
 
@@ -599,8 +599,10 @@ export class DashboardComponent implements OnInit {
       this.eventDataSource.forEach(event => {
         var fields_count = 0;
         this.displayedColumns.forEach(column => {
-          if (Array.isArray(event[column])) event[column].forEach((entry: string) => { if (this.filteringItems.includes(entry)) fields_count += 1 })
-          if (this.filteringItems.includes(event[column])) fields_count += 1
+          this.filteringItems.forEach(item=>{
+            if (Array.isArray(event[column])) event[column].forEach((entry: string) => { if (entry.toLowerCase().includes(item.toLowerCase())) fields_count += 1 })   
+            else if (String(event[column]).toLowerCase().includes(item.toLowerCase())) fields_count += 1
+          })
         })
         if (fields_count >= fields_required) tmp.push(event);
 
