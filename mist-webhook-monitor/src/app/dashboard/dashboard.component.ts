@@ -17,7 +17,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
 
 import { ConfigDialog } from './config/config.component';
-import { ErrorDialog } from './../common/error';
+import { DiagramDialog } from './diagram/diagram.component';
 import { RawDialog } from './raw_data/raw.component';
 import { LoginDialog } from './../common/login';
 
@@ -88,7 +88,7 @@ export class DashboardComponent implements OnInit {
   /////////////////////////
   // Others
   private login_opened: boolean = false;
-  private error_opened: boolean = false;
+  private diagram_opened: boolean = false;
   private config_opened: boolean = false;
   private config_initialized: boolean = false;
   private username: string = "";
@@ -720,6 +720,16 @@ export class DashboardComponent implements OnInit {
           this.topics = result.topics;
           this.socketSendSubscribe();
         }
+      })
+    }
+  }
+
+  openDiagram(): void {
+    if (!this.diagram_opened) {
+      this.diagram_opened = true;
+      const dialogRef = this._dialog.open(DiagramDialog);
+      dialogRef.afterClosed().subscribe(() => {
+        this.diagram_opened = false;
       })
     }
   }

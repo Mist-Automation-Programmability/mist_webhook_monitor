@@ -1,6 +1,14 @@
 <mat-card-content fxLayout="column">
+    <div fxLayout="row" fxLayoutAlign="start end" class="note">
+        <h3>NOTE</h3>
+        <ul>
+            <li>This App is automatically configuring the Webhook in the Mist Org if needed.</li>
+            <li>Only the topics configured with this App will be processed, <b>all the other messages will be discared</b>. Some topics are not supported by purpose.</li>
+        </ul>
+    </div>
+
     <div fxLayout="row" fxLayoutAlign="start end">
-        <h3>General</h3>
+        <h3>GENERAL</h3>
         <div style="margin-left: 2em">
             <mat-form-field>
                 <mat-label>Max Events in Memory</mat-label>
@@ -14,7 +22,7 @@
     </div>
 
     <div fxLayout="row" fxLayoutAlign="start end" style="margin-top: 16px">
-        <h3>Topics</h3>
+        <h3>TOPICS</h3>
 
         <div fxLayout="row" fxLayoutAlign="space-between start" style="margin:0 0 16px">
             <div *ngFor="let topic of topics | keyvalue" style="margin: 0 2em;">
@@ -32,7 +40,7 @@
     </div>
 
     <div fxLayout="row" fxLayoutAlign="space-around" style="width: 60em;">
-        <h3>Orgs</h3>
+        <h3>ORGS</h3>
         <div fxLayout="column">
             <h4>Available Orgs</h4>
 
@@ -61,12 +69,11 @@
             </mat-list>
         </div>
     </div>
-    <mat-card-actions style="margin-top:  2em;display: flex;justify-content: flex-end;margin-right: 2em;">
-
-        <button mat-stroked-button color="primary" (click)="cancel()" style="margin: 1em">
+    <mat-card-actions>
+        <button mat-stroked-button color="primary" (click)="cancel()" style="margin: 1em 1em 0">
             Cancel
         </button>
-        <button mat-raised-button color="primary" (click)="save()" style="margin: 1em">
+        <button mat-raised-button color="primary" (click)="save()" style="margin: 1em 1em 0">
             Save
         </button>
     </mat-card-actions>

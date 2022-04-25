@@ -6,6 +6,10 @@
     cursor: pointer;
 }
 
+h3 {
+    width: 4em;
+}
+
 .orgs:hover {
     background-color: lightgray;
 }
@@ -13,4 +17,39 @@
 .orgs span {
     font-size: medium;
     color: #0e63ad;
+}
+
+.note {
+    border-bottom: 1px solid lightgray;
+    width: 100%;
+    color: gray;
+    margin-bottom: 1em;
+    padding-bottom: 1em;
+}
+
+.note ul {
+    font-size: smaller;
+    margin: 0;
+    padding-left: 0;
+}
+
+.note li {
+    padding: 0;
+    margin-left: 2em;
+    list-style: none;
+}
+
+mat-card-content {
+    margin: 0;
+}
+
+mat-card-actions {
+    padding-bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 2em;
+}
+
+mat-card-container {
+    margin: 0;
 }

@@ -10,6 +10,7 @@ import { LoginDialog } from './common/login';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ConfigDialog } from './dashboard/config/config.component';
 import { RawDialog } from './dashboard/raw_data/raw.component';
+import { DiagramDialog } from './dashboard/diagram/diagram.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -48,7 +49,7 @@ import { TsArrayPipe } from './common/pipe/ts_array_pipe'
     AppComponent,
     ErrorDialog,
     LoginComponent, TwoFactorDialog, LoginDialog,
-    DashboardComponent, ConfigDialog, RawDialog,
+    DashboardComponent, ConfigDialog, RawDialog, DiagramDialog,
     NextDayPipe,
     TsArrayPipe
   ],
