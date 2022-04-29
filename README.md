@@ -39,6 +39,11 @@ This Reference Application can be used as a standalone Application, or it can be
 ## Deploy the Docker version (recommanded)
 This application is available as a [Docker Image](https://hub.docker.com/repository/docker/tmunzer/mist_webhook_monitor). The Dockerfile is also available if you want top build it on your own.
 
+
+The Docker Image exposes the following ports:
+* TCP3000
+
+
 ### Run the Docker version
 `   docker create -v  <path_to_config.js>/config.js:/app/config.js:ro --link <mongoDB_container_name>:mongo --name="<container_name>" -p 3000:80 tmunzer/mist_webhook_monitor`
 
@@ -90,10 +95,5 @@ This Reference APP is built over NodeJS.
 * Install npm packages (`npm install` from the project folder).
 * Start the APP with `npm start` from the `src` folder
 
-### Manage HTTPS at the application level
-If you want to use OAuth authentication, the application will need to use HTTPS. To do so, you can use a reverse Proxy (NGINX, Apache, ...) and manage the certificates at the reverse proxy level, or you can configure the app to enable HTTPS. In this case:
-* Edit the `config.js` to enable HTTP
-* Place you certificate and certificate key in the `src/certs` folder. The certificate and key must be name based on the names configured in the `config.js`file
-* Start the APP with `npm start` from the `src` folder
 
 
