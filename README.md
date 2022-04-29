@@ -79,16 +79,6 @@ SMTP_FROM_EMAIL | string | wi-fi@corp.org | Sender email |
 SMTP_LOGO_URL | string | https://cdn.mist.com/wp-content/uploads/logo.png | URL to the logo to use in the Email |
 APP_DISCLAIMER | string | null | Disclaimer to display on the Admin login page |
 
-### Permanent storage
-This App is storing ADFS/SAML information used for the SSO process. You can use a permanent storage to keep the same settings even if the container is restarting. I will simply show the basic procedure here to use a permanent storage:
-
-1. Create a data directory on a suitable volume on your host system, e.g. /my/own/datadir.
-
-2. Start your app container like this:
-
-```$ docker run --name some-name -v /my/own/datadir:/app/certs -d tmunzer/mpss```
-
-The `-v /my/own/datadir:/app/certs` part of the command mounts the /my/own/datadir directory from the underlying host system as /app/certs inside the container, where Mpss by default will store the certificates.
 
 ## Deploy the Standalone Application
 This Reference APP is built over NodeJS. 
