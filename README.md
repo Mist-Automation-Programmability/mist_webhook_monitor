@@ -6,7 +6,8 @@ This application provides an easy way to test and display Mist Webhooks. The app
 * [License](#mit-license)
 * [Features](#features)
 * [Installation](#installation)
-* 
+
+
 # MIT LICENSE
 
 Copyright (c) 2022 Thomas Munzer
