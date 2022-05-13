@@ -24,13 +24,13 @@ router.post("/login", (req, res) => {
         req.session.mist = { host: mist.host }
         req.session.username = username
         mist_login.login(mist, username, password, two_factor_code, (err, data) => {
-            if (err) res.status(err.code).send(err.error)
-            else if (data.self.two_factor_required && !data.self.two_factor_passed) res.json({ "result": "two_factor_required" })
-            else {
-                req.session.self = data.self;
-                req.session.mist = data.mist;
-                res.json({ result: "success", session_id: get_sid(req) })
-            }
+            if (err) res.status(err.code),
+                else if (data.self.two_factor_required && !data.self.two_factor_passed) res.json({ "result": "two_factor_required" })
+                else {
+                    req.session.self = data.self;
+                    req.session.mist = data.mist;
+                    res.json({ result: "success", session_id: get_sid(req) })
+                }
         })
     }
 });
