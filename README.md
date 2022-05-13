@@ -1,6 +1,12 @@
 # Mist Webhook Monitor
 This application provides an easy way to test and display Mist Webhooks. The application will automatically configure the Webhook settings in the Mist Org to receive them, and display each message received in a table.
 
+
+# Menu
+* [License](#mit-license)
+* [Features](#features)
+* [Installation](#installation)
+* 
 # MIT LICENSE
 
 Copyright (c) 2022 Thomas Munzer
@@ -33,7 +39,7 @@ The application creates an Org API Token to be able to delete the Webhook config
 * device-updowns
 * mxedge-events
 
-# Install
+# Installation
 This Reference Application can be used as a standalone Application, or it can be deployed as a Docker Image (recommanded).
 
 ## Deploy the Docker version (recommanded)
