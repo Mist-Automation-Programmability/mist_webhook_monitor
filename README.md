@@ -1,6 +1,10 @@
 # Mist Webhook Monitor
 This application provides an easy way to test and display Mist Webhooks. The application will automatically configure the Webhook settings in the Mist Org to receive them, and display each message received in a table.
 
+<div>
+<img src="https://github.com/tmunzer/mist_webhook_monitor/raw/main/._readme/img/diagram.png"  width="100%"  />
+</div>
+
 
 # Menu
 * [License](#mit-license)
