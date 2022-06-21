@@ -1,9 +1,9 @@
 <mat-card-content fxLayout="column">
     <div fxLayout="row" fxLayoutAlign="start end" class="note">
         <h3>NOTE</h3>
-        <ul>
-            <li>This App is automatically configuring the Webhook in the Mist Org if needed.</li>
-            <li>Only the topics configured with this App will be processed, <b>all the other messages will be discared</b>. Some topics are not supported by purpose.</li>
+        <ul style="font-size: 13px;background-color: #0098a5;color: black;padding: 1em;border-radius: 5px;">
+            <li style="margin-left: 0;">This App is automatically configuring the Webhook in the Mist Org if needed.</li>
+            <li style="margin-left: 0;">Only the topics configured with this App will be processed, <b>all the other messages will be discared</b>. Some topics are not supported by purpose.</li>
         </ul>
     </div>
 
@@ -24,7 +24,7 @@
     <div fxLayout="row" fxLayoutAlign="start end" style="margin-top: 16px">
         <h3>TOPICS</h3>
 
-        <div fxLayout="row" fxLayoutAlign="space-between start" style="margin:0 0 16px">
+        <div fxLayout="row" fxLayoutAlign="space-between start" style="margin:0 0 16px; flex: auto">
             <div *ngFor="let topic of topics | keyvalue" style="margin: 0 2em;">
 
                 <mat-slide-toggle [checked]="topic.value" (change)="updateTopic(topic.key, $event)">
@@ -39,34 +39,35 @@
         <mat-divider></mat-divider>
     </div>
 
-    <div fxLayout="row" fxLayoutAlign="space-around" style="width: 60em;">
+    <div fxLayout="row" fxLayoutAlign="start start" style="margin-top: 16px">
         <h3>ORGS</h3>
-        <div fxLayout="column">
-            <h4>Available Orgs</h4>
-
-            <mat-list style="height: 400px; width: 350px; overflow-y: auto; overflow-x:clip; border: 1px solid lightgray; border-radius: 5px;">
-                <mat-list-item *ngFor="let org of orgs_list" class="orgs" (click)="addOneOrg(org)" style="justify-content: space-between;">
-                    <div style="flex: auto;">
-                        {{org.name}}
-                    </div>
-                    <span class="material-icons">
+        <div fxLayout="row" fxLayoutAlign="space-around start" style="margin:0 0 16px 2em; flex: auto">
+            <div fxLayout="column">
+                <h4>Available Orgs</h4>
+                <mat-list style="height: 400px; width: 350px; overflow-y: auto; overflow-x:clip; border: 1px solid lightgray; border-radius: 5px;">
+                    <mat-list-item *ngFor="let org of orgs_list" class="orgs" (click)="addOneOrg(org)" style="justify-content: space-between;">
+                        <div style="flex: auto;">
+                            {{org.name}}
+                        </div>
+                        <span class="material-icons">
                         arrow_forward
                     </span>
-                </mat-list-item>
-            </mat-list>
-        </div>
-        <div fxLayout="column">
-            <h4>Activated Orgs</h4>
-            <mat-list style="height: 400px; width: 350px; overflow-y: auto; overflow-x:clip; border: 1px solid lightgray; border-radius: 5px; ">
-                <mat-list-item *ngFor="let org of orgs_activated" class="orgs" (click)="deleteOneOrg(org)">
-                    <span class="material-icons">
+                    </mat-list-item>
+                </mat-list>
+            </div>
+            <div fxLayout="column">
+                <h4>Activated Orgs</h4>
+                <mat-list style="height: 400px; width: 350px; overflow-y: auto; overflow-x:clip; border: 1px solid lightgray; border-radius: 5px; ">
+                    <mat-list-item *ngFor="let org of orgs_activated" class="orgs" (click)="deleteOneOrg(org)">
+                        <span class="material-icons">
                         arrow_backward
                     </span>
-                    <div style="flex: auto;">
-                        {{org.name}}
-                    </div>
-                </mat-list-item>
-            </mat-list>
+                        <div style="flex: auto;">
+                            {{org.name}}
+                        </div>
+                    </mat-list-item>
+                </mat-list>
+            </div>
         </div>
     </div>
     <mat-card-actions>
