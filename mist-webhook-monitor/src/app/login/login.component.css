@@ -23,7 +23,7 @@
 .login-form-inputs {
     padding: 10px;
     width: 25em;
-    height: 27em;
+    height: 30em;
     text-align: center;
     justify-content: space-between;
     border-radius: 5px;
@@ -33,7 +33,7 @@
 .loading {
     position: absolute;
     width: 25em;
-    height: 27em;
+    height: 30em;
     background-color: #ffffff9c;
     border-radius: 5px;
 }
