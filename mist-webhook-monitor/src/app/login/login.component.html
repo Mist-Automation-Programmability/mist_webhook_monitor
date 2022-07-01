@@ -31,7 +31,7 @@
                 </button>
             </div>
 
-            <div class="loading" fxLayout="row" *ngIf="loading">
+            <div class="loading" fxLayout="row" *ngIf="loading || hosts_loading">
                 <div fxLayout="column">
                     <mat-spinner strokeWidth=3></mat-spinner>
                 </div>

@@ -137,4 +137,17 @@ router.get('/disclaimer', (req, res) => {
     res.json(data);
 })
 
+router.get('/hosts', (req, res) => {
+    let data = []
+    for (var key in global.CONFIG.MIST_HOSTS) {
+        data.push({ "value": global.CONFIG.MIST_HOSTS[key], "viewValue": key })
+    }
+    data = data.sort((a, b) => {
+        if (a.viewValue.toLowerCase() < b.viewValue.toLowerCase()) return -1;
+        else if (a.viewValue.toLowerCase() > b.viewValue.toLowerCase()) return 1;
+        else return 0
+    })
+    res.json(data);
+})
+
 module.exports = router;

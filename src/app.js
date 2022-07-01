@@ -8,6 +8,7 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const WebhookPubSub = require("./bin/webhook_pubsub")
 const PubSubManager = new WebhookPubSub();
 module.exports.PubSubManager = PubSubManager;
+const default_mist_hosts = { "Global 01 - manage.mist.com": "api.mist.com", "Global 02 - manage.gc1.mist.com": "api.gc1.mist.com", "Global 03 - manage.ac2.mist.com": "api.ac2.mist.com", "Global 04 - manage.gc2.mist.com": "api.gc2.mist.com", "Europe 01 - manage.eu.mist.com": "api.eu.mist.com" }
 
 /*================================================================
  LOAD APP SETTINGS
@@ -64,9 +65,17 @@ try {
 
         APP_DISCLAIMER: process.env.APP_DISCLAIMER || "",
         APP_GITHUB_URL: process.env.APP_GITHUB_URL || "",
-        APP_DOCKER_URL: process.env.APP_DOCKER_URL || ""
+        APP_DOCKER_URL: process.env.APP_DOCKER_URL || "",
+        MIST_HOSTS: process.env.MIST_HOSTS || null
     }
 } finally {
+    if (typeof(CONFIG.MIST_HOSTS) == 'string') {
+        try {
+            CONFIG.MIST_HOSTS = JSON.parse(CONFIG.MIST_HOSTS)
+        } catch {
+            CONFIG.MIST_HOSTS = default_mist_hosts;
+        }
+    } else if (!CONFIG.MIST_HOSTS || typeof(CONFIG.MIST_HOSTS != "object")) CONFIG.MIST_HOSTS = default_mist_hosts;
     global.CONFIG = CONFIG
 }
 

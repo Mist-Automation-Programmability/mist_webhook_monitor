@@ -9,6 +9,11 @@ import { TwoFactorDialog } from './../common/login-2FA';
 export interface TwoFactorData {
   twoFactor: string;
 }
+export interface HostElement {
+  value: string,
+  viewValue: string
+}
+
 
 @Component({
   selector: 'app-login',
@@ -27,11 +32,8 @@ export class LoginComponent implements OnInit {
   disclaimer!: string;
   host: string = "";
   loading: boolean = false;
-  hosts = [
-    { value: 'api.mist.com', viewValue: 'US - manage.mist.com' },
-    { value: 'api.eu.mist.com', viewValue: 'EU - manage.eu.mist.com' },
-    { value: 'api.gc1.mist.com', viewValue: 'GCP - manage.gc1.mist.com' }
-  ];
+  hosts_loading : boolean = true;
+  hosts: HostElement[]  = [];
 
   // LOGIN FORM
   frmStepLogin = this._formBuilder.group({
@@ -54,6 +56,12 @@ export class LoginComponent implements OnInit {
         if (data.disclaimer) this.disclaimer = data.disclaimer;
         if (data.github_url) this.github_url = data.github_url;
         if (data.docker_url) this.docker_url = data.docker_url;
+      }
+    })
+    this._http.get<HostElement[]>("/api/hosts").subscribe({
+      next: data =>{ 
+        this.hosts = data;
+        this.hosts_loading = false;
       }
     })
   }

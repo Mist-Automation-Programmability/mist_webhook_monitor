@@ -62,11 +62,13 @@ class WebhookPubSub {
      */
     subscribe(socket_id, socket, org_id, topics) {
         if (!this.channels.hasOwnProperty(org_id)) this.channels[org_id] = {}
-        topics.forEach(topic => {
-            console.log('Session subscribed to ' + topic + " for org " + org_id);
-            if (!this.channels[org_id].hasOwnProperty(topic)) this.channels[org_id][topic] = {};
-            this.channels[org_id][topic][socket_id] = socket;
-        })
+        if (topics) {
+            topics.forEach(topic => {
+                console.log('Session subscribed to ' + topic + " for org " + org_id);
+                if (!this.channels[org_id].hasOwnProperty(topic)) this.channels[org_id][topic] = {};
+                this.channels[org_id][topic][socket_id] = socket;
+            })
+        }
     }
 
     /**
@@ -76,13 +78,15 @@ class WebhookPubSub {
      * @param {*} topics 
      */
     unsubscribe(socket_id, org_id, topics) {
-        topics.forEach(topic => {
-            if (this.channels.hasOwnProperty(org_id) && this.channels[org_id].hasOwnProperty(topic)) {
-                if (this.channels[org_id][topic].hasOwnProperty(socket_id)) delete this.channels[org_id][topic][socket_id]
-                if (Object.keys(this.channels[org_id][topic]).length == 0) delete this.channels[org_id][topic];
-                console.log('Socket ' + socket_id + ' unsubscribed from ' + topic + " for org " + org_id);
-            } else console.log("Unable to find socket " + socket_id + " in PubSubManager for " + topic + " in org " + org_id)
-        })
+        if (topics) {
+            topics.forEach(topic => {
+                if (this.channels.hasOwnProperty(org_id) && this.channels[org_id].hasOwnProperty(topic)) {
+                    if (this.channels[org_id][topic].hasOwnProperty(socket_id)) delete this.channels[org_id][topic][socket_id]
+                    if (Object.keys(this.channels[org_id][topic]).length == 0) delete this.channels[org_id][topic];
+                    console.log('Socket ' + socket_id + ' unsubscribed from ' + topic + " for org " + org_id);
+                } else console.log("Unable to find socket " + socket_id + " in PubSubManager for " + topic + " in org " + org_id)
+            })
+        }
         if (this.channels.hasOwnProperty(org_id) && Object.keys(this.channels[org_id]).length == 0) delete this.channels[org_id];
     }
 
