@@ -22,7 +22,7 @@
 
 .login-form-inputs {
     padding: 10px;
-    width: 25em;
+    width: 26em;
     height: 30em;
     text-align: center;
     justify-content: space-between;
@@ -32,7 +32,7 @@
 
 .loading {
     position: absolute;
-    width: 25em;
+    width: 26em;
     height: 30em;
     background-color: #ffffff9c;
     border-radius: 5px;
@@ -41,6 +41,10 @@
 .loading div {
     margin: auto;
     align-self: center;
+}
+
+.mat-form-field {
+    margin: 0 .2em;
 }
 
 mat-card {
