@@ -71,7 +71,7 @@ export class DashboardComponent implements OnInit {
   pageSize: number = 25;
   pageLength: number = 0;
   pageSizeOptions: number[] = [5, 25, 50, 100];
-  maxItems: number = 5000;
+  maxItems: number = 10000;
 
   /////////////////////////
   // Websocket
