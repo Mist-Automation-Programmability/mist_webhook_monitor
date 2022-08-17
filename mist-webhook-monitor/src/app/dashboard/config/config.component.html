@@ -2,7 +2,8 @@
     <div fxLayout="row" fxLayoutAlign="start end" class="note">
         <h3>NOTE</h3>
         <ul style="font-size: 13px;background-color: #005c95;color: white;padding: 1em;border-radius: 5px;">
-            <li style="margin-left: 0;">This App is automatically configuring the Webhook in the Mist Org if needed.</li>
+            <li style="margin-left: 0;">This App is automatically configuring the Webhook in the Mist Org if needed.
+            </li>
             <li style="margin-left: 0;">Only the topics configured with this App will be processed, <span style="text-decoration: underline;">all the other messages will be discared</span>. Some topics are not supported by purpose.</li>
         </ul>
     </div>
@@ -50,18 +51,20 @@
                         <input matInput [(ngModel)]="search_available_orgs">
                         <button *ngIf="search_available_orgs" matSuffix mat-icon-button aria-label="Clear" (click)="search_available_orgs=''">
                             <mat-icon>close</mat-icon>
-                          </button>
+                        </button>
                     </mat-form-field>
-                    <mat-list-item *ngFor="let org of orgs_available" class="orgs" (click)="addOneOrg(org)" style="justify-content: space-between;">
-                        <div *ngIf="org.name.toLowerCase().indexOf(search_available_orgs.toLowerCase()) >= 0" fxLayout="row" fxLayoutAlign="space-between center" style="width: 100%;">
-                            <div style="flex: auto;">
+
+                    <div *ngFor="let org of orgs_available" class="orgs" (click)="addOneOrg(org)" style="justify-content: space-between;">
+                        <mat-list-item *ngIf="org.name.toLowerCase().indexOf(search_available_orgs.toLowerCase()) >= 0" fxLayout="row" fxLayoutAlign="space-between center" style="width: 100%;">
+                            <div style="flex: auto; font-size: small;">
                                 {{org.name}}
                             </div>
                             <span class="material-icons">
-                        arrow_forward
-                    </span>
-                        </div>
-                    </mat-list-item>
+                                arrow_forward
+                            </span>
+                        </mat-list-item>
+                    </div>
+
                 </mat-list>
             </div>
             <div fxLayout="column">
@@ -72,18 +75,20 @@
                         <input matInput [(ngModel)]="search_activated_orgs">
                         <button *ngIf="search_activated_orgs" matSuffix mat-icon-button aria-label="Clear" (click)="search_activated_orgs=''">
                             <mat-icon>close</mat-icon>
-                          </button>
+                        </button>
                     </mat-form-field>
-                    <mat-list-item *ngFor="let org of orgs_activated" class="orgs" (click)="deleteOneOrg(org)">
-                        <div *ngIf="org.name.toLowerCase().indexOf(search_activated_orgs.toLowerCase()) >= 0" fxLayout="row" fxLayoutAlign="space-between center" style="width: 100%;">
+
+                    <div *ngFor="let org of orgs_activated" class="orgs" (click)="deleteOneOrg(org)">
+                        <mat-list-item *ngIf="org.name.toLowerCase().indexOf(search_activated_orgs.toLowerCase()) >= 0" fxLayout="row" fxLayoutAlign="space-between center" style="width: 100%;">
                             <span class="material-icons">
-                        arrow_backward
-                    </span>
-                            <div style="flex: auto; text-align: end;">
+                                arrow_backward
+                            </span>
+                            <div style="flex: auto; text-align: end; font-size: small;">
                                 {{org.name}}
                             </div>
-                        </div>
-                    </mat-list-item>
+                        </mat-list-item>
+                    </div>
+
                 </mat-list>
             </div>
         </div>
