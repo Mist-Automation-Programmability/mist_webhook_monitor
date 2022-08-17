@@ -45,25 +45,43 @@
             <div fxLayout="column">
                 <h4>Available Orgs</h4>
                 <mat-list style="height: 400px; width: 350px; overflow-y: auto; overflow-x:clip; border: 1px solid lightgray; border-radius: 5px;">
-                    <mat-list-item *ngFor="let org of orgs_list" class="orgs" (click)="addOneOrg(org)" style="justify-content: space-between;">
-                        <div style="flex: auto;">
-                            {{org.name}}
-                        </div>
-                        <span class="material-icons">
+                    <mat-form-field appearance="fill" style="width: 100%; margin: -1em 0;">
+                        <mat-label>Search Org</mat-label>
+                        <input matInput [(ngModel)]="search_available_orgs">
+                        <button *ngIf="search_available_orgs" matSuffix mat-icon-button aria-label="Clear" (click)="search_available_orgs=''">
+                            <mat-icon>close</mat-icon>
+                          </button>
+                    </mat-form-field>
+                    <mat-list-item *ngFor="let org of orgs_available" class="orgs" (click)="addOneOrg(org)" style="justify-content: space-between;">
+                        <div *ngIf="org.name.toLowerCase().indexOf(search_available_orgs.toLowerCase()) >= 0" fxLayout="row" fxLayoutAlign="space-between center" style="width: 100%;">
+                            <div style="flex: auto;">
+                                {{org.name}}
+                            </div>
+                            <span class="material-icons">
                         arrow_forward
                     </span>
+                        </div>
                     </mat-list-item>
                 </mat-list>
             </div>
             <div fxLayout="column">
                 <h4>Activated Orgs</h4>
                 <mat-list style="height: 400px; width: 350px; overflow-y: auto; overflow-x:clip; border: 1px solid lightgray; border-radius: 5px; ">
+                    <mat-form-field appearance="fill" style="width: 100%; margin: -1em 0;">
+                        <mat-label>Search Org</mat-label>
+                        <input matInput [(ngModel)]="search_activated_orgs">
+                        <button *ngIf="search_activated_orgs" matSuffix mat-icon-button aria-label="Clear" (click)="search_activated_orgs=''">
+                            <mat-icon>close</mat-icon>
+                          </button>
+                    </mat-form-field>
                     <mat-list-item *ngFor="let org of orgs_activated" class="orgs" (click)="deleteOneOrg(org)">
-                        <span class="material-icons">
+                        <div *ngIf="org.name.toLowerCase().indexOf(search_activated_orgs.toLowerCase()) >= 0" fxLayout="row" fxLayoutAlign="space-between center" style="width: 100%;">
+                            <span class="material-icons">
                         arrow_backward
                     </span>
-                        <div style="flex: auto;">
-                            {{org.name}}
+                            <div style="flex: auto; text-align: end;">
+                                {{org.name}}
+                            </div>
                         </div>
                     </mat-list-item>
                 </mat-list>

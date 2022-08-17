@@ -12,8 +12,10 @@ export interface Org {
   styleUrls: ['../dashboard.component.css', './config.component.css']
 })
 export class ConfigDialog implements OnInit {
-  public orgs_list: Org[] = [];
+  public orgs_available: Org[] = [];
+  public search_available_orgs: string = ""
   public orgs_activated: Org[] = [];
+  public search_activated_orgs: string = ""
   public topics = {
     "device-events": false,
     "alarms": false,
@@ -21,8 +23,12 @@ export class ConfigDialog implements OnInit {
     "device-updowns": false,
     "mxedge-events": false
   }
+
+
   topic_list = [];
-  public maxItems: number = 5000;
+  
+  public maxItems: number = 10000;
+  
   constructor(
     public dialogRef: MatDialogRef<ConfigDialog>,
     @Inject(MAT_DIALOG_DATA) public data: any
@@ -30,7 +36,7 @@ export class ConfigDialog implements OnInit {
 
   // Init
   ngOnInit(): void {
-    this.orgs_list = this.data.orgs_list;
+    this.orgs_available = this.data.orgs_list;
     this.orgs_activated = this.data.orgs_activated;
     this.topics = this.data.topics;
     this.maxItems = this.data.maxItems;
@@ -38,16 +44,16 @@ export class ConfigDialog implements OnInit {
 
   // Manage Orgs selection
   addOneOrg(org: Org): void {
-    const index = this.orgs_list.indexOf(org);
-    this.orgs_list.splice(index, 1);
+    const index = this.orgs_available.indexOf(org);
+    this.orgs_available.splice(index, 1);
     this.orgs_activated.push(org);
     this.orgs_activated.sort(this.compare);
   }
   deleteOneOrg(org: Org): void {
     const index = this.orgs_activated.indexOf(org);
     this.orgs_activated.splice(index, 1);
-    this.orgs_list.push(org);
-    this.orgs_list.sort(this.compare);
+    this.orgs_available.push(org);
+    this.orgs_available.sort(this.compare);
   }
 
   // Manage Topics

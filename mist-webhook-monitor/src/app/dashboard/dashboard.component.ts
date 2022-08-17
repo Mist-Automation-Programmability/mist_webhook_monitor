@@ -86,6 +86,8 @@ export class DashboardComponent implements OnInit {
   socket_connected: boolean = false;
   socket_error: boolean = false;
   /////////////////////////
+  // Search
+  /////////////////////////
   // Others
   private login_opened: boolean = false;
   private diagram_opened: boolean = false;
