@@ -24,7 +24,7 @@ router.post("/login", (req, res) => {
         req.session.mist = { host: mist.host }
         req.session.username = username
         mist_login.login(mist, username, password, two_factor_code, (err, data) => {
-            if (err) res.status(err.code).json(err.error)
+            if (err) res.status(err.code).json({ error: err.error })
             else if (data.self.two_factor_required && !data.self.two_factor_passed) res.json({ "result": "two_factor_required" })
             else {
                 req.session.self = data.self;

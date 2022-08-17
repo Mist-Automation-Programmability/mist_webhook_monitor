@@ -100,7 +100,7 @@ export class LoginComponent implements OnInit {
   // WHEN AUTHENTICATION IS NOT OK
   parse_error(message: any): void {
     this.loading = false;
-    this.error_message = message;
+    this.error_message = message.error;
   }
 
 
@@ -117,7 +117,10 @@ export class LoginComponent implements OnInit {
       this.loading = true;
       this._http.post<any>('/api/login', { host: this.frmStepLogin.value.host, username: this.frmStepLogin.value.username, password: this.frmStepLogin.value.password }).subscribe({
         next: data => this.parse_response(data),
-        error: error => this.parse_error(error.error)
+        error: error => {
+          console.log(error)
+          this.parse_error(error.error)
+        }
       })
     }
   }
