@@ -99,7 +99,7 @@ router.get("/orgs", (req, res) => {
         for (var i in req.session.self.privileges) {
             var entry = req.session.self.privileges[i]
             var tmp = null
-            if (entry.role == "write" || entry.role == "admin") {
+            if (entry.role == "admin") {
                 if (entry.scope == "org") {
                     tmp = { "name": entry.name, "org_id": entry.org_id }
                 } else if (entry.scope == "site") {
