@@ -9,6 +9,7 @@ const WebhookPubSub = require("./bin/webhook_pubsub")
 const PubSubManager = new WebhookPubSub();
 module.exports.PubSubManager = PubSubManager;
 const default_mist_hosts = { "Global 01 - manage.mist.com": "api.mist.com", "Global 02 - manage.gc1.mist.com": "api.gc1.mist.com", "Global 03 - manage.ac2.mist.com": "api.ac2.mist.com", "Global 04 - manage.gc2.mist.com": "api.gc2.mist.com", "Europe 01 - manage.eu.mist.com": "api.eu.mist.com" }
+const dotenv = require('dotenv');
 
 /*================================================================
  LOAD APP SETTINGS
@@ -26,56 +27,60 @@ var CONFIG = {}
 try {
     var CONFIG = require("./config").CONFIG
 } catch (e) {
+    var env;
+    if (Object.keys(dotenv.config().parsed).length > 0) env = dotenv.config().parsed;
+    else env = process.env;
 
     CONFIG = {
-        NODE_HOSTNAME: process.env.NODE_HOSTNAME || null,
-        NODE_SESSION_SECRET: process.env.NODE_SESSION_SECRET || "3RMUqsJrX1orvJNBAlrA0KyLqD3fI7/BgiDZ8c8eAto=",
-        NODE_PORT_HTTP: process.env.NODE_PORT_HTTP || 3000,
-        NODE_FORCE_HTTP_ONLY: stringToBool(process.env.NODE_FORCE_HTTP_ONLY, false),
-        NODE_HTTPS: stringToBool(process.env.NODE_HTTPS, false),
-        NODE_PORT_HTTPS: process.env.NODE_PORT_HTTPS || 3443,
-        NODE_HTTPS_CERT: process.env.NODE_HTTPS_CERT || null,
-        NODE_HTTPS_KEY: process.env.NODE_HTTPS_KEY || null,
+        NODE_HOSTNAME: env.NODE_HOSTNAME || null,
+        NODE_SESSION_SECRET: env.NODE_SESSION_SECRET || "3RMUqsJrX1orvJNBAlrA0KyLqD3fI7/BgiDZ8c8eAto=",
+        NODE_PORT_HTTP: env.NODE_PORT_HTTP || 3000,
+        NODE_FORCE_HTTP_ONLY: stringToBool(env.NODE_FORCE_HTTP_ONLY, false),
+        NODE_HTTPS: stringToBool(env.NODE_HTTPS, false),
+        NODE_PORT_HTTPS: env.NODE_PORT_HTTPS || 3443,
+        NODE_HTTPS_CERT: env.NODE_HTTPS_CERT || null,
+        NODE_HTTPS_KEY: env.NODE_HTTPS_KEY || null,
 
-        NODE_WEBHOOK_HOSTNAME: process.env.NODE_WEBHOOK_HOSTNAME || null,
-        NODE_WEBHOOK_PORT: process.env.NODE_WEBHOOK_NAME || null,
-        NODE_WEBHOOK_NAME: process.env.NODE_WEBHOOK_NAME || "webhook.mist-lab.fr",
-        NODE_WEBHOOK_HTTPS: stringToBool(process.env.NODE_WEBHOOK_HTTPS, false),
-        NODE_WEBHOOK_CERT_CHECK: stringToBool(process.env.NODE_WEBHOOK_CERT_CHECK, false),
+        NODE_WEBHOOK_HOSTNAME: env.NODE_WEBHOOK_HOSTNAME || null,
+        NODE_WEBHOOK_PORT: env.NODE_WEBHOOK_NAME || null,
+        NODE_WEBHOOK_NAME: env.NODE_WEBHOOK_NAME || "webhook.mist-lab.fr",
+        NODE_WEBHOOK_HTTPS: stringToBool(env.NODE_WEBHOOK_HTTPS, false),
+        NODE_WEBHOOK_CERT_CHECK: stringToBool(env.NODE_WEBHOOK_CERT_CHECK, false),
 
-        NODE_WEBSOCKET_PORT: process.env.NODE_WEBSOCKET_PORT || false,
-        NODE_WEBSOCKET_SECURE: stringToBool(process.env.NODE_WEBSOCKET_SECURE, false),
+        NODE_WEBSOCKET_PORT: env.NODE_WEBSOCKET_PORT || false,
+        NODE_WEBSOCKET_SECURE: stringToBool(env.NODE_WEBSOCKET_SECURE, false),
 
-        MONGO_HOST: process.env.MONGO_HOST || null,
-        MONGO_DB: process.env.MONGO_DB || "webhook_mon",
-        MONGO_USER: process.env.MONGO_USER || null,
-        MONGO_PASSWORD: process.env.MONGO_PASSWORD || null,
-        MONGO_ENC_KEY: process.env.MONGO_ENC_KEY || null,
-        MONGO_SIG_KEY: process.env.MONGO_SIG_KEY || null,
+        MONGO_HOST: env.MONGO_HOST || null,
+        MONGO_DB: env.MONGO_DB || "webhook_mon",
+        MONGO_USER: env.MONGO_USER || null,
+        MONGO_PASSWORD: env.MONGO_PASSWORD || null,
+        MONGO_ENC_KEY: env.MONGO_ENC_KEY || null,
+        MONGO_SIG_KEY: env.MONGO_SIG_KEY || null,
 
-        SMTP_HOSTNAME: process.env.SMTP_HOSTNAME || null,
-        SMTP_PORT: process.env.SMTP_PORT || 25,
-        SMTP_SECURE: stringToBool(process.env.SMTP_SECURE, false), // upgrade later with STARTTLS
-        SMTP_REJECT_UNAUTHORIZED: stringToBool(process.env.SMTP_REJECT_UNAUTHORIZED, true), // do not fail on invalid certs                        
-        SMTP_USER: process.env.SMTP_USER || null,
-        SMTP_PASSWORD: process.env.SMTP_PASSWORD || null,
-        SMTP_FROM_NAME: process.env.SMTP_FROM_NAME || "Webhook Mist App",
-        SMTP_FROM_EMAIL: process.env.SMTP_FROM_EMAIL || "wi-fi@corp.org",
-        SMTP_LOGO_URL: process.env.SMTP_LOGO_URL || "https://cdn.mist.com/wp-content/uploads/logo.png",
+        SMTP_HOSTNAME: env.SMTP_HOSTNAME || null,
+        SMTP_PORT: env.SMTP_PORT || 25,
+        SMTP_SECURE: stringToBool(env.SMTP_SECURE, false), // upgrade later with STARTTLS
+        SMTP_REJECT_UNAUTHORIZED: stringToBool(env.SMTP_REJECT_UNAUTHORIZED, true), // do not fail on invalid certs                        
+        SMTP_USER: env.SMTP_USER || null,
+        SMTP_PASSWORD: env.SMTP_PASSWORD || null,
+        SMTP_FROM_NAME: env.SMTP_FROM_NAME || "Webhook Mist App",
+        SMTP_FROM_EMAIL: env.SMTP_FROM_EMAIL || "wi-fi@corp.org",
+        SMTP_LOGO_URL: env.SMTP_LOGO_URL || "https://cdn.mist.com/wp-content/uploads/logo.png",
 
-        APP_DISCLAIMER: process.env.APP_DISCLAIMER || "",
-        APP_GITHUB_URL: process.env.APP_GITHUB_URL || "",
-        APP_DOCKER_URL: process.env.APP_DOCKER_URL || "",
-        MIST_HOSTS: process.env.MIST_HOSTS || null
+        APP_DISCLAIMER: env.APP_DISCLAIMER || "",
+        APP_GITHUB_URL: env.APP_GITHUB_URL || "",
+        APP_DOCKER_URL: env.APP_DOCKER_URL || "",
+        MIST_HOSTS: env.MIST_HOSTS || null
     }
 } finally {
-    if (typeof(CONFIG.MIST_HOSTS) == 'string') {
+    if (!CONFIG.MIST_HOSTS) CONFIG.MIST_HOSTS = default_mist_hosts;
+    else if (typeof(CONFIG.MIST_HOSTS) == 'string') {
         try {
             CONFIG.MIST_HOSTS = JSON.parse(CONFIG.MIST_HOSTS)
         } catch {
             CONFIG.MIST_HOSTS = default_mist_hosts;
         }
-    } else if (!CONFIG.MIST_HOSTS || typeof(CONFIG.MIST_HOSTS != "object")) CONFIG.MIST_HOSTS = default_mist_hosts;
+    } else if (typeof(CONFIG.MIST_HOSTS != "object")) CONFIG.MIST_HOSTS = default_mist_hosts;
     global.CONFIG = CONFIG
 }
 
