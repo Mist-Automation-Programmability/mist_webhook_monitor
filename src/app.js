@@ -28,7 +28,8 @@ try {
     var CONFIG = require("./config").CONFIG
 } catch (e) {
     var env;
-    if (Object.keys(dotenv.config().parsed).length > 0) env = dotenv.config().parsed;
+    if (!"parsed" in dotenv.config()) env = dotenv.config().parsed;
+    else if (Object.keys(dotenv.config().parsed).length > 0) env = dotenv.config().parsed;
     else env = process.env;
 
     CONFIG = {
