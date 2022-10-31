@@ -80,7 +80,7 @@ try {
         } catch {
             CONFIG.MIST_HOSTS = default_mist_hosts;
         }
-    } else if (typeof(CONFIG.MIST_HOSTS != "object")) CONFIG.MIST_HOSTS = default_mist_hosts;
+    } else if (typeof(CONFIG.MIST_HOSTS) != "object") CONFIG.MIST_HOSTS = default_mist_hosts;
     global.CONFIG = CONFIG
 }
 
