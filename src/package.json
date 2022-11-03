@@ -15,19 +15,19 @@
         "debug": "^4.3.1",
         "dotenv": "^16.0.3",
         "express": "^4.18.2",
-        "express-rate-limit": "^6.3.0",
+        "express-rate-limit": "^6.6.0",
         "express-session": "^1.17.1",
         "fix": "^0.0.3",
         "jsonwebtoken": "^8.5.1",
         "mdb-ui-kit": "^3.4.0",
-        "mongoose": "^6.5.2",
+        "mongoose": "^6.6.5",
         "mongoose-encryption": "^2.1.0",
         "morgan": "^1.10.0",
-        "nodemailer": "^6.5.0",
+        "nodemailer": "^6.8.0",
         "pug": "^3.0.2",
         "serve-favicon": "^2.5.0",
         "underscore.string": ">=3.3.5",
         "uuid": "^8.3.2",
-        "ws": "^8.5.0"
+        "ws": "^8.9.0"
     }
 }
