@@ -20,7 +20,7 @@
         "@angular/platform-browser": "~13.3.11",
         "@angular/platform-browser-dynamic": "~13.3.11",
         "@angular/router": "~13.3.11",
-        "ngx-mat-timepicker": "^13.1.0",
+        "ngx-mat-timepicker": "^13.2.3",
         "rxjs": "~6.6.0",
         "tslib": "^2.1.0",
         "zone.js": "~0.11.4"
