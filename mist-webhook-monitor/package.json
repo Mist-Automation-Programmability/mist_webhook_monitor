@@ -32,7 +32,7 @@
         "@types/jasmine": "~3.6.0",
         "@types/node": "^12.11.1",
         "dotty": ">=0.1.2",
-        "engine.io": ">=4.1.2",
+        "engine.io": ">=6.2.1",
         "follow-redirects": ">=1.14.8",
         "jasmine-core": "~3.8.0",
         "json-schema": ">=0.4.0",
