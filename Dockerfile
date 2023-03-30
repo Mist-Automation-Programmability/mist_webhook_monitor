@@ -1,4 +1,4 @@
-FROM node:19.6-alpine3.16
+FROM node:current-alpine3.16
 LABEL fr.mist-lab.mwm.version="0.0.1"
 LABEL fr.mist-lab.mwm.release-date="2022-03-21"
 
