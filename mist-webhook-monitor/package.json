@@ -22,7 +22,7 @@
         "@angular/router": "~13.4.0",
         "ngx-mat-timepicker": "^13.2.7",
         "rxjs": "~6.6.0",
-        "tslib": "^2.5.3",
+        "tslib": "^2.6.0",
         "zone.js": "~0.13.1"
     },
     "devDependencies": {
