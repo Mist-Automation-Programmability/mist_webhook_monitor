@@ -18,7 +18,7 @@
         "express-rate-limit": "^6.7.0",
         "express-session": "^1.17.3",
         "fix": "^0.0.6",
-        "jsonwebtoken": "^9.0.0",
+        "jsonwebtoken": "^9.0.1",
         "mdb-ui-kit": "^3.4.0",
         "mongoose": "^6.11.3",
         "mongoose-encryption": "^2.1.0",
