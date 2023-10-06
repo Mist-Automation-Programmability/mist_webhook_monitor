@@ -12,7 +12,7 @@ import { map, startWith } from "rxjs/operators";
 import { Observable } from 'rxjs';
 
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
 
@@ -58,7 +58,7 @@ export class DashboardComponent implements OnInit {
   separatorKeysCodes: number[] = [ENTER, COMMA, SPACE];
   filteringItems: string[] = [];
   possibleFilteringItems: Filter[] = [];
-  filterForm: FormGroup = this._formBuilder.group({
+  filterForm: UntypedFormGroup = this._formBuilder.group({
     filterGroup: '',
   });
   filterOptions!: Observable<Filter[]>;
@@ -115,7 +115,7 @@ export class DashboardComponent implements OnInit {
 
   ///////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////// CONSTRUCTOR
-  constructor(private _http: HttpClient, public _dialog: MatDialog, private _snackBar: MatSnackBar, private _router: Router, private _formBuilder: FormBuilder) {
+  constructor(private _http: HttpClient, public _dialog: MatDialog, private _snackBar: MatSnackBar, private _router: Router, private _formBuilder: UntypedFormBuilder) {
     this.filteredEventDataSource = new MatTableDataSource();
   }
 

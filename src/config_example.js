@@ -4,24 +4,41 @@
  *      This file is an example
  *      Please move this file config_example.js to config.js
  *      and chage the values to match your configuration
- *
+ * 
  ******************************************************************************/
 
 /******************************************************************************
  *                                  SERVER                                    *
  ******************************************************************************/
 module.exports.CONFIG = {
-
+    /** NODE HTTP and NODE WEBHOOK COLLECTOR settings
+     * 
+     *                              ┌────────────────────────────────┐
+     *                Internet      │           Local Network        │
+     *  ┌──────────┐                │                     ┌─────┐    │
+     *  │          │            ┌───┼───┐                 │     │    │
+     *  │Mist CLOUD├───────────>┤WAN│LAN├────────────────>┤ APP │    │
+     *  │          │            └───┼───┘                 │     │    │
+     *  └──────────┘          │     │                   │ └─────┘    │
+     *                        │     │                   │            │
+     *        NODE_WEBHOOK_HOSTNAME │            NODE_HOSTNAME       │
+     *        NODE_WEBHOOH_HTTPS    │            NODE_HTTP_PORT      │
+     *        NODE_WEBHOOK_PORT     │            NODE_HTTPS_PORT     │
+     *                              └────────────────────────────────┘
+     * 
+     */
     /******************************************************************************
      *                                NODE HTTP                                   *
      ******************************************************************************/
     NODE_HOSTNAME: "localhost",
     // secret to allows express-session to use it to encrypt the sessionId (can be generated with `openssl rand -base64 32` command)
     NODE_SESSION_SECRET: "3RMUqsJrX1orvJNBAlrA0KyLqD3fI7/BgiDZ8c8eAto=",
+    // If using pre-build docker version, NODE_HTTP_PORT = 3000
     NODE_PORT_HTTP: 3000,
     // Enable HTTPS directly with NodeJS. 
     // Set to false if you are using a reverse proxy to manage HTTPS (nginx, apache, ...)
     NODE_HTTPS: true,
+    // If using pre-build docker version, NODE_HTTPS_PORT = 3443 
     NODE_PORT_HTTPS: 3443,
     // used if NODE_HTTPS = true
     // certificate name. The certificate has to be installed into certs folder
@@ -60,19 +77,9 @@ module.exports.CONFIG = {
     MONGO_DB: "mwm",
     MONGO_USER: "mongo_user",
     MONGO_PASSWORD: "mongo_password",
-    MONGO_ENC_KEY: "SOME_32BYTE_BASE64_STRING", //openssl rand -base64 32; 
-    MONGO_SIG_KEY: "SOME_64BYTE_BASE64_STRING", //openssl rand -base64 64;
-    /******************************************************************************
-     *                                SMTP                                    *
-     ******************************************************************************/
-    SMTP_HOSTNAME: "mail.corp.org",
-    SMTP_PORT: 25,
-    SMTP_SECURE: false, // upgrade later with STARTTLS
-    SMTP_REJECT_UNAUTHORIZED: false, // do not fail on invalid certs if false
-    SMTP_USER: "user@corp.org",
-    SMTP_PASSWORD: "secret",
-    SMTP_FROM_NAME: "Wi-Fi Access",
-    SMTP_FROM_EMAIL: "wi-fi@corp.org",
-    SMTP_LOGO_URL: "https://cdn.mist.com/wp-content/uploads/logo.png",
+    MONGO_ENC_KEY: "SOME_32BYTE_BASE64_STRING", //command: "openssl rand -base64 32;"
+    MONGO_SIG_KEY: "SOME_64BYTE_BASE64_STRING", //command: "openssl rand -base64 64;"
 }
+
+// This setting is used to list the available Mist Clouds on the App login page
 module.exports.mist_hosts = { "Global 01 - manage.mist.com": "api.mist.com", "Global 02 - manage.gc1.mist.com": "api.gc1.mist.com", "Global 03 - manage.ac2.mist.com": "api.ac2.mist.com", "Global 04 - manage.gc2.mist.com": "api.gc2.mist.com", "Europe 01 - manage.eu.mist.com": "api.eu.mist.com" }

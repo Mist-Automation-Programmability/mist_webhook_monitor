@@ -2,7 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { PlatformLocation } from '@angular/common';
 import { TwoFactorDialog } from './login-2FA';
 import { inject } from '@angular/core/testing';
@@ -27,7 +27,7 @@ export interface LoginData {
 export class LoginDialog implements OnInit {
 
     constructor(
-        private _formBuilder: FormBuilder,
+        private _formBuilder: UntypedFormBuilder,
         private _router: Router,
         private _http: HttpClient,
         public dialog: MatDialog,

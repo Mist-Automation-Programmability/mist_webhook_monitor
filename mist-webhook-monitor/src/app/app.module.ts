@@ -13,7 +13,6 @@ import { RawDialog } from './dashboard/raw_data/raw.component';
 import { DiagramDialog } from './dashboard/diagram/diagram.component';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { HttpClientModule, HttpClientJsonpModule } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -57,7 +56,6 @@ import { TsArrayPipe } from './common/pipe/ts_array_pipe'
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    FlexLayoutModule,
     FormsModule,
     HttpClientModule,
     HttpClientJsonpModule,

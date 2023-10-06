@@ -103,6 +103,5 @@
                 }
             }
         }
-    },
-    "defaultProject": "mist-webhook-monitor"
+    }
 }
