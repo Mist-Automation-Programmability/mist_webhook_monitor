@@ -64,7 +64,6 @@ export class LoginComponent implements OnInit {
         this.hosts_loading = false;
       }
     })
-    this.open2FA()
   }
 
   //// COMMON ////
