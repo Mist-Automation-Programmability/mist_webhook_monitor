@@ -1,19 +1,30 @@
 /* STATUS */
 
 .status {
-    width: 18em;
+    width: 16em;
     position: absolute;
     top: -10px;
     left: calc((100vw - 20em) / 2);
     background-color: white;
     border: 1px solid #ccc;
+    color: gray;
+    font-size: smaller;
     border-radius: 5px;
     padding: 10px 1em 0;
     cursor: default;
     user-select: none;
     font-size: smaller;
-}
+    display: flex;
+    flex-direction: column;
 
+    .name {
+        flex-direction: row;
+        box-sizing: border-box;
+        display: flex;
+        place-content: center flex-start;
+        align-items: center;
+    }
+}
 
 /* NAV */
 
@@ -29,7 +40,6 @@
 
 .main {
     margin-top: 0em;
-    width: 100%;
     padding: 1em;
 }
 
@@ -39,7 +49,7 @@
 .table-parent-container {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 95px);
+    height: calc(100vh - 100px);
     padding: 0;
 }
 

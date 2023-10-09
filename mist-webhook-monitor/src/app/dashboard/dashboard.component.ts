@@ -46,7 +46,7 @@ export const _filter = (opt: string[], value: string): string[] => {
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
 
@@ -573,11 +573,13 @@ export class DashboardComponent implements OnInit {
   updatePossibleFilteringItems(event: any): void {
     this.displayedColumns.forEach(column => {
       if (!["text", "timestamp"].includes(column) && event[column]) {
-        if (Array.isArray(event[column])) {
-          for (const value in event[column]) {
-            this.addPossibleFilter(column, event[column][value]);
-          }
-        } else this.addPossibleFilter(column, event[column]);
+        if (!this.filteringItems.includes(event[column])){
+          if (Array.isArray(event[column])) {
+            for (const value in event[column]) {
+              this.addPossibleFilter(column, event[column][value]);
+            }
+          } else this.addPossibleFilter(column, event[column]);
+        }
       }
     })
 

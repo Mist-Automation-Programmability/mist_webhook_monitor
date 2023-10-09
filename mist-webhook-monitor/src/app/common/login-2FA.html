@@ -19,7 +19,7 @@
         <input matInput type="number" [(ngModel)]="twoFactor" (keydown.enter)="close2FA()" name="two_factor_code" cdkFocusInitial>
     </mat-form-field>
 </mat-dialog-content>
-<div mat-dialog-actions fxLayoutAlign="center space-around">
+<div mat-dialog-actions style="display: flex; flex-direction: row; justify-content: space-around;">
     <button mat-button (click)="cancel2FA()">Cancel</button>
     <button mat-raised-button color="primary" [mat-dialog-close]="twoFactor" type="submit">Verify</button>
 </div>

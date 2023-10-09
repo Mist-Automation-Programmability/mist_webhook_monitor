@@ -1,10 +1,10 @@
 <div class="login-card-outer">
 
-    <div class="login-form-outer" fxLayout="column">
+    <div class="login-form-outer">
         <div class="login-form-inner">
 
-            <div [formGroup]="frmStepLogin" fxLayout="column" class="login-form-inputs mat-elevation-z1">
-                <h1>Log In with your Mist Account</h1>
+            <div [formGroup]="frmStepLogin" class="login-form-inputs mat-elevation-z1">
+                <h2>Log In with your Mist Account</h2>
                 <mat-form-field appearance="outline">
                     <mat-label>Mist Cloud</mat-label>
                     <mat-select formControlName="host">
@@ -13,6 +13,7 @@
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
+            <div style="display: flex; flex-direction: column;">
                 <mat-form-field appearance="outline">
                     <mat-label>Email</mat-label>
                     <input matInput formControlName="username" type="email">
@@ -22,17 +23,18 @@
                     <mat-label>Password</mat-label>
                     <input matInput type="password" formControlName="password" (keydown.enter)="submitCredentials()" />
                 </mat-form-field>
-                <div style="margin-bottom: 1em; min-height: 20px;">
+                <div style="margin-bottom: 0em; min-height: 10px;">
                     <span style="color:red; font-weight: normal; ">{{error_message}}</span>
                 </div>
+            </div>
                 <div></div>
                 <button mat-raised-button color="primary" (click)="submitCredentials()">
                     Log In
                 </button>
             </div>
 
-            <div class="loading" fxLayout="row" *ngIf="loading || hosts_loading">
-                <div fxLayout="column">
+            <div class="loading" *ngIf="loading || hosts_loading">
+                <div>
                     <mat-spinner strokeWidth=3></mat-spinner>
                 </div>
             </div>

@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 @Component({
   selector: 'app-raw',
   templateUrl: './raw.component.html',
-  styleUrls: ['./../dashboard.component.css', './raw.component.css'],
+  styleUrls: ['./../dashboard.component.scss', './raw.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
 export class RawDialog {

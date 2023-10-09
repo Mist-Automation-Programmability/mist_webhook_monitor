@@ -1,0 +1,70 @@
+.flex {
+    .column {
+        display: flex;
+        flex-direction: column;
+    };
+    .row {
+        display: flex;
+        flex-direction: row;
+    }
+    
+    .start-start {
+        align-items: start;
+        justify-content: start;
+    }
+    .start-center {
+        align-items: start;
+        justify-content: center;
+    }
+    .start-end {
+        align-items: start;
+        justify-content: end;
+    }
+    .start-spacearound {
+        align-items: start;
+        justify-content: space-around;
+    }
+    .start-spacebetween {
+        align-items: start;
+        justify-content: space-between;
+    }
+    .start {
+        align-items: start;
+    }
+
+    .center-center {
+        align-items: center;
+        justify-content: center;
+    }
+    .center-start {
+        align-items: center;
+        justify-content: start;
+    }
+    .center-spacebetween {
+        align-items: center;
+        justify-content: space-between;
+    }
+    .center-spacearound {
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    .end {
+        align-items: end;
+    }
+    .end-center {
+        align-items: end;
+        justify-content: center;
+    }
+    .end-spacebetween {
+        align-items: end;
+        justify-content: space-between;
+    }
+
+
+}
+
+.mat-mdc-form-field-infix {
+    display: flex;
+}
+

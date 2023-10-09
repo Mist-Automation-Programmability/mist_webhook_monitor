@@ -5,7 +5,7 @@
     <mat-card-content style="width: 30em;;">
         <span>{{data.text}}</span>
     </mat-card-content>
-    <mat-card-actions fxLayout="row" fxLayoutAlign="end" style="margin-bottom: 0;">
+    <mat-card-actions class="flex row end" style="margin-bottom: 0;">
         <button mat-button color="accent" (click)="cancel()">{{cancel_button}}</button>
         <button mat-raised-button color="accent" (click)="ok()" cdkFocusInitial>{{ok_button}}</button>
     </mat-card-actions>

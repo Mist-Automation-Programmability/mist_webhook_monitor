@@ -1,0 +1,101 @@
+@use '@angular/material' as mat;
+$mist-blue: (
+    50: #e3f1fa,
+    100: #badcf4,
+    200: #90c7ed,
+    300: #66b1e6,
+    400: #47a1e2,
+    500: #2892de,
+    600: #2085d1,
+    700: #1673bf,
+    800: #0e63ad,
+    900: #00468e,
+    A100: #82B1FF,
+    A200: #448AFF,
+    A400: #2979FF,
+    A700: #2962FF,
+    contrast: (50: #000, 100: #000, 200: #000, 300: #000, 400: #000, 500: #000, 600: #FFF, 700: #FFF, 800: #FFF, 900: #FFF, A100: #000, A200: #FFF, A400: #FFF, A700: #FFF)
+);
+$mist-green: (
+    50: #f2f8e8,
+    100: #dfecc5,
+    200: #cae0a0,
+    300: #b4d379,
+    400: #a3ca5b,
+    500: #93c13d,
+    600: #84b135,
+    700: #6f9d2b,
+    800: #5b8a22,
+    900: #376810,
+    A100: #CCFF90,
+    A200: #B2FF59,
+    A400: #76FF03,
+    A700: #64DD17,
+    contrast: (50: #000, 100: #000, 200: #000, 300: #000, 400: #000, 500: #000, 600: #000, 700: #FFF, 800: #FFF, 900: #FFF, A100: #000, A200: #FFF, A400: #FFF, A700: #FFF, )
+);
+$mist-red: (
+    50: #FFEBEE,
+    100: #FFCDD2,
+    200: #EF9A9A,
+    300: #E57373,
+    400: #EF5350,
+    500: #F44336,
+    600: #E53935,
+    700: #D32F2F,
+    800: #C62828,
+    900: #B71C1C,
+    A100: #FF8A80,
+    A200: #FF5252,
+    A400: #FF1744,
+    A700: #D50000,
+    contrast: (50: #000, 100: #000, 200: #000, 300: #000, 400: #fff, 500: #fff, 600: #fff, 700: #fff, 800: #FFF, 900: #FFF, A100: #000, A200: #FFF, A400: #FFF, A700: #FFF, )
+);
+$mist-primary: mat.define-palette($mist-blue, 800, 300, 900);
+$mist-accent: mat.define-palette($mist-green, 800, 300, 900);
+$mist-warn: mat.define-palette($mist-red, 800, 300, 900);
+
+$mist-typography-styles-headline1: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 34px);
+$mist-typography-styles-headline2: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 30px);
+$mist-typography-styles-headline3: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 24px);
+$mist-typography-styles-headline4: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 22px);
+$mist-typography-styles-headline5: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 18px);
+$mist-typography-styles-headline6: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 16px);
+$mist-typography-styles-body1: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 12px);
+$mist-typography-styles-body2: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 12px);
+$mist-typography-styles-subtitle1: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 14px);
+$mist-typography-styles-subtitle2: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 11px);
+$mist-typography-styles-button: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 12px);
+$mist-typography-styles-overline: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 12px);
+$mist-typography-styles-caption: mat.define-typography-level($font-family: unquote("Roboto"),
+        $font-size: 10px);
+$mist-typography-config: mat.define-typography-config($headline-1: $mist-typography-styles-headline1,
+        $headline-2: $mist-typography-styles-headline2,
+        $headline-3: $mist-typography-styles-headline3,
+        $headline-4: $mist-typography-styles-headline4,
+        $headline-5: $mist-typography-styles-headline5,
+        $headline-6: $mist-typography-styles-headline6,
+        $body-1: $mist-typography-styles-body1,
+        $body-2: $mist-typography-styles-body2,
+        $subtitle-2: $mist-typography-styles-subtitle2,
+        $caption: $mist-typography-styles-caption,
+    );
+
+
+$mist-theme: mat.define-light-theme((color:(primary:$mist-primary, accent: $mist-accent, warn: $mist-warn),
+            typography: $mist-typography-config ));
+            //));
+@include mat.core();
+@include mat.all-component-themes($mist-theme);
+

@@ -1,0 +1,53 @@
+
+.mat-list-item-content {
+    width: 100%;
+}
+
+html,
+body {
+    height: 100%;
+    background-color: #ececec;
+    background: #eee;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.key {
+    color: #a52a2a !important;
+}
+
+span.string {
+    color: #000080;
+}
+
+span.number {
+    color: #008000;
+}
+
+span.boolean {
+    color: #0000ff;
+}
+
+span.null {
+    color: #00008b;
+}
+
+app-root {
+    height: 100vh;
+    display: block;
+}
+
+.white-input .mdc-text-field--filled {
+    background: transparent !important;
+    margin-bottom: -1em;
+    .mat-mdc-form-field-focus-overlay {
+        background: transparent !important;
+    }
+}
+
+.mdc-evolution-chip-set__chips {
+ flex-flow: nowrap !important;
+}

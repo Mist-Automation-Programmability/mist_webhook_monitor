@@ -9,7 +9,7 @@ export interface Org {
 @Component({
   selector: 'app-config',
   templateUrl: './config.component.html',
-  styleUrls: ['../dashboard.component.css', './config.component.css']
+  styleUrls: ['../dashboard.component.scss', './config.component.scss']
 })
 export class ConfigDialog implements OnInit {
   public orgs_available: Org[] = [];

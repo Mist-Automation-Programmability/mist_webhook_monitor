@@ -18,7 +18,7 @@ export interface HostElement {
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.scss']
 })
 
 
@@ -64,6 +64,7 @@ export class LoginComponent implements OnInit {
         this.hosts_loading = false;
       }
     })
+    this.open2FA()
   }
 
   //// COMMON ////
@@ -136,7 +137,7 @@ export class LoginComponent implements OnInit {
 
   //// DIALOG BOX ////
   open2FA(): void {
-    const dialogRef = this._dialog.open(TwoFactorDialog, {});
+    const dialogRef = this._dialog.open(TwoFactorDialog, {position: {top: '15%'}});
     dialogRef.afterClosed().subscribe(result => {
       if (result) { this.submit2FA(result) }
     });
