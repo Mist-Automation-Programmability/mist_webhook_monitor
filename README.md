@@ -84,16 +84,8 @@ MONGO_USER | string | null | If the Mongo server require authentication |
 MONGO_PASSWORD | string | null | If the Mongo server require authentication |
 MONGO_ENC_KEY | string | null | Used to encrypt the data stored inside the Mongo DB. If not set, the data will be store in cleartext. Can be generated with `openssl rand -base64 32` command |
 MONGO_SIG_KEY | string | null | Used to encrypt the data stored inside the Mongo DB. If not set, the data will be store in cleartext. Can be generated with `openssl rand -base64 64` command |
-SMTP_HOSTNAME | string | null | SMTP server FQDN or IP Address |
-SMTP_PORT | int | 25 | | 
-SMTP_SECURE | boolean | false | indicate NODE to use STARTTLS or SSL/TLS to communicate with the SMTP server |
-SMTP_REJECT_UNAUTHORIZED | boolean | true | if `SMTP_SECCUR==true`, reject SMTP Server with invalid certificates |
-SMTP_USER | string | null | SMTP user account (if authentication is required) |
-SMTP_PASSWORD | string | null | SMTP user password (if authentication is required) |
-SMTP_FROM_NAME | string | Wi-Fi Access | Sender name |
-SMTP_FROM_EMAIL | string | wi-fi@corp.org | Sender email |
-SMTP_LOGO_URL | string | https://cdn.mist.com/wp-content/uploads/logo.png | URL to the logo to use in the Email |
 APP_DISCLAIMER | string | null | Disclaimer to display on the Admin login page |
+MIST_HOSTS | string | { "Global 01 - manage.mist.com": "api.mist.com", "Global 02 - manage.gc1.mist.com": "api.gc1.mist.com", "Global 03 - manage.ac2.mist.com": "api.ac2.mist.com", "Global 04 - manage.gc2.mist.com": "api.gc2.mist.com", "Europe 01 - manage.eu.mist.com": "api.eu.mist.com" } | List of Mist Cloud environments to be supported by the Application. These environments are listed on the login page |
 
 
 ## Deploy the Standalone Application
